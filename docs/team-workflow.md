@@ -21,7 +21,7 @@ Principle: no permanent roles. Both students take part in requirements/design, t
 
 Issue 7 mechanics: B commits the failing tests to `feature/s1-07-register` and pushes; A checks out the branch, commits the implementation until the tests pass, and opens the PR; B reviews it. Both names go in the Issue and the PR, and the red and green commits show the TDD sequence.
 
-Suggested shares where the Issue is split: Issue 9 (A: TEST-22 and TEST-24, B: TEST-23 and the QA run) and Issue 10 (A: PDF Parts A to C and the login/logout/forbidden demo screenshots, B: Parts D to F, assembly, release PR, tag). Co-author branches: `docs/s1-01-sds`, `docs/s1-02-contract-b`, `feature/s1-09-e2e-a`, `docs/s1-10-pdf-a`.
+Suggested shares where the Issue is split: Issue 9 (A: TEST-22 and TEST-24, B: TEST-23 and the QA run) and Issue 10 (A: PDF Parts A to C and the login/logout/forbidden demo screenshots, B: Parts D to F, assembly, release PR, tag). Co-author branches (as listed in the issue plan): `docs/s1-01-sds`; `docs/s1-02-f01`, `docs/s1-02-f02`, `docs/s1-02-f03`, `docs/s1-02-f04`, `docs/s1-02-f05-f06`; `feature/s1-09-e2e-login`, `feature/s1-09-e2e-journey`; `docs/s1-10-pdf-abc`, `docs/s1-10-pdf-def`.
 
 ## 2. Rhythm of the two students
 ```text

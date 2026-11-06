@@ -55,12 +55,12 @@ Each Issue stays as the parent on the board. Each sub-task is its own GitHub Iss
 | 3.1 (#23) | Skeleton and database | `client/`, `server/`, docker-compose Postgres, `.env.example` | A | `feature/s1-03-skeleton` |
 | 3.2 (#24) | Schema and seed | Prisma schema, migration with partial unique index, seed with relative dates | A | `feature/s1-03-schema` |
 | 3.3 (#25) | Test runner and README | Vitest projects, `DATABASE_URL_TEST`, sequential integration files, README commands | A | `feature/s1-03-test-runner` |
-| 7.1 (#32) | Register red tests | failing tests TEST-12..16 | B | `feature/s1-07-register` |
+| 7.1 (#32) | Register red tests | failing tests TEST-12..16, TEST-27 and TEST-28 | B | `feature/s1-07-register` |
 | 7.2 (#33) | Register implementation and UI | transaction with row lock, duplicate check, capacity; register button, full and already-registered messages (same branch as 7.1, A opens the PR) | A | `feature/s1-07-register` |
 | 8.1 (#35) | My registrations | participant API and UI, ownership denial | A | `feature/s1-08-my-registrations` |
 | 8.2 (#36) | Organizer registrations | organizer API and UI, ownership denial | B | `feature/s1-08-organizer-view` |
-| 9.1 (#37) | E2E login/logout/forbidden and full event | TEST-22 and TEST-24 | A | `feature/s1-09-e2e-login` |
-| 9.2 (#38) | E2E golden journey | TEST-23 | B | `feature/s1-09-e2e-journey` |
+| 9.1 (#37) | E2E golden journey and login/logout | TEST-22 and TEST-24 | A | `feature/s1-09-e2e-login` |
+| 9.2 (#38) | E2E full event | TEST-23 | B | `feature/s1-09-e2e-journey` |
 | 9.4 (#40) | QA run | full suite, pass/fail/skip counts, five runs of TEST-15 | B | `feature/s1-09-qa` |
 | 10.1 (#41) | Evidence | screenshots, AC → TEST results table in `docs/evidence/` | A | `docs/s1-10-evidence` |
 | 10.2 (#42) | PDF Parts A to C | assembled from the docs, with the login/logout/forbidden demo | A | `docs/s1-10-pdf-abc` |
