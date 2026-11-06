@@ -31,9 +31,9 @@ Traps that lose points (from the spec):
 | D-05 | Waitlist | Out of scope (explicit exclusion) |
 | D-06 | Who sees registrations | Organizer sees registrations only for events THEY own; participant sees only their own |
 | D-07 | Event lifecycle | DRAFT -> PUBLISHED -> (later) CLOSED/CANCELLED. S1 implements DRAFT->PUBLISHED: create saves a DRAFT, a separate owner-only publish action publishes it (revised, see docs/decisions.md) |
-| D-12 | Event start time | startsAt must be in the future at create and at publish, else 400 INVALID_START_TIME (BR-09) |
+| D-12 | Event start time | startsAt must be strictly later than now at create and at publish, else 400 INVALID_START_TIME (BR-09) |
 | D-13 | Exact error codes | organizer registers 403; DRAFT/unknown event 404 EVENT_NOT_FOUND; started event 409 EVENT_STARTED; other participant's registration 404; non-owner on a DRAFT 404 (any operation); non-owner owner-only operation on a PUBLISHED event 403 |
-| D-14 | Test database | separate DATABASE_URL_TEST; integration files run sequentially (fileParallelism: false), tables truncated in beforeEach |
+| D-14 | Test database | separate DATABASE_URL_TEST; integration files run sequentially (fileParallelism: false), tables truncated in beforeEach. E2E (TEST-22..24) runs separately against a freshly reset and seeded dev database, never together with the integration suite |
 | D-08 | Auth | Email+password, bcrypt hash, server-side session (opaque token in httpOnly cookie, hash in Session table, 1h expiry); logout deletes the session row so a copied cookie stops working. See docs/decisions.md |
 | D-09 | Roles | PARTICIPANT, ORGANIZER; one role per account; seeded accounts only |
 | D-10 | Concurrency for last place | One transaction: lock event row first (SELECT ... FOR UPDATE), then check duplicate, count ACTIVE, insert. See docs/decisions.md |
@@ -61,6 +61,7 @@ Traps that lose points (from the spec):
 - FR-06 Participant registers for a published event.
 - FR-07 Participant views own registration(s) (and its status).
 - FR-08 Organizer views registrations of an event they own.
+- FR-15 Organizer lists their own events in every status (DRAFT and PUBLISHED) and opens their own DRAFT. (S1; added after review, D-07)
 -- later sprints --
 - FR-09 Participant cancels registration (frees a place).
 - FR-10 Organizer edits/closes/cancels own event; capacity change.
@@ -76,7 +77,7 @@ Traps that lose points (from the spec):
 - BR-05 Participant can read only own registrations; organizer only registrations of own events.
 - BR-06 (S2) Registration closes at deadline. BR-07 (S2) Cancelled registration frees a place and may be re-registered.
 - BR-08 (S3) Check-in only for ACTIVE registration, only once, only by owning organizer, only within event window.
-- BR-09 An event's start time must be in the future when it is created and when it is published (D-12). Only the owning organizer can publish a DRAFT event (D-07).
+- BR-09 An event's start time must be strictly later than the current time when it is created and when it is published (D-12); startsAt equal to now is rejected. A PUBLISHED event cannot be published again (409 ALREADY_PUBLISHED). Only the owning organizer can publish a DRAFT event (D-07).
 ### NFR (measurable + verification + sprint)
 - NFR-01 Unauthenticated request to any protected endpoint -> 401, body contains no private data. Verify: API test. S1
 - NFR-02 Passwords stored only as bcrypt hash (cost >= 10); never returned by API. Verify: DB test + response test. S1
@@ -93,11 +94,11 @@ Traps that lose points (from the spec):
 | Feature | Description | Covers | Sprint |
 |----|----|----|----|
 | F-01 Authentication foundation | login/logout/me, seeded users, role guard middleware | FR-01..03, NFR-01,02,03,07 | 1 |
-| F-02 Publish event | organizer creates a DRAFT event w/ capacity, then publishes it | FR-04, BR-01, BR-09 | 1 |
+| F-02 Publish event | organizer creates a DRAFT event w/ capacity, lists own events, opens own DRAFT, then publishes it | FR-04, FR-15, BR-01, BR-09 | 1 |
 | F-03 Browse events | list/detail with remaining places | FR-05 | 1 |
 | F-04 Register for event | capacity + duplicate + concurrency | FR-06, BR-02,03,04, NFR-04 | 1 |
 | F-05 My registrations | participant sees own; ownership guard | FR-07, BR-05 | 1 |
-| F-06 Event registrations (organizer) | organizer sees own event's registrants | FR-08, BR-05 | 1 |
+| F-06 Event registrations (organizer) | organizer picks an event from My events and sees its registrants | FR-08, FR-15, BR-05 | 1 |
 | F-07 Cancel registration | | FR-09, BR-07 | 2 |
 | F-08 Manage event (edit/close/cancel/capacity) | | FR-10, D-03 | 2 |
 | F-09 Registration deadline | | FR-11, BR-06 | 2 |
@@ -135,7 +136,10 @@ F-02 Publish event
 - AC-31 owner GET /api/events/:id on own DRAFT -> 200 with the draft            TEST-31 (API+DB)
 - AC-32 participant or organizer B GET /api/events/:id on A's DRAFT -> 404 EVENT_NOT_FOUND, no data   TEST-32 (API)
 - AC-33 organizer GET /api/events/mine -> own events in every status, none owned by others   TEST-33 (API+DB)
+  (F-02 contract note: declare the /api/events/mine route before /api/events/:id, otherwise Express matches "mine" as an id)
 - AC-34 participant GET /api/events/mine -> 403 FORBIDDEN                     TEST-34 (API)
+- AC-35 create with startsAt exactly equal to now -> 400 INVALID_START_TIME (boundary; now passed in as a fixed time)   TEST-35 (unit)
+- AC-36 owner publishes an event that is already PUBLISHED -> 409 ALREADY_PUBLISHED, nothing changes   TEST-36 (API+DB)
 - AC-29 create with startsAt in the past -> 400 INVALID_START_TIME, nothing stored   TEST-29 (unit+API)
 - AC-30 publish a DRAFT whose startsAt has passed -> 400 INVALID_START_TIME, stays DRAFT   TEST-30 (API+DB)
 F-03 Browse
@@ -169,7 +173,7 @@ no skipped required tests | PR reviewed by teammate | merged to staging, integra
 - Architecture diagram (UI -> API -> service layer -> DB) + where rules are enforced (service layer + DB constraints).
 - ER diagram: User(id,name,email,passwordHash,role,createdAt), Event(id,ownerId FK,title,description,location,startsAt,capacity CHECK>0,status,createdAt),
   Registration(id,eventId FK,participantId FK,status,createdAt, UNIQUE partial index (eventId,participantId) WHERE status='ACTIVE'), (S3) Attendance.
-- Migrations + seed: 2 organizers, 3-4 participants, 3 events (incl. one with 1 place left) — synthetic, passwords from env/handoff, not in PDF.
+- Migrations + seed: 2 organizers, 3-4 participants, 3 events (incl. one with 1 place left). Seed computes every startsAt relative to the time it runs (for example now + 7 days), never a fixed date, so seeded events stay registrable under BR-04/BR-09 — synthetic, passwords from env/handoff, not in PDF.
 - API conventions: REST, /api prefix, JSON, error shape {error:{code,message}}, status code table (400/401/403/404/409), zod validation.
 - Role/permission matrix (operation x Anonymous/Participant/Organizer(owner)/Organizer(other)) + record-access column.
 - Auth lifecycle: login -> hash compare -> token (claims, expiry) -> cookie flags -> /me -> logout -> expiry.

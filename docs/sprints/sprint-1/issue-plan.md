@@ -29,7 +29,7 @@ Never commit on `main`. Authors never approve their own PR. Branch names: `featu
 |---|---|---|---|---|---|
 | 1 | Baseline docs | SRS, features, traceability, system SDS, 3-sprint plan (Parts A–D) | A: Parts A, B · B: Parts C, D | — | `docs/s1-01-baseline` |
 | 2 | Sprint 1 contract and test plan | AC, STS, DoD for F-01..F-06 (Part E) | A: F-01, F-02 · B: F-03..F-06 | 1 | `docs/s1-02-contract` |
-| 3 | Foundation | project skeleton, docker-compose Postgres, Prisma schema/migration/seed, test runner, README, `.env.example` | A | 2 | `feature/s1-03-foundation` |
+| 3 | Foundation | project skeleton, docker-compose Postgres, Prisma schema/migration/seed (seed startsAt relative to run time, always future), test runner (integration files sequential, separate test DB), README, `.env.example` | A | 2 | `feature/s1-03-foundation` |
 | 4 | F-01 Auth | login, logout, me, role guard (API, UI, tests) | A | 3 | `feature/s1-04-auth` |
 | 5 | F-02 Publish event | organizer publishes event, capacity > 0 (API, UI, tests) | B | 3 | `feature/s1-05-publish-event` |
 | 6 | F-03 Browse events | published list and remaining places | B | 5 | `feature/s1-06-browse-events` |
