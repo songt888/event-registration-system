@@ -21,7 +21,7 @@ Principle: no permanent roles. Both students take part in requirements/design, t
 
 Issue 7 mechanics: B commits the failing tests to `feature/s1-07-register` and pushes; A checks out the branch, commits the implementation until the tests pass, and opens the PR; B reviews it. Both names go in the Issue and the PR, and the red and green commits show the TDD sequence.
 
-Suggested shares where the Issue is split: Issue 9 (A: TEST-22 and TEST-24, B: TEST-23 and the QA run) and Issue 10 (A: PDF Parts A to C and the login/logout/forbidden demo screenshots, B: Parts D to F, assembly, release PR, tag). Co-author branches (as listed in the issue plan): `docs/s1-01-sds`; `docs/s1-02-f01`, `docs/s1-02-f02`, `docs/s1-02-f03`, `docs/s1-02-f04`, `docs/s1-02-f05-f06`; `feature/s1-09-e2e-login`, `feature/s1-09-e2e-journey`; `docs/s1-10-pdf-abc`, `docs/s1-10-pdf-def`.
+Suggested shares where the Issue is split: Issue 9 (A: TEST-22 and TEST-24, B: TEST-23 and the QA run) and Issue 10 (A: PDF Parts A to C and the login/logout/forbidden demo screenshots, B: Parts D to F, assembly, release PR, tag). Co-author branches (as listed in the issue plan): `docs/s1-01-sds`; `docs/s1-02-f01`, `docs/s1-02-f02`, `docs/s1-02-f03`, `docs/s1-02-f04`, `docs/s1-02-f05-f06`; `feature/s1-09-e2e-golden-login`, `feature/s1-09-e2e-full-event`; `docs/s1-10-pdf-abc`, `docs/s1-10-pdf-def`.
 
 ## 2. Rhythm of the two students
 ```text
@@ -44,6 +44,7 @@ Issue 4 and Issue 5 run in parallel after Issue 3.
 - A problem in a contract is never fixed silently. Open a comment on the Issue, agree, then commit the contract change separately and record the reason in the version history (as in PR #11).
 - A blocked student tags the other on the Issue immediately.
 - Short sync before and after each work session: who works on which Issue, what blocks, who reviews what.
+- TDD evidence: when the failing tests are committed, run them and paste the failing output (command, commit hash, failed count) into the PR's "TDD evidence" section. For the PDF samples (TEST-07, TEST-13, TEST-18, TEST-20) also save it as `docs/evidence/tdd/TEST-NN-red.txt`, and the passing run as `TEST-NN-green.txt`.
 
 ## 4. Avoiding conflicts
 - One author per branch, except Issue 7 where B pushes the red tests first and A continues on the same branch after the handoff.
@@ -51,6 +52,13 @@ Issue 4 and Issue 5 run in parallel after Issue 3.
 - When two students write docs in parallel, each touches only their own files (A: `srs.md`, `features.md`, `traceability.md`; B: `system-sds.md`, `sprints/plan.md`).
 - Before opening a PR, merge the latest `sprint-1-staging` into your branch so conflicts are solved by the author, not the reviewer.
 - Never push directly to `sprint-1-staging` or `main`; set GitHub branch protection to require a PR and one approval.
+- Merge every PR with "Create a merge commit". Never squash or rebase: that would erase the red-test commit that Part F must show.
+
+## 4a. Release and evidence order
+1. 9.4 QA run on the `sprint-1-staging` head: build, full suite, NFR checks, `docs/evidence/ac-test-results.md`.
+2. 10.4 release PR `sprint-1-staging` → `main`, reviewed by A; rerun build and tests from `main`; tag `v0.1.0-sprint1`.
+3. 10.1 screenshots and the final test output come from the tagged release, so the PDF names one release commit for all evidence.
+4. Evidence and PDF changes go by PR into `sprint-1-staging` only. `main` stays at the tag until submission.
 
 ## 5. AI supervision (both students)
 - Use AI agents for bounded Issues only, with the engineering contract as input.
