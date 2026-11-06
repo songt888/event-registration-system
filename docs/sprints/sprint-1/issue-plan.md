@@ -43,29 +43,29 @@ Each Issue stays as the parent on the board. Each sub-task is its own GitHub Iss
 
 | ID | Sub-task | Output | Author | Branch |
 |---|---|---|---|---|
-| 1.1 (#12) | SRS | `docs/srs.md`: scope, exclusions, FR/BR/NFR, decisions D-01..D-14 | A | `docs/s1-01-srs` |
+| 1.1 (#12) | SRS | `docs/srs.md`: stakeholder problem and context, actors and responsibilities, scope, exclusions, FR/BR/NFR (NFR with target, verification method and sprint), assumptions, decisions D-01..D-14, open questions and their resolution | A | `docs/s1-01-srs` |
 | 1.2 (#13) | Features | `docs/features.md`: F-01..F-13, sprint allocation, dependencies | A | `docs/s1-01-features` |
-| 1.3 (#14) | Traceability | `docs/traceability.md`: FR → F → AC → TEST | A | `docs/s1-01-traceability` |
-| 1.4 (#15) | System SDS and sprint plan | `docs/system-sds.md`: architecture, ER with Session, role matrix, CSRF stance; `docs/sprints/plan.md`: 3 sprints, scope per sprint | B | `docs/s1-01-sds` |
+| 1.3 (#14) | Traceability | `docs/traceability.md`: FR/BR/NFR → F → sprint → AC → TEST, plus a coverage gaps table and an approved changes table (PR #11 revisions) | A | `docs/s1-01-traceability` |
+| 1.4 (#15) | System SDS and sprint plan | `docs/system-sds.md`: architecture and stack, where rules are enforced, ER with Session and constraints, migrations and seed, screens and shared UI states, API conventions and error shape, role/permission matrix, auth/session lifecycle, CSRF stance, environment variables and secrets, planned Docker and GCP deployment; `docs/sprints/plan.md`: goal, feature IDs, dependencies and completion outcome per sprint, and why Sprint 1 has this scope | B | `docs/s1-01-sds` |
 | 2.1 (#17) | F-01 contract, sprint DoD and version history | feature SDS, AC, STS for Auth; Definition of Done and contract version table | A | `docs/s1-02-f01` |
-| 2.2 (#18) | F-02 contract | feature SDS, AC, STS for Publish event | A | `docs/s1-02-f02` |
-| 2.3 (#19) | F-03 contract | feature SDS, AC, STS for Browse events | B | `docs/s1-02-f03` |
+| 2.2 (#18) | F-02 contract | feature SDS, AC, STS for Publish event; owns the full definition of `GET /api/events/:id` (published and draft rules) | A | `docs/s1-02-f02` |
+| 2.3 (#19) | F-03 contract | feature SDS, AC, STS for Browse events; refers to F-02 for `GET /api/events/:id` instead of redefining it | B | `docs/s1-02-f03` |
 | 2.4 (#20) | F-04 contract | feature SDS, AC, STS for Register | B | `docs/s1-02-f04` |
 | 2.5 (#21) | F-05 + F-06 contract | feature SDS, AC, STS for My registrations and organizer view | B | `docs/s1-02-f05-f06` |
 | 3.1 (#23) | Skeleton and database | `client/`, `server/`, docker-compose Postgres, `.env.example` | A | `feature/s1-03-skeleton` |
 | 3.2 (#24) | Schema and seed | Prisma schema, migration with partial unique index, seed with relative dates | A | `feature/s1-03-schema` |
 | 3.3 (#25) | Test runner and README | Vitest projects, `DATABASE_URL_TEST`, sequential integration files, README commands | A | `feature/s1-03-test-runner` |
-| 7.1 (#32) | Register red tests | failing tests TEST-12..16, TEST-27 and TEST-28 | B | `feature/s1-07-register` |
+| 7.1 (#32) | Register red tests | failing tests TEST-12..16, TEST-27 and TEST-28; no separate PR: done when the red commit is pushed to the shared branch, the failing run output is saved (see team-workflow section 3) and A is tagged on #33 | B | `feature/s1-07-register` |
 | 7.2 (#33) | Register implementation and UI | transaction with row lock, duplicate check, capacity; register button, full and already-registered messages (same branch as 7.1, A opens the PR) | A | `feature/s1-07-register` |
 | 8.1 (#35) | My registrations | participant API and UI, ownership denial | A | `feature/s1-08-my-registrations` |
 | 8.2 (#36) | Organizer registrations | organizer API and UI, ownership denial | B | `feature/s1-08-organizer-view` |
-| 9.1 (#37) | E2E golden journey and login/logout | TEST-22 and TEST-24 | A | `feature/s1-09-e2e-login` |
-| 9.2 (#38) | E2E full event | TEST-23 | B | `feature/s1-09-e2e-journey` |
-| 9.4 (#40) | QA run | full suite, pass/fail/skip counts, five runs of TEST-15 | B | `feature/s1-09-qa` |
-| 10.1 (#41) | Evidence | screenshots, AC → TEST results table in `docs/evidence/` | A | `docs/s1-10-evidence` |
+| 9.1 (#37) | E2E golden journey and login/logout | TEST-22 and TEST-24 | A | `feature/s1-09-e2e-golden-login` |
+| 9.2 (#38) | E2E full event | TEST-23 | B | `feature/s1-09-e2e-full-event` |
+| 9.4 (#40) | QA run | on the `sprint-1-staging` head: `npm run build` (server and client), full suite, pass/fail/skip counts, five runs of TEST-15, NFR checks (NFR-06 data survives a server restart, NFR-08 README in at most 10 commands from a fresh clone, NFR-09 checklist on 5 screens), and the one AC → TEST → file/name → result table in `docs/evidence/ac-test-results.md` | B | `feature/s1-09-qa` |
+| 10.1 (#41) | Evidence | after the tag: screenshots from the tagged release (journey + persisted retrieval, rule rejection, login/logout, forbidden with API evidence), and `docs/evidence/ac-test-results.md` updated with the release run | A | `docs/s1-10-evidence` |
 | 10.2 (#42) | PDF Parts A to C | assembled from the docs, with the login/logout/forbidden demo | A | `docs/s1-10-pdf-abc` |
 | 10.3 (#43) | PDF Parts D to F and assembly | sprint plan, contracts, working Sprint 1 and verification; one PDF with contents and real page numbers, AI-use declaration | B | `docs/s1-10-pdf-def` |
-| 10.4 (#44) | Release | release PR `sprint-1-staging` → `main`, rerun tests from `main`, tag `v0.1.0-sprint1` | B | `docs/s1-10-release` |
+| 10.4 (#44) | Release | after 9.4: release PR `sprint-1-staging` → `main` (no branch of its own; A reviews), rerun build and tests from `main`, save output with the commit hash, tag `v0.1.0-sprint1` | B | none (PR head is `sprint-1-staging`) |
 
 Issues 4, 5 and 6 are not split: each is one vertical slice (API, UI, tests) in one branch and one PR (`feature/s1-04-auth`, `feature/s1-05-publish-event`, `feature/s1-06-browse-events`). Merged sub-tasks (closed as not planned): 1.5 into 1.4, 2.6 into 2.1, 7.3 into 7.2, 9.3 into 9.1, 10.5 into 10.3. Sub-task IDs are for planning only; commits and PRs still cite FR/BR/F/AC/TEST IDs.
 
@@ -80,8 +80,8 @@ Issue 4 and Issue 5 run in parallel after Issue 3. Issue 5's routes need `requir
 | 2 | 4 ‖ 5, then 6 | 4, 5, 6 Done |
 | 3 | 7, 8 | 7, 8 Done |
 | 4 | 9 | 9 Done, staging suite green |
-| 5 | 10: acceptance, release PR, tag | all Done |
-| 6 | assemble PDF | contents with real page numbers |
+| 5 | 10.4: release PR, build and tests from `main`, tag | `main` = tag, no later commits to `main` |
+| 6 | 10.1 evidence from the tag; 10.2 and 10.3 PDF (docs PRs into `sprint-1-staging` only) | all Done; contents with real page numbers |
 | 7 | submit on LEB2 | no pushes to main after tag |
 
 If scope must shrink, simplify UI polish first. Do not cut backend tests or Parts A–E.

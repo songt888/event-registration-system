@@ -37,7 +37,7 @@ Traps that lose points (from the spec):
 | D-11 | Stack | React + TypeScript + Vite, Express + TypeScript + zod, Prisma + PostgreSQL 16, Vitest/Supertest/Playwright; written from scratch for this project (see Section 2) |
 | D-12 | Event start time | startsAt must be strictly later than now at create and at publish, else 400 INVALID_START_TIME (BR-09) |
 | D-13 | Exact error codes | organizer registers 403; DRAFT/unknown event 404 EVENT_NOT_FOUND; started event 409 EVENT_STARTED; other participant's registration 404; non-owner on a DRAFT 404 (any operation); non-owner owner-only operation on a PUBLISHED event 403 |
-| D-14 | Test database | separate DATABASE_URL_TEST; integration files run sequentially (fileParallelism: false), tables truncated in beforeEach. E2E (TEST-22..24) runs separately against a freshly reset and seeded dev database, never together with the integration suite |
+| D-14 | Test database | separate DATABASE_URL_TEST; integration files run sequentially (fileParallelism: false), tables truncated in beforeEach. E2E (TEST-22..24) runs separately against its own DATABASE_URL_E2E, reset and seeded before each run, never together with the integration suite |
 
 ---------------------------------------------------------------------
 ## 2. Recommended stack (small, Docker/GCP-ready, real concurrency testing)
