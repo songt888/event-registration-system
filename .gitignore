@@ -1,0 +1,24 @@
+# secrets: only .env.example is committed
+.env
+.env.*
+!.env.example
+
+# dependencies and build output
+node_modules/
+dist/
+build/
+coverage/
+
+# test artifacts (keep curated evidence in docs/evidence/)
+test-results/
+playwright-report/
+
+# local data
+pgdata/
+server/uploads/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.log
