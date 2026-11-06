@@ -51,7 +51,7 @@ docker compose up -d db          # PostgreSQL
 cd server && npm install && npx prisma migrate dev && npm run seed
 npm run dev                      # server and client
 npm test                         # unit + API/DB integration (uses DATABASE_URL_TEST, a separate test database, never the dev one)
-npm run test:e2e                 # Playwright
+npm run test:e2e                 # Playwright (uses DATABASE_URL_E2E, reset and seeded before each run)
 ```
 
 ## Definition of Done
