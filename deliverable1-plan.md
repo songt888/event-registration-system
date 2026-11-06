@@ -24,19 +24,20 @@ Traps that lose points (from the spec):
 ## 1. Decisions to lock NOW (record them in the SRS "decisions" table — graders want ambiguities resolved)
 | ID | Question (spec says "clarify") | Decision |
 |----|----|----|
-| D-01 | Context | University student-club / campus events (synthetic data) |
-| D-02 | Duplicate registration | One ACTIVE registration per participant per event; unique constraint in DB + service check |
+| D-01 | Context | University campus events (seminars, workshops, activities); synthetic data |
+| D-02 | Duplicate registration | One ACTIVE registration per participant per event; partial unique index in DB + service check |
 | D-03 | Capacity | Positive integer 1..10,000; counted = ACTIVE registrations; cannot publish capacity <= 0; (later sprint: capacity cannot drop below active count) |
 | D-04 | Registration deadline | S1: events can be registered while PUBLISHED and start time in the future. Deadline field + rules -> Sprint 2 |
 | D-05 | Waitlist | Out of scope (explicit exclusion) |
 | D-06 | Who sees registrations | Organizer sees registrations only for events THEY own; participant sees only their own |
 | D-07 | Event lifecycle | DRAFT -> PUBLISHED -> (later) CLOSED/CANCELLED. S1 implements DRAFT->PUBLISHED: create saves a DRAFT, a separate owner-only publish action publishes it (revised, see docs/decisions.md) |
-| D-12 | Event start time | startsAt must be strictly later than now at create and at publish, else 400 INVALID_START_TIME (BR-09) |
-| D-13 | Exact error codes | organizer registers 403; DRAFT/unknown event 404 EVENT_NOT_FOUND; started event 409 EVENT_STARTED; other participant's registration 404; non-owner on a DRAFT 404 (any operation); non-owner owner-only operation on a PUBLISHED event 403 |
-| D-14 | Test database | separate DATABASE_URL_TEST; integration files run sequentially (fileParallelism: false), tables truncated in beforeEach. E2E (TEST-22..24) runs separately against a freshly reset and seeded dev database, never together with the integration suite |
 | D-08 | Auth | Email+password, bcrypt hash, server-side session (opaque token in httpOnly cookie, hash in Session table, 1h expiry); logout deletes the session row so a copied cookie stops working. See docs/decisions.md |
 | D-09 | Roles | PARTICIPANT, ORGANIZER; one role per account; seeded accounts only |
 | D-10 | Concurrency for last place | One transaction: lock event row first (SELECT ... FOR UPDATE), then check duplicate, count ACTIVE, insert. See docs/decisions.md |
+| D-11 | Stack | React + TypeScript + Vite, Express + TypeScript + zod, Prisma + PostgreSQL 16, Vitest/Supertest/Playwright; written from scratch for this project (see Section 2) |
+| D-12 | Event start time | startsAt must be strictly later than now at create and at publish, else 400 INVALID_START_TIME (BR-09) |
+| D-13 | Exact error codes | organizer registers 403; DRAFT/unknown event 404 EVENT_NOT_FOUND; started event 409 EVENT_STARTED; other participant's registration 404; non-owner on a DRAFT 404 (any operation); non-owner owner-only operation on a PUBLISHED event 403 |
+| D-14 | Test database | separate DATABASE_URL_TEST; integration files run sequentially (fileParallelism: false), tables truncated in beforeEach. E2E (TEST-22..24) runs separately against a freshly reset and seeded dev database, never together with the integration suite |
 
 ---------------------------------------------------------------------
 ## 2. Recommended stack (small, Docker/GCP-ready, real concurrency testing)
@@ -189,20 +190,20 @@ Order (visible history — this is where points are won):
 2. Per feature: Issue (linked FR/BR/F/AC) -> branch -> commit A "spec+STS for F-0X" -> commit B "failing tests (red)" -> commit C "implementation (green)" -> PR to staging -> teammate reviews (specific finding) -> merge.
 3. Staging: run full suite + manual acceptance -> release PR staging -> main, reviewed by the OTHER student than the author -> tag v0.1.0-sprint1.
 4. Save raw outputs: `npm test` output with counts + commit hash into docs/evidence/ (and screenshot).
-Pair split (no permanent roles): OPEN, to be re-agreed by both students. This line (B owns F-05/F-06) conflicts with docs/sprints/sprint-1/issue-plan.md (A owns Issue 8, F-05 + F-06); issue-plan.md is the working version until the split is settled.
+Owners (decided, see docs/team-workflow.md): Issues 1, 2, 9, 10 are split between A and B; Issues 3, 4 are A; Issues 5, 6 are B; Issue 7 is pair work (B writes the red tests, A implements, B reviews); Issue 8 is split (A: 8.1 participant view, B: 8.2 organizer view). The other student reviews every PR.
 Each student writes tests AND code for at least one feature and reviews at least two PRs. Keep contribution table honest.
 Minimum 2 documented Issue+PR pairs for the PDF (choose F-04 and F-06).
 
 ---------------------------------------------------------------------
 ## 8. Order of work — Be strict about order
 Phase 1 — "Docs + skeleton"
-  [A+B] Lock decisions D-01..D-10, requirement IDs (Section 1,3). Split docs: A = SRS+features/traceability, B = system SDS+sprint plan.
+  [A+B] Lock decisions D-01..D-14, requirement IDs (Section 1,3). Docs (Issue 1) and contracts (Issue 2): A writes Parts A, B and F-01/F-02; B writes Parts C, D and F-03..F-06; cross-review.
   [A+B] Repo, branches, GitHub Issues & board (F-01..F-06), docker-compose Postgres, Prisma schema + seed, project skeleton, test runner works.
-  [A]    write F-01/F-02 contracts + STS  |  [B] write F-03..F-06 contracts + STS.  Commit "docs: sprint1 contracts" BEFORE any feature code.
+  [A] F-01/F-02 contracts + STS  |  [B] F-03..F-06 contracts + STS (each reviews the other).  Commit "docs: sprint1 contracts" BEFORE any feature code.
 Phase 2 — "Red/green implementation"
-  F-01 auth (A) || F-02/F-03 (B)  — red tests first, then code, PR, cross-review.
-  F-04 register (A+B pair; most important: capacity, duplicate, concurrency) ; F-05/F-06 (B).
-  React UI for the journey (A: participant screens, B: organizer screens) ; 3 Playwright E2E tests.
+  F-01 auth (A); F-02 publish event (B, routes connected after F-01 is merged); F-03 (B) after F-02 is merged  — red tests first, then code, PR, cross-review.
+  F-04 register (B writes red tests, A implements, B reviews; most important: capacity, duplicate, concurrency) ; F-05 (A) and F-06 (B) in parallel.
+  React UI is built inside each feature Issue by its author ; 3 Playwright E2E tests.
   Merge to sprint-1-staging; run complete suite; fix; note failures.
 Phase 3 — "Release and evidence"
   Acceptance run on staging, collect screenshots (journey, rejection, login/logout, forbidden), test output with commit id, release PR (reviewed), tag.
