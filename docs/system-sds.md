@@ -162,8 +162,8 @@ The header shows the signed-in user's name and role (from `GET /api/me`) and a L
 |---|---|---|
 | 400 | `VALIDATION_ERROR`, `INVALID_START_TIME` | body or parameter invalid; start time not strictly in the future |
 | 401 | `UNAUTHENTICATED`, `INVALID_CREDENTIALS` | no valid session; wrong email or password (one generic message) |
-| 403 | `FORBIDDEN` | wrong role, or a non-owner on an owner-only operation of a PUBLISHED event |
-| 404 | `NOT_FOUND`, `EVENT_NOT_FOUND` | record missing, a DRAFT seen by a non-owner, or another participant's registration |
+| 403 | `FORBIDDEN` | wrong role on a role-restricted route (for any event ID), or a non-owner organizer on an owner-only operation of a PUBLISHED event |
+| 404 | `NOT_FOUND`, `EVENT_NOT_FOUND` | record missing, a DRAFT requested by anyone except its owner (when the caller has the route's role), or another participant's registration |
 | 409 | `EVENT_FULL`, `ALREADY_REGISTERED`, `EVENT_STARTED`, `ALREADY_PUBLISHED` | a business rule rejects the request; nothing is stored |
 | 500 | `INTERNAL_ERROR` | unexpected failure; generic message, details logged on the server only, no stack trace |
 
@@ -207,7 +207,7 @@ Columns: **Anon** = no session; **Part** = participant; **Org own** = organizer 
 | Read one registration | 401 | own: allowed; another participant's: 404 | 403 | 403 |
 | View an event's registrations | 401 | 403 | allowed | 403 (PUBLISHED), 404 (DRAFT) |
 
-Check order on every protected route: session (401), then role (403), then existence and ownership (404 for a DRAFT or a foreign registration, 403 for a non-owner on a PUBLISHED event). So a participant who calls an organizer-only route gets 403 even for a DRAFT, as AC-21 expects.
+Check order on every protected route: session (401), then role (403), then existence and ownership (404 for a DRAFT or a foreign registration, 403 for a non-owner on a PUBLISHED event). So a participant who calls an organizer-only route gets 403 for every event ID, DRAFT or not, as AC-21 expects; the same answer for every ID reveals nothing. The DRAFT 404 rule applies to organizers who do not own the event (D-13).
 
 ### 5.2 Record access
 | Record | Who can read it | Who can change it (S1) |
@@ -262,7 +262,7 @@ Identity and role always come from the session on the server. The API never acce
 | Level | Tool | Database | Covers |
 |---|---|---|---|
 | Unit | Vitest | none | pure rules: start-time check with an injected `now`, capacity input validation |
-| API/DB integration | Vitest + Supertest | `DATABASE_URL_TEST`, files run one at a time, tables truncated in `beforeEach` (D-14) | persistence, permissions, ownership, error codes, concurrency (TEST-15) |
+| API/DB integration | Vitest + Supertest | `DATABASE_URL_TEST`, files run one at a time, tables truncated in `beforeEach` (D-14) | persistence, permissions, ownership, error codes, concurrency (TEST-15 last place, TEST-37 NFR-04 scenario) |
 | End-to-end | Playwright | `DATABASE_URL_E2E`, reset and seeded before each run | TEST-22..TEST-24 critical journeys |
 
 Test names start with their TEST and AC IDs, for example `TEST-13 AC-13 rejects registration when event is full`.
@@ -289,7 +289,7 @@ flowchart LR
 | NFR-01 unauthenticated → 401, no private data | `requireSession` on every protected route | 1.3, 6 |
 | NFR-02 bcrypt cost ≥ 10, hash never returned | bcrypt cost 12; response mappers omit `passwordHash` | 2.1, 6 |
 | NFR-03 backend role and ownership checks | `requireRole` + service ownership checks; matrix | 1.3, 5 |
-| NFR-04 20 parallel requests, capacity 5 → exactly 5 ACTIVE | row lock transaction (D-10) | 1.3 |
+| NFR-04 20 parallel requests, capacity 5 → exactly 5 ACTIVE | row lock transaction (D-10); verified by TEST-37 | 1.3, 9 |
 | NFR-05 list p95 < 500 ms with 1,000 events (S3) | indexed `status`, `startsAt`; pagination if needed | 4.1 |
 | NFR-06 data survives restart | PostgreSQL volume locally, Cloud SQL in production | 8, 10 |
 | NFR-07 server validation, uniform errors, no stack traces | zod at routes, one error handler | 4.2, 7 |
@@ -300,3 +300,4 @@ flowchart LR
 | Version | Date | Change | Author | Reviewer |
 |---|---|---|---|---|
 | 1.0 | 2026-11-07 | First System-Level SDS for Deliverable 1 (Issue #15) | B (stickkersz) | A (songt888) |
+| 1.1 | 2026-11-07 | PR #49 review: `/api/me` fields match FR-03; check order and D-13 precedence made explicit; NFR-04 verified by TEST-37 | B (stickkersz) | A (songt888) |

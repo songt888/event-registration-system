@@ -51,7 +51,7 @@ All Sprint 1 features also depend on Issue 3 (project skeleton, schema, seed, te
 |---|---|---|
 | NFR-01, NFR-03 | API tests for 401, 403 and 404 on every protected route | each feature PR, again in the 9.4 QA run |
 | NFR-02 | DB test of the stored hash, response tests | F-01 |
-| NFR-04 | TEST-15 concurrency test, run five times | F-04, 9.4 QA run |
+| NFR-04 | TEST-37: 20 eligible participants register in parallel for a capacity-5 event, exactly 5 ACTIVE stored (specified in the F-04 contract, #20). TEST-15 (last place, exactly one success) stays as a separate case. Both run five times | F-04, 9.4 QA run |
 | NFR-06 | restart the server, read the same data | 9.4 QA run |
 | NFR-07 | error-shape tests | each feature PR |
 | NFR-08 | fresh clone following the README, commands counted | Issue 3 review, 9.4 QA run |
@@ -84,7 +84,7 @@ Every baseline feature F-01 to F-13 appears in exactly one sprint as its complet
 | Risk | Effect | Response |
 |---|---|---|
 | Three days for Sprint 1 | features not finished | two parallel lanes; UI polish is cut first, never backend tests or contracts |
-| Last-place race is hard to test reliably | flaky TEST-15 | row lock design (D-10), sequential integration files (D-14), five repeated runs |
+| Concurrency is hard to test reliably | flaky TEST-15 or TEST-37 | row lock design (D-10), sequential integration files (D-14), five repeated runs |
 | Labs 5 to 7 compete with Sprint 2 time | Sprint 2 late | lab work as separate small Issues; Sprint 2 contracts written in the week of 9 Nov |
 | Final exams 1 to 11 Dec | Sprint 3 stalls | product substantially complete by 29 Nov; only bounded work left for December |
 
@@ -92,3 +92,4 @@ Every baseline feature F-01 to F-13 appears in exactly one sprint as its complet
 | Version | Date | Change | Author | Reviewer |
 |---|---|---|---|---|
 | 1.0 | 2026-11-07 | First three-sprint plan for Deliverable 1 (Issue #15) | B (stickkersz) | A (songt888) |
+| 1.1 | 2026-11-07 | PR #49 review: NFR-04 verified by TEST-37, separate from TEST-15 | B (stickkersz) | A (songt888) |

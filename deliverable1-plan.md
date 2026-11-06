@@ -36,7 +36,7 @@ Traps that lose points (from the spec):
 | D-10 | Concurrency for last place | One transaction: lock event row first (SELECT ... FOR UPDATE), then check duplicate, count ACTIVE, insert. See docs/decisions.md |
 | D-11 | Stack | React + TypeScript + Vite, Express + TypeScript + zod, Prisma + PostgreSQL 16, Vitest/Supertest/Playwright; written from scratch for this project (see Section 2) |
 | D-12 | Event start time | startsAt must be strictly later than now at create and at publish, else 400 INVALID_START_TIME (BR-09) |
-| D-13 | Exact error codes | organizer registers 403; DRAFT/unknown event 404 EVENT_NOT_FOUND; started event 409 EVENT_STARTED; other participant's registration 404; non-owner on a DRAFT 404 (any operation); non-owner owner-only operation on a PUBLISHED event 403 |
+| D-13 | Exact error codes | organizer registers 403; DRAFT/unknown event 404 EVENT_NOT_FOUND; started event 409 EVENT_STARTED; other participant's registration 404; non-owner organizer on a DRAFT 404 (any operation); non-owner organizer on an owner-only operation of a PUBLISHED event 403; wrong role on a role-restricted route 403 for any event ID (check order: 401, then 403 role, then 404/403 ownership) |
 | D-14 | Test database | separate DATABASE_URL_TEST; integration files run sequentially (fileParallelism: false), tables truncated in beforeEach. E2E (TEST-22..24) runs separately against its own DATABASE_URL_E2E, reset and seeded before each run, never together with the integration suite |
 
 ---------------------------------------------------------------------
@@ -83,7 +83,7 @@ Traps that lose points (from the spec):
 - NFR-01 Unauthenticated request to any protected endpoint -> 401, body contains no private data. Verify: API test. S1
 - NFR-02 Passwords stored only as bcrypt hash (cost >= 10); never returned by API. Verify: DB test + response test. S1
 - NFR-03 Backend authorization on every protected route (role + ownership). Verify: API tests. S1
-- NFR-04 Concurrency: 20 parallel register calls for capacity-5 event -> exactly 5 ACTIVE. Verify: integration test. S1
+- NFR-04 Concurrency: 20 parallel register calls for capacity-5 event -> exactly 5 ACTIVE. Verify: integration test TEST-37 (specified in the F-04 contract, #20); TEST-15 covers the separate last-place case. S1
 - NFR-05 List events p95 < 500 ms with 1,000 events seed (local). Verify: script. S3
 - NFR-06 Data survives app restart. Verify: restart + query. S1(local) / Lab 5
 - NFR-07 Inputs validated server-side; errors use a uniform JSON shape and never leak stack traces. S1
@@ -161,7 +161,7 @@ F-05 My registrations
 F-06 Organizer view
 - AC-19 organizer sees registrations of own event                              TEST-19
 - AC-20 organizer B requests organizer A's PUBLISHED event registrations -> 403   TEST-20  <- event-ownership (on a DRAFT it is 404, D-13)
-- AC-21 participant requests event registrations list -> 403                   TEST-21
+- AC-21 participant requests the registrations list of any event (DRAFT, PUBLISHED or unknown ID) -> 403 FORBIDDEN, no data   TEST-21 (D-13 check order)
 E2E journeys (Playwright):
 - AC-22 golden journey in the UI: organizer creates and publishes an event, participant registers and sees it in My registrations, organizer sees the participant in the event's registrations   TEST-22 (E2E)
 - AC-23 participant tries to register for a full event in the UI -> "event is full" message shown, My registrations unchanged   TEST-23 (E2E)
