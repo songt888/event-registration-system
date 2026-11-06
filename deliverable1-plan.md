@@ -32,8 +32,8 @@ Traps that lose points (from the spec):
 | D-06 | Who sees registrations | Organizer sees registrations only for events THEY own; participant sees only their own |
 | D-07 | Event lifecycle | DRAFT -> PUBLISHED -> (later) CLOSED/CANCELLED. S1 implements DRAFT->PUBLISHED: create saves a DRAFT, a separate owner-only publish action publishes it (revised, see docs/decisions.md) |
 | D-12 | Event start time | startsAt must be in the future at create and at publish, else 400 INVALID_START_TIME (BR-09) |
-| D-13 | Exact error codes | organizer registers 403; DRAFT/unknown event 404 EVENT_NOT_FOUND; started event 409 EVENT_STARTED; other participant's registration 404; other organizer's event 403 |
-| D-14 | Test database | separate DATABASE_URL_TEST for integration/concurrency tests |
+| D-13 | Exact error codes | organizer registers 403; DRAFT/unknown event 404 EVENT_NOT_FOUND; started event 409 EVENT_STARTED; other participant's registration 404; non-owner on a DRAFT 404 (any operation); non-owner owner-only operation on a PUBLISHED event 403 |
+| D-14 | Test database | separate DATABASE_URL_TEST; integration files run sequentially (fileParallelism: false), tables truncated in beforeEach |
 | D-08 | Auth | Email+password, bcrypt hash, server-side session (opaque token in httpOnly cookie, hash in Session table, 1h expiry); logout deletes the session row so a copied cookie stops working. See docs/decisions.md |
 | D-09 | Roles | PARTICIPANT, ORGANIZER; one role per account; seeded accounts only |
 | D-10 | Concurrency for last place | One transaction: lock event row first (SELECT ... FOR UPDATE), then check duplicate, count ACTIVE, insert. See docs/decisions.md |
@@ -86,7 +86,7 @@ Traps that lose points (from the spec):
 - NFR-06 Data survives app restart. Verify: restart + query. S1(local) / Lab 5
 - NFR-07 Inputs validated server-side; errors use a uniform JSON shape and never leak stack traces. S1
 - NFR-08 App runs from README in <= 10 commands. S1
-- NFR-09 Every Sprint 1 screen that loads data (events list, event detail, my registrations, event registrations) shows a loading indicator while waiting, an empty-state message for an empty list, and a readable error message when the API returns an error: 4 of 4 screens. Verify: E2E TEST-11 (empty state) + manual checklist per screen in docs/evidence/. S1
+- NFR-09 Every Sprint 1 screen that loads data (events list, event detail, my registrations, organizer my events, event registrations) shows a loading indicator while waiting, an empty-state message for an empty list, and a readable error message when the API returns an error: 5 of 5 screens. Verify: E2E TEST-11 (empty state) + manual checklist per screen in docs/evidence/. S1
 
 ---------------------------------------------------------------------
 ## 4. Features & sprint allocation (Part B + D)
@@ -131,7 +131,11 @@ F-02 Publish event
 - AC-08 participant POST /api/events -> 403                                    TEST-08 (API)
 - AC-09 anonymous POST /api/events -> 401                                      TEST-09 (API)
 - AC-25 owner publishes own DRAFT -> 200, status PUBLISHED                     TEST-25 (API+DB)
-- AC-26 organizer B publishes organizer A's DRAFT -> 403, status stays DRAFT   TEST-26 (API+DB)  <- event-ownership
+- AC-26 organizer B publishes organizer A's DRAFT -> 404 EVENT_NOT_FOUND, status stays DRAFT   TEST-26 (API+DB)  <- event-ownership (D-13 event rule)
+- AC-31 owner GET /api/events/:id on own DRAFT -> 200 with the draft            TEST-31 (API+DB)
+- AC-32 participant or organizer B GET /api/events/:id on A's DRAFT -> 404 EVENT_NOT_FOUND, no data   TEST-32 (API)
+- AC-33 organizer GET /api/events/mine -> own events in every status, none owned by others   TEST-33 (API+DB)
+- AC-34 participant GET /api/events/mine -> 403 FORBIDDEN                     TEST-34 (API)
 - AC-29 create with startsAt in the past -> 400 INVALID_START_TIME, nothing stored   TEST-29 (unit+API)
 - AC-30 publish a DRAFT whose startsAt has passed -> 400 INVALID_START_TIME, stays DRAFT   TEST-30 (API+DB)
 F-03 Browse
@@ -151,10 +155,12 @@ F-05 My registrations
 - AC-18 participant A GET participant B's registration -> 404 NOT_FOUND, no data   TEST-18 (API)  <- ownership sample (D-13)
 F-06 Organizer view
 - AC-19 organizer sees registrations of own event                              TEST-19
-- AC-20 organizer B requests organizer A's event registrations -> 403          TEST-20  <- event-ownership
+- AC-20 organizer B requests organizer A's PUBLISHED event registrations -> 403   TEST-20  <- event-ownership (on a DRAFT it is 404, D-13)
 - AC-21 participant requests event registrations list -> 403                   TEST-21
-E2E (Playwright): TEST-22 organizer publish -> participant register -> view -> organizer sees it (the golden journey);
-                  TEST-23 full-event rejection message in UI; TEST-24 login/logout.
+E2E journeys (Playwright):
+- AC-22 golden journey in the UI: organizer creates and publishes an event, participant registers and sees it in My registrations, organizer sees the participant in the event's registrations   TEST-22 (E2E)
+- AC-23 participant tries to register for a full event in the UI -> "event is full" message shown, My registrations unchanged   TEST-23 (E2E)
+- AC-24 login in the UI shows the user's name and role; after logout, opening a protected page returns to the login screen   TEST-24 (E2E)
 Product Definition of Done (write once, explicit checklist): behavior implemented | planned tests executed & passing |
 no skipped required tests | PR reviewed by teammate | merged to staging, integration run | README+docs current | incomplete work disclosed | evidence (commit, command, output) attached.
 
@@ -167,7 +173,7 @@ no skipped required tests | PR reviewed by teammate | merged to staging, integra
 - API conventions: REST, /api prefix, JSON, error shape {error:{code,message}}, status code table (400/401/403/404/409), zod validation.
 - Role/permission matrix (operation x Anonymous/Participant/Organizer(owner)/Organizer(other)) + record-access column.
 - Auth lifecycle: login -> hash compare -> token (claims, expiry) -> cookie flags -> /me -> logout -> expiry.
-- UI: screens (Login, Events list, Event detail/Register, My registrations, Organizer: Create event, Event registrations), shared validation/loading/empty/error behavior.
+- UI: screens (Login, Events list, Event detail/Register, My registrations, Organizer: My events (draft + published, Publish button), Create event, Event registrations), shared validation/loading/empty/error behavior.
 - Config: env vars table (DATABASE_URL, DATABASE_URL_TEST, PORT, SESSION_TTL_MINUTES, COOKIE flags), secrets handling, planned Docker + GCP (Cloud Run + Cloud SQL, Secret Manager) — "planned, Lab 5".
 
 ---------------------------------------------------------------------
