@@ -174,7 +174,7 @@ The feature contracts define request, response and error details. This table fix
 |---|---|---|---|---|
 | `POST /api/auth/login` | sign in, set session cookie | anonymous | F-01 | AC-01, AC-02 |
 | `POST /api/auth/logout` | delete session, clear cookie | any signed-in | F-01 | AC-04 |
-| `GET /api/me` | current user (id, name, email, role) | any signed-in | F-01 | AC-03 |
+| `GET /api/me` | current user (id, name, role; FR-03) | any signed-in | F-01 | AC-03 |
 | `POST /api/events` | create a DRAFT event | organizer | F-02 | AC-06..AC-09, AC-29, AC-35 |
 | `GET /api/events/mine` | own events, every status | organizer | F-02 | AC-33, AC-34 |
 | `GET /api/events/:id` | one event; DRAFT only for its owner | any signed-in | F-02 (defines), F-03 (uses) | AC-31, AC-32 |
@@ -228,7 +228,7 @@ Identity and role always come from the session on the server. The API never acce
 | Session creation | Generate 32 random bytes (`crypto.randomBytes`), encode as base64url. Store only `SHA-256(token)` in `Session` with `expiresAt = now + SESSION_TTL_MINUTES` (60). |
 | Cookie | `sid=<token>`; `HttpOnly`, `SameSite=Lax`, `Path=/`, `Max-Age=3600`, `Secure` when `COOKIE_SECURE=true` (production). The token is never readable by JavaScript and never in a response body. |
 | Each request | `requireSession` hashes the cookie token, loads the session with its user, rejects it if missing or `expiresAt <= now` (401, and the expired row is deleted), then sets `req.user`. Expiry is absolute: activity does not extend it. |
-| Current user | `GET /api/me` returns `{ id, name, email, role }` from `req.user`. |
+| Current user | `GET /api/me` returns `{ id, name, role }` from `req.user` (FR-03). |
 | Logout | `POST /api/auth/logout` deletes the session row and clears the cookie. Replaying the old cookie afterwards returns 401 (AC-04). |
 | Role guard | `requireRole('ORGANIZER')` or `requireRole('PARTICIPANT')` after `requireSession`; wrong role returns 403 `FORBIDDEN`. |
 
