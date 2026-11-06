@@ -13,7 +13,7 @@ Sources: `docs/srs.md` (FR-06, BR-02, BR-03, BR-04, NFR-04, NFR-07, NFR-09), `do
 | BR-04 | Only a PUBLISHED event with `startsAt` strictly later than now is registrable; `startsAt` equal to now counts as started (D-04, D-12). |
 | NFR-04 | 20 parallel registration requests from 20 different participants for a capacity-5 event store exactly 5 ACTIVE registrations (AC-37). |
 | NFR-07 | Errors use the shared shape `{ "error": { "code", "message" } }`; no stack trace. |
-| NFR-09 | On the Event detail screen (one of the five NFR-09 screens) a rejected registration shows the API `error.message` readably; submitting and success states follow system SDS 3.2. |
+| NFR-09 | On the Event detail screen (one of the five NFR-09 screens) a registration rejected with 409 shows the API `error.message` readably; 403, 404, submitting and success states follow system SDS 3.2. |
 | D-13 | Organizer: 403 `FORBIDDEN`. DRAFT or missing event: 404 `EVENT_NOT_FOUND`. Started event: 409 `EVENT_STARTED`. |
 
 ## 2. Behavior and workflow
@@ -67,9 +67,9 @@ Identity comes only from the session cookie (NFR-03). The new registration's `pa
 ## 6. UI behavior
 | Screen | Route | Behavior |
 |---|---|---|
-| Event detail | `/events/:id` | The Register button is shown only to participants (from `GET /api/me`) and only for a PUBLISHED event. It stays enabled when the event shows "Full", so the server rule decides and its message is shown (AC-23). Submitting: the button is disabled while the request is pending. Success: "You are registered for this event." and the event reloads from the API. Error: the API `error.message` in an alert; 401 redirects to `/login`. |
+| Event detail | `/events/:id` | The Register button is shown only to participants (from `GET /api/me`) and only for a PUBLISHED event. It stays enabled when the event shows "Full", so the server rule decides and its message is shown (AC-23). Submitting: the button is disabled while the request is pending. Success: "You are registered for this event." and the event reloads from the API. Error: the API `error.message` in an alert; 401 redirects to `/login`; 403 shows "You do not have access to this"; 404 shows "Not found" (system SDS 3.2). |
 
-API messages shown by the UI:
+API `error.message` values (the UI shows them for 409; 403 and 404 follow system SDS 3.2):
 | Code | `error.message` |
 |---|---|
 | `EVENT_FULL` | "This event is full." |
