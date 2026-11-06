@@ -33,7 +33,8 @@ PUBLISHED events whose `startsAt` has passed stay in the list in Sprint 1. FR-05
 ## 4. Failure and boundary cases
 | Case | Result |
 |---|---|
-| No session, expired session or revoked session | 401 `UNAUTHENTICATED`, no event data (AC-38) |
+| No session or revoked (logged-out) session | 401 `UNAUTHENTICATED`, no event data (AC-38) |
+| Expired or invalid session cookie | 401 `UNAUTHENTICATED` from `requireSession` (F-01 contract); not re-tested in F-03 |
 | No PUBLISHED events (DRAFT events may exist) | 200 with an empty list; the UI shows the empty state (AC-10, AC-11) |
 | Event with no ACTIVE registrations | `remainingPlaces` equals `capacity` (AC-10) |
 | Event whose ACTIVE registrations equal its capacity | `remainingPlaces` is `0`; the event is still listed (AC-10) |
@@ -91,7 +92,7 @@ Defined by the F-02 contract (#18). Not redefined here.
 ## 9. Dependencies on other contracts
 - F-01 (#17): `requireSession`, the 401 response and the error handler.
 - F-02 (#18): `GET /api/events/:id`. F-03's Event detail screen needs that response to include `remainingPlaces` for a PUBLISHED event, because FR-05 covers viewing an event with its remaining places. TEST-10 asserts it.
-- Issue 3: schema, seed and test runner. Issue 9: Playwright setup is shared with TEST-22..TEST-24.
+- Issue 3: schema, seed and Vitest runner. TEST-11 is the first Playwright test: the Playwright config and `npm run test:e2e` (D-14, `DATABASE_URL_E2E`) must exist before Issue 6 merges; who adds them is listed in the PR under "Needs a decision by both students". Issue 9 reuses that setup for TEST-22..TEST-24.
 
 ## 10. Acceptance criteria
 | AC | Criterion | Linked |
