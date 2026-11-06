@@ -13,7 +13,7 @@ Sources: `docs/srs.md` (FR-06, BR-02, BR-03, BR-04, NFR-04, NFR-07, NFR-09), `do
 | BR-04 | Only a PUBLISHED event with `startsAt` strictly later than now is registrable; `startsAt` equal to now counts as started (D-04, D-12). |
 | NFR-04 | 20 parallel registration requests from 20 different participants for a capacity-5 event store exactly 5 ACTIVE registrations (AC-37). |
 | NFR-07 | Errors use the shared shape `{ "error": { "code", "message" } }`; no stack trace. |
-| NFR-09 | The Register action on the Event detail screen has submitting, success and error states. |
+| NFR-09 | On the Event detail screen (one of the five NFR-09 screens) a rejected registration shows the API `error.message` readably; submitting and success states follow system SDS 3.2. |
 | D-13 | Organizer: 403 `FORBIDDEN`. DRAFT or missing event: 404 `EVENT_NOT_FOUND`. Started event: 409 `EVENT_STARTED`. |
 
 ## 2. Behavior and workflow
@@ -34,8 +34,8 @@ Sources: `docs/srs.md` (FR-06, BR-02, BR-03, BR-04, NFR-04, NFR-07, NFR-09), `do
 Because the event row is locked first, a second request for the same event waits until the first commits, then counts the committed rows. Two requests can never both see the last free place.
 
 ## 3. Validation
-- Path parameter `:id` must be a UUID. A value that is not a UUID is treated as an unknown event: 404 `EVENT_NOT_FOUND`, checked before any query.
-- Request body: none is needed. If a body is sent it must be an empty JSON object `{}`; any field (for example `participantId`) is rejected with 400 `VALIDATION_ERROR` (system SDS 4.1, unknown fields rejected). The service never reads a participant ID from the request.
+- Path parameter `:id` must be a UUID; otherwise 400 `VALIDATION_ERROR` (system SDS 4.1, 4.2), checked after the session and role guards and before any query.
+- Request body: an empty JSON object `{}` sent with `Content-Type: application/json`; any field (for example `participantId`) is rejected with 400 `VALIDATION_ERROR` (system SDS 4.1, unknown fields rejected). The service never reads a participant ID from the request.
 - State-changing request rules of system SDS 4.1 apply (`POST` with `Content-Type: application/json`).
 
 ## 4. Failure and boundary cases
@@ -43,7 +43,8 @@ Because the event row is locked first, a second request for the same event waits
 |---|---|
 | No session, expired or revoked session | 401 `UNAUTHENTICATED` from `requireSession` (F-01 contract); not re-tested in F-04 |
 | Caller is an organizer (owner or not, any event ID) | 403 `FORBIDDEN`, nothing stored (AC-16) |
-| Event ID unknown, not a UUID, or event is DRAFT | 404 `EVENT_NOT_FOUND`, nothing stored (AC-27) |
+| Event ID unknown or event is DRAFT | 404 `EVENT_NOT_FOUND`, nothing stored (AC-27) |
+| `:id` not a UUID | 400 `VALIDATION_ERROR`, nothing stored |
 | Event PUBLISHED but `startsAt` in the past | 409 `EVENT_STARTED`, nothing stored (AC-28) |
 | `startsAt` exactly equal to `now` (boundary) | 409 `EVENT_STARTED` (AC-28, BR-04) |
 | Participant already has an ACTIVE registration for the event | 409 `ALREADY_REGISTERED`, still one row (AC-14) |
@@ -82,7 +83,7 @@ Shared states follow system SDS 3.2. The UI never decides capacity, duplicates o
 ## 7. API
 ### `POST /api/events/:id/registrations`
 - Auth: session cookie required. Role `PARTICIPANT`.
-- Request: path `:id` (UUID); body none or `{}`.
+- Request: path `:id` (UUID); body `{}` (`Content-Type: application/json`).
 - Response 201:
 ```json
 {
@@ -102,7 +103,7 @@ Shared states follow system SDS 3.2. The UI never decides capacity, duplicates o
 ## 8. Data
 - No schema change and no migration. F-04 writes `Registration` (`id`, `eventId`, `participantId`, `status`, `createdAt`) as created in Issue 3.
 - Relies on the partial unique index `(eventId, participantId) WHERE status = 'ACTIVE'` and the `capacity` CHECK 1..10000 from the Issue 3 migration (system SDS 2.3).
-- Seed (Issue 3) already has one PUBLISHED event with capacity 2 and one ACTIVE registration, for the full-event demo and TEST-23; no seed change.
+- The seed planned in system SDS 2.3 (Issue 3) has one PUBLISHED event with capacity 2 and one ACTIVE registration, for the full-event demo and TEST-23; no seed change.
 
 ## 9. Dependencies on other contracts
 - F-01 (#17): `requireSession`, `requireRole`, the 401/403 responses and the error handler.
@@ -118,14 +119,14 @@ Shared states follow system SDS 3.2. The UI never decides capacity, duplicates o
 | AC-14 | A participant's second registration for the same event returns 409 `ALREADY_REGISTERED` and the event still has one ACTIVE row for that participant; inserting a second ACTIVE row for the same participant and event directly in the database fails with a unique violation. | FR-06, BR-03, D-02 |
 | AC-15 | When several different participants send registration requests at the same time for the last place of an event, exactly one gets 201, every other request gets 409 `EVENT_FULL`, and ACTIVE registrations equal the capacity. | BR-02, D-10 |
 | AC-16 | An organizer (owner or not) registering for an event returns 403 `FORBIDDEN` and stores no row. | FR-06, D-13 |
-| AC-27 | Registering for a DRAFT event, an unknown event ID or a non-UUID ID returns 404 `EVENT_NOT_FOUND` and stores no row. | FR-06, BR-04, D-13 |
+| AC-27 | Registering for a DRAFT event or an unknown event ID returns 404 `EVENT_NOT_FOUND` and stores no row. | FR-06, BR-04, D-13 |
 | AC-28 | Registering for a PUBLISHED event whose `startsAt` is in the past returns 409 `EVENT_STARTED` and stores no row; `startsAt` equal to `now` is also rejected as started. | FR-06, BR-04, D-12 |
 | AC-37 | For 20 different participants sending registration requests at the same time to a PUBLISHED, future event with capacity 5 and no registrations, exactly 5 requests get 201, 15 get 409 `EVENT_FULL`, and exactly 5 ACTIVE registrations are stored. | NFR-04, BR-02 |
 
 TEST-37 is already named as the NFR-04 verification in `deliverable1-plan.md` section 3 and `docs/srs.md` (NFR-04, BR-02), "specified in the F-04 contract, #20"; this contract defines AC-37 with the same number. No other new AC is added.
 
 ## 11. Software test specification (STS)
-All API tests below are API + DB integration tests (Vitest + Supertest, `DATABASE_URL_TEST`, tables truncated in `beforeEach`, D-14). Fixtures are inserted directly in the database; "log in" means `POST /api/auth/login` with the fixture's password.
+All API tests below are API + DB integration tests (Vitest + Supertest, `DATABASE_URL_TEST`, tables truncated in `beforeEach`, D-14). Fixtures are inserted directly in the database; "log in" means `POST /api/auth/login` with the fixture's password. Every `POST` in these tests sends `{}` as JSON.
 
 | TEST | AC | Level | Setup | Steps | Expected |
 |---|---|---|---|---|---|
@@ -134,13 +135,13 @@ All API tests below are API + DB integration tests (Vitest + Supertest, `DATABAS
 | TEST-14 | AC-14 | API + DB integration | O; P1; E PUBLISHED, capacity 5, future. Log in as P1. | (a) Register for E twice. (b) Insert a second ACTIVE Registration for (E, P1) directly with Prisma. | (a) first 201, second 409 `ALREADY_REGISTERED`; one ACTIVE row for (E, P1). (b) the insert throws a unique violation (Prisma `P2002`); still one ACTIVE row. |
 | TEST-15 | AC-15 | API + DB integration, concurrent | O; participants P1..P12; E PUBLISHED, capacity 3, future, ACTIVE registrations for P1 and P2 (one place left). Log in P3..P12 one by one first, keeping each cookie. | Send the 10 registration requests (P3..P12) at the same time with `Promise.all`, all inside one test. | Exactly one 201 and nine 409 `EVENT_FULL`. Database: exactly 3 ACTIVE Registrations for E. |
 | TEST-16 | AC-16 | API + DB integration | Organizers O (owner) and O2; E PUBLISHED, capacity 5, future, owned by O. | Log in as O, `POST /api/events/E/registrations`; log in as O2, same request; as O2, the same request with a random UUID. | All three 403 `FORBIDDEN`. Database: no Registration rows. |
-| TEST-27 | AC-27 | API + DB integration | O; P1; D DRAFT owned by O, capacity 5, future. Log in as P1. | Register for D; for a random UUID; for the ID `not-a-uuid`. | All three 404 `EVENT_NOT_FOUND`. Database: no Registration rows. |
+| TEST-27 | AC-27 | API + DB integration | O; P1; D DRAFT owned by O, capacity 5, future. Log in as P1. | Register for D; for a random UUID. | Both 404 `EVENT_NOT_FOUND`. Database: no Registration rows. |
 | TEST-28 | AC-28 | API + DB integration and unit | O; P1; S PUBLISHED, capacity 5, `startsAt` now minus 1 hour (inserted directly, D-12). Log in as P1. Unit case: no database. | Register for S. Unit case: call the service's eligibility check with a fixed `now` equal to the event's `startsAt`. | API: 409 `EVENT_STARTED`; no Registration rows. Unit: rejected with `EVENT_STARTED`. |
 | TEST-37 | AC-37 | API + DB integration, concurrent | O; participants P1..P20; E PUBLISHED, capacity 5, future, no registrations. Log in P1..P20 one by one first, keeping each cookie. | Send the 20 registration requests at the same time with `Promise.all`, all inside one test. | Exactly five 201 and fifteen 409 `EVENT_FULL`. Database: exactly 5 ACTIVE Registrations for E, from 5 different participants. |
 
 Test names start with their IDs, for example `TEST-13 AC-13 rejects registration when event is full`.
 TEST-13 is a TDD sample for the PDF: its failing run is saved as `docs/evidence/tdd/TEST-13-red.txt` and its passing run as `TEST-13-green.txt` (team-workflow).
-The UI states of the Register action (NFR-09) are checked by TEST-23 (E2E, Issue 9) for the full-event message and by hand in the 9.4 QA run checklist.
+The UI states of the Register action (NFR-09 error message; system SDS 3.2 submitting and success) are checked by TEST-23 (E2E, Issue 9) for the full-event message and by hand in the 9.4 QA run checklist.
 TEST-15 and TEST-37 are each run five times in the 9.4 QA run (issue-plan 9.4).
 
 ## 12. Definition of Done (F-04)
