@@ -30,7 +30,10 @@ Traps that lose points (from the spec):
 | D-04 | Registration deadline | S1: events can be registered while PUBLISHED and start time in the future. Deadline field + rules -> Sprint 2 |
 | D-05 | Waitlist | Out of scope (explicit exclusion) |
 | D-06 | Who sees registrations | Organizer sees registrations only for events THEY own; participant sees only their own |
-| D-07 | Event lifecycle | DRAFT -> PUBLISHED -> (later) CLOSED/CANCELLED. S1 implements "create+publish in one action" or DRAFT->PUBLISHED |
+| D-07 | Event lifecycle | DRAFT -> PUBLISHED -> (later) CLOSED/CANCELLED. S1 implements DRAFT->PUBLISHED: create saves a DRAFT, a separate owner-only publish action publishes it (revised, see docs/decisions.md) |
+| D-12 | Event start time | startsAt must be in the future at create and at publish, else 400 INVALID_START_TIME (BR-09) |
+| D-13 | Exact error codes | organizer registers 403; DRAFT/unknown event 404 EVENT_NOT_FOUND; started event 409 EVENT_STARTED; other participant's registration 404; other organizer's event 403 |
+| D-14 | Test database | separate DATABASE_URL_TEST for integration/concurrency tests |
 | D-08 | Auth | Email+password, bcrypt hash, server-side session (opaque token in httpOnly cookie, hash in Session table, 1h expiry); logout deletes the session row so a copied cookie stops working. See docs/decisions.md |
 | D-09 | Roles | PARTICIPANT, ORGANIZER; one role per account; seeded accounts only |
 | D-10 | Concurrency for last place | One transaction: lock event row first (SELECT ... FOR UPDATE), then check duplicate, count ACTIVE, insert. See docs/decisions.md |
@@ -53,7 +56,7 @@ Traps that lose points (from the spec):
 - FR-01 Login with email/password; invalid credentials rejected with generic error.
 - FR-02 Logout ends session; subsequent protected request -> 401.
 - FR-03 GET current user (id, name, role) from session.
-- FR-04 Organizer publishes event (title, description, location, start time, capacity > 0).
+- FR-04 Organizer creates an event as DRAFT (title, description, location, start time, capacity > 0) and publishes their own DRAFT event.
 - FR-05 Anyone authenticated can list/view published events with remaining places.
 - FR-06 Participant registers for a published event.
 - FR-07 Participant views own registration(s) (and its status).
@@ -73,6 +76,7 @@ Traps that lose points (from the spec):
 - BR-05 Participant can read only own registrations; organizer only registrations of own events.
 - BR-06 (S2) Registration closes at deadline. BR-07 (S2) Cancelled registration frees a place and may be re-registered.
 - BR-08 (S3) Check-in only for ACTIVE registration, only once, only by owning organizer, only within event window.
+- BR-09 An event's start time must be in the future when it is created and when it is published (D-12). Only the owning organizer can publish a DRAFT event (D-07).
 ### NFR (measurable + verification + sprint)
 - NFR-01 Unauthenticated request to any protected endpoint -> 401, body contains no private data. Verify: API test. S1
 - NFR-02 Passwords stored only as bcrypt hash (cost >= 10); never returned by API. Verify: DB test + response test. S1
@@ -82,14 +86,14 @@ Traps that lose points (from the spec):
 - NFR-06 Data survives app restart. Verify: restart + query. S1(local) / Lab 5
 - NFR-07 Inputs validated server-side; errors use a uniform JSON shape and never leak stack traces. S1
 - NFR-08 App runs from README in <= 10 commands. S1
-- NFR-09 UI shows loading/empty/error states. S1
+- NFR-09 Every Sprint 1 screen that loads data (events list, event detail, my registrations, event registrations) shows a loading indicator while waiting, an empty-state message for an empty list, and a readable error message when the API returns an error: 4 of 4 screens. Verify: E2E TEST-11 (empty state) + manual checklist per screen in docs/evidence/. S1
 
 ---------------------------------------------------------------------
 ## 4. Features & sprint allocation (Part B + D)
 | Feature | Description | Covers | Sprint |
 |----|----|----|----|
 | F-01 Authentication foundation | login/logout/me, seeded users, role guard middleware | FR-01..03, NFR-01,02,03,07 | 1 |
-| F-02 Publish event | organizer creates+publishes event w/ capacity | FR-04, BR-01 | 1 |
+| F-02 Publish event | organizer creates a DRAFT event w/ capacity, then publishes it | FR-04, BR-01, BR-09 | 1 |
 | F-03 Browse events | list/detail with remaining places | FR-05 | 1 |
 | F-04 Register for event | capacity + duplicate + concurrency | FR-06, BR-02,03,04, NFR-04 | 1 |
 | F-05 My registrations | participant sees own; ownership guard | FR-07, BR-05 | 1 |
@@ -122,10 +126,14 @@ F-01 Auth
 - AC-04 logout then GET /api/me -> 401                                  TEST-04 (API)
 - AC-05 password stored as bcrypt hash                                  TEST-05 (DB)
 F-02 Publish event
-- AC-06 organizer publishes valid event -> 201, persisted, owner=organizer   TEST-06 (API+DB)
+- AC-06 organizer creates valid event -> 201, persisted as DRAFT, owner=organizer   TEST-06 (API+DB)
 - AC-07 capacity 0 / negative / non-integer -> 400, nothing stored            TEST-07 (unit+API)  <- TDD sample
 - AC-08 participant POST /api/events -> 403                                    TEST-08 (API)
 - AC-09 anonymous POST /api/events -> 401                                      TEST-09 (API)
+- AC-25 owner publishes own DRAFT -> 200, status PUBLISHED                     TEST-25 (API+DB)
+- AC-26 organizer B publishes organizer A's DRAFT -> 403, status stays DRAFT   TEST-26 (API+DB)  <- event-ownership
+- AC-29 create with startsAt in the past -> 400 INVALID_START_TIME, nothing stored   TEST-29 (unit+API)
+- AC-30 publish a DRAFT whose startsAt has passed -> 400 INVALID_START_TIME, stays DRAFT   TEST-30 (API+DB)
 F-03 Browse
 - AC-10 list shows only PUBLISHED events with remainingPlaces                  TEST-10 (API)
 - AC-11 empty list -> UI empty state                                           TEST-11 (E2E/UI)
@@ -134,10 +142,13 @@ F-04 Register
 - AC-13 full event -> 409 EVENT_FULL, no row stored                            TEST-13 (API+DB)  <- TDD sample (domain rule)
 - AC-14 second ACTIVE registration same event -> 409 ALREADY_REGISTERED        TEST-14 (API+DB + unique-constraint test)
 - AC-15 N parallel requests for last place -> exactly 1 success                TEST-15 (integration, concurrent)
-- AC-16 organizer cannot register (403) / unpublished or past event -> 409/404  TEST-16
+- AC-16 organizer tries to register -> 403 FORBIDDEN, no row stored            TEST-16 (API)
+- AC-27 register for a DRAFT or unknown event -> 404 EVENT_NOT_FOUND, no row stored   TEST-27 (API+DB)
+- AC-28 register for an event that has started -> 409 EVENT_STARTED, no row stored    TEST-28 (API+DB)
+  (AC-16 was split into AC-16, AC-27, AC-28 so each test has one expected code; IDs not renumbered, D-13)
 F-05 My registrations
 - AC-17 participant sees own registrations                                     TEST-17
-- AC-18 participant A GET participant B's registration -> 403/404, no data     TEST-18 (API)  <- ownership sample
+- AC-18 participant A GET participant B's registration -> 404 NOT_FOUND, no data   TEST-18 (API)  <- ownership sample (D-13)
 F-06 Organizer view
 - AC-19 organizer sees registrations of own event                              TEST-19
 - AC-20 organizer B requests organizer A's event registrations -> 403          TEST-20  <- event-ownership
@@ -157,18 +168,18 @@ no skipped required tests | PR reviewed by teammate | merged to staging, integra
 - Role/permission matrix (operation x Anonymous/Participant/Organizer(owner)/Organizer(other)) + record-access column.
 - Auth lifecycle: login -> hash compare -> token (claims, expiry) -> cookie flags -> /me -> logout -> expiry.
 - UI: screens (Login, Events list, Event detail/Register, My registrations, Organizer: Create event, Event registrations), shared validation/loading/empty/error behavior.
-- Config: env vars table (DATABASE_URL, PORT, SESSION_TTL_MINUTES, COOKIE flags), secrets handling, planned Docker + GCP (Cloud Run + Cloud SQL, Secret Manager) — "planned, Lab 5".
+- Config: env vars table (DATABASE_URL, DATABASE_URL_TEST, PORT, SESSION_TTL_MINUTES, COOKIE flags), secrets handling, planned Docker + GCP (Cloud Run + Cloud SQL, Secret Manager) — "planned, Lab 5".
 
 ---------------------------------------------------------------------
 ## 7. Git/process (Part F evidence is made DURING the work — start now)
 Repo: ONE repo, both students are collaborators.
-Branches: main (protected-ish), sprint-1-staging, feature/F-0X-name from staging.
+Branches: main (protected-ish), sprint-1-staging, feature/s1-NN-topic from staging (NN = Issue number; see AGENTS.md).
 Order (visible history — this is where points are won):
 1. docs commit: SRS, features, traceability, system-sds, sprint plan on main/staging.
 2. Per feature: Issue (linked FR/BR/F/AC) -> branch -> commit A "spec+STS for F-0X" -> commit B "failing tests (red)" -> commit C "implementation (green)" -> PR to staging -> teammate reviews (specific finding) -> merge.
 3. Staging: run full suite + manual acceptance -> release PR staging -> main, reviewed by the OTHER student than the author -> tag v0.1.0-sprint1.
 4. Save raw outputs: `npm test` output with counts + commit hash into docs/evidence/ (and screenshot).
-Pair split (no permanent roles): Student A: F-01, F-04 impl, review F-02/F-03.  Student B: F-02, F-03, F-05/F-06, review F-01/F-04.
+Pair split (no permanent roles): OPEN, to be re-agreed by both students. This line (B owns F-05/F-06) conflicts with docs/sprints/sprint-1/issue-plan.md (A owns Issue 8, F-05 + F-06); issue-plan.md is the working version until the split is settled.
 Each student writes tests AND code for at least one feature and reviews at least two PRs. Keep contribution table honest.
 Minimum 2 documented Issue+PR pairs for the PDF (choose F-04 and F-06).
 
