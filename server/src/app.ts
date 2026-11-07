@@ -1,5 +1,6 @@
 import express from 'express';
 import { authRouter } from './auth/routes.js';
+import { eventsRouter } from './events.routes.js';
 import { errorHandler } from './lib/errors.js';
 
 // Builds the app without listening, so tests can use it with Supertest.
@@ -9,6 +10,7 @@ export function createApp() {
     res.json({ status: 'ok' });
   });
   app.use('/api', authRouter);
+  app.use('/api', eventsRouter);
   app.use(errorHandler);
   return app;
 }
