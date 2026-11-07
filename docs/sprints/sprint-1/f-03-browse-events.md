@@ -91,13 +91,13 @@ Defined by the F-02 contract (#18). Not redefined here.
 
 ## 9. Dependencies on other contracts
 - F-01 (#17): `requireSession`, the 401 response and the error handler.
-- F-02 (#18): `GET /api/events/:id`. F-03's Event detail screen needs that response to include `remainingPlaces` for a PUBLISHED event, because FR-05 covers viewing an event with its remaining places. TEST-10 asserts it.
+- F-02 (#18): `GET /api/events/:id`. F-03's Event detail screen needs that response to include `remainingPlaces` for a PUBLISHED event, because FR-05 covers viewing an event with its remaining places. The positive PUBLISHED-detail AC belongs to #18 (traceability line 22).
 - Issue 3: schema, seed and Vitest runner. TEST-11 is the first Playwright test: the Playwright config and `npm run test:e2e` (D-14, `DATABASE_URL_E2E`) must exist before Issue 6 merges; who adds them is listed in the PR under "Needs a decision by both students". Issue 9 reuses that setup for TEST-22..TEST-24.
 
 ## 10. Acceptance criteria
 | AC | Criterion | Linked |
 |---|---|---|
-| AC-10 | A signed-in user's `GET /api/events` returns 200 with every PUBLISHED event and no DRAFT event. Each item has `remainingPlaces = capacity - ACTIVE registrations` (equal to `capacity` with no registrations, `0` when full). `GET /api/events/:id` for a PUBLISHED event returns the same `remainingPlaces`. With only DRAFT events stored, the list is empty (200, `{ "events": [] }`). | FR-05, D-07 |
+| AC-10 | A signed-in user's `GET /api/events` returns 200 with every PUBLISHED event and no DRAFT event. Each item has `remainingPlaces = capacity - ACTIVE registrations` (equal to `capacity` with no registrations, `0` when full). With only DRAFT events stored, the list is empty (200, `{ "events": [] }`). | FR-05, D-07 |
 | AC-11 | When `GET /api/events` returns an empty list, the Events screen shows "No published events yet" and no event rows. | FR-05, NFR-09 |
 | AC-38 | `GET /api/events` without a session cookie, or with the cookie of a logged-out session, returns 401 `UNAUTHENTICATED` and the body contains no event data. | NFR-01, FR-05 |
 
@@ -106,7 +106,7 @@ AC-38 is new: no existing AC covered an unauthenticated request to the event lis
 ## 11. Software test specification (STS)
 | TEST | AC | Level | Setup | Steps | Expected |
 |---|---|---|---|---|---|
-| TEST-10 | AC-10 | API + DB integration (Vitest + Supertest, `DATABASE_URL_TEST`) | Insert directly: organizer O, participants P1 and P2; event E1 PUBLISHED capacity 3 with no registrations; E2 PUBLISHED capacity 2 with ACTIVE registrations for P1 and P2; E3 DRAFT owned by O. Log in as P1. | `GET /api/events`; then `GET /api/events/:id` for E2. | 200; exactly E1 and E2 in the list, E3 absent; E1 `remainingPlaces` 3; E2 `remainingPlaces` 0; detail of E2 has `remainingPlaces` 0. Also run the list as O: same two events. Second case (fresh database, only E3 DRAFT inserted, log in as P1): `GET /api/events` returns 200 with `{ "events": [] }`. |
+| TEST-10 | AC-10 | API + DB integration (Vitest + Supertest, `DATABASE_URL_TEST`) | Insert directly: organizer O, participants P1 and P2; event E1 PUBLISHED capacity 3 with no registrations; E2 PUBLISHED capacity 2 with ACTIVE registrations for P1 and P2; E3 DRAFT owned by O. Log in as P1. | `GET /api/events`. | 200; exactly E1 and E2 in the list, E3 absent; E1 `remainingPlaces` 3; E2 `remainingPlaces` 0. Also run the list as O: same two events. Second case (fresh database, only E3 DRAFT inserted, log in as P1): `GET /api/events` returns 200 with `{ "events": [] }`. |
 | TEST-11 | AC-11 | E2E UI (Playwright, `DATABASE_URL_E2E`) | Seeded database; log in through the UI as a seeded participant. Replace only the `GET /api/events` response with `{ "events": [] }` (Playwright `page.route`), since the seeded database always has PUBLISHED events. | Open `/events`. | "No published events yet" is visible; no event row is rendered. |
 | TEST-38 | AC-38 | API + DB integration (Vitest + Supertest, `DATABASE_URL_TEST`) | Insert directly: organizer O, participant P1, and one PUBLISHED event owned by O. | (a) `GET /api/events` with no cookie. (b) Log in as P1, log out, then `GET /api/events` with the old cookie. | Both 401 with `error.code` `UNAUTHENTICATED`; the body has no `events` field. |
 
