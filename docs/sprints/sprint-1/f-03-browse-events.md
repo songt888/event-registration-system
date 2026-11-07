@@ -125,3 +125,4 @@ The Sprint 1 Definition of Done (F-01 contract, #17) applies. For F-03 in additi
 | Version | Date | Change | Author | Reviewer |
 |---|---|---|---|---|
 | 1.0 | 2026-11-07 | First F-03 contract (Issue #19) | B (stickkersz) | A (songt888) |
+| 1.1 | 2026-11-08 | D-15 (Issue #73): the Events screen shows each event as a card (CD case) instead of a table row; the fields, the title link to `/events/:id`, the loading, empty and error texts and every AC are unchanged. "Row" in sections 1 and 6 reads as "card" | B (stickkersz) | A (songt888) |
