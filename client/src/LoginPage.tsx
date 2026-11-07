@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { ApiError } from './api';
 import { useAuth } from './auth';
+import { play } from './sound';
 
 export function LoginPage() {
   const { user, login } = useAuth();
@@ -11,6 +12,16 @@ export function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  // Boot screen plays once per browser session; it is decorative and never blocks the form.
+  const [boot] = useState(() => {
+    try {
+      if (sessionStorage.getItem('booted')) return false;
+      sessionStorage.setItem('booted', '1');
+    } catch {
+      /* storage blocked: still show it once */
+    }
+    return true;
+  });
 
   if (user) return <Navigate to="/events" replace />;
 
@@ -22,6 +33,7 @@ export function LoginPage() {
     setFieldErrors({});
     try {
       await login(email, password);
+      play('startup');
       navigate('/events', { replace: true });
     } catch (err) {
       const apiErr = err as ApiError;
@@ -34,7 +46,17 @@ export function LoginPage() {
   }
 
   return (
-    <main>
+    <>
+    {boot && (
+      <div className="boot" aria-hidden="true">
+        <b>MILLENNIUM OS</b>
+        <span>Event Registration System v2.000</span>
+        <span>Counting seats . . . ok</span>
+        <span>Starting log-on . . .</span>
+        <i />
+      </div>
+    )}
+    <main className="logon">
       <h1>Sign in</h1>
       <form onSubmit={onSubmit} noValidate>
         <div>
@@ -53,5 +75,6 @@ export function LoginPage() {
         </button>
       </form>
     </main>
+    </>
   );
 }
