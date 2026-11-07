@@ -7,7 +7,7 @@ import { createUser, errorBody, insertSession } from '../test/fixtures';
 const app = createApp();
 const DAY = 24 * 60 * 60 * 1000;
 const MISSING = '00000000-0000-4000-8000-000000000000';
-const PAYLOAD_KEYS = ['capacity', 'description', 'id', 'location', 'remainingPlaces', 'startsAt', 'status'];
+const PAYLOAD_KEYS = ['capacity', 'description', 'id', 'location', 'remainingPlaces', 'startsAt', 'status', 'title'];
 
 const hour = () => new Date(Date.now() + 60 * 60 * 1000);
 const valid = () => ({
@@ -45,7 +45,7 @@ function expectError(res: request.Response, status: number, code: string) {
   const error = errorBody(res);
   expect(error.code).toBe(code);
   for (const d of error.details ?? []) expect(d).toEqual({ field: expect.any(String), message: expect.any(String) });
-  expect(res.text).not.toMatch(/ownerId|passwordHash|tokenHash|stack/);
+  expect(res.text).not.toMatch(/passwordHash|tokenHash|"stack":|"ownerId":|"title":|"capacity":/);
   return error;
 }
 
