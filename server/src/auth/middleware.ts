@@ -8,7 +8,7 @@ export const SESSION_COOKIE = 'sid';
 function readCookie(header: string | undefined, name: string) {
   for (const part of header?.split(';') ?? []) {
     const [key, ...rest] = part.trim().split('=');
-    if (key === name) return decodeURIComponent(rest.join('='));
+    if (key === name) return rest.join('='); // base64url tokens never need decoding
   }
   return undefined;
 }
