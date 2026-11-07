@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { api, ApiError } from './api';
+import { useAuth } from './auth';
 import type { EventPayload } from './MyEventsPage';
 
 const places = (e: EventPayload) => (e.remainingPlaces === 0 ? 'Full' : `${e.remainingPlaces} of ${e.capacity} places left`);
@@ -8,12 +9,12 @@ const places = (e: EventPayload) => (e.remainingPlaces === 0 ? 'Full' : `${e.rem
 function useApi<T>(path: string) {
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<ApiError | null>(null);
+  const [version, setVersion] = useState(0);
   useEffect(() => {
-    setData(null);
     setError(null);
     api<T>(path).then(setData, setError);
-  }, [path]);
-  return { data, error };
+  }, [path, version]);
+  return { data, error, reload: () => setVersion((v) => v + 1) };
 }
 
 export function EventsPage() {
@@ -56,9 +57,32 @@ export function EventsPage() {
   );
 }
 
+const registerError = (err: ApiError) =>
+  err.status === 403 ? 'You do not have access to this' : err.status === 404 ? 'Not found' : err.message;
+
 export function EventDetailPage() {
-  const { data: e, error } = useApi<EventPayload>(`/events/${useParams().id}`);
-  if (error?.status === 401) return <Navigate to="/login" replace />;
+  const { user } = useAuth();
+  const { data: e, error, reload } = useApi<EventPayload>(`/events/${useParams().id}`);
+  const [pending, setPending] = useState(false);
+  const [result, setResult] = useState<{ ok: boolean; text: string } | null>(null);
+  const [lostSession, setLostSession] = useState(false);
+
+  async function register(id: string) {
+    setPending(true);
+    setResult(null);
+    try {
+      await api(`/events/${id}/registrations`, { method: 'POST', body: {} });
+      setResult({ ok: true, text: 'You are registered for this event.' });
+      reload();
+    } catch (err) {
+      if ((err as ApiError).status === 401) setLostSession(true);
+      else setResult({ ok: false, text: registerError(err as ApiError) });
+    } finally {
+      setPending(false);
+    }
+  }
+
+  if (error?.status === 401 || lostSession) return <Navigate to="/login" replace />;
   if (error) return <main>{error.status === 404 ? <p>Not found</p> : <p role="alert">{error.message}</p>}</main>;
   if (!e) return <main><p>Loading event...</p></main>;
   return (
@@ -68,6 +92,13 @@ export function EventDetailPage() {
       <p>{e.location}</p>
       <p>{new Date(e.startsAt).toLocaleString()}</p>
       <p>{places(e)}</p>
+      {/* F-04: shown even when Full; the server decides (BR-01). */}
+      {user?.role === 'PARTICIPANT' && e.status === 'PUBLISHED' && (
+        <button onClick={() => register(e.id)} disabled={pending}>
+          {pending ? 'Registering...' : 'Register'}
+        </button>
+      )}
+      {result && <p role={result.ok ? 'status' : 'alert'}>{result.text}</p>}
     </main>
   );
 }

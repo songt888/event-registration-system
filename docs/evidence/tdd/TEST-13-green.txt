@@ -1,0 +1,8 @@
+Command: npm test -- registrations
+Tested commit: e3c3933 (feature/s1-07-register)
+Result: 3 test files passed; 11 tests passed, 0 failed
+
+ ✓ |integration| src/registrations.int.test.ts > F-04 register API > TEST-13 AC-13 rejects registration when event is full 32ms
+
+ Test Files  3 passed (3)
+      Tests  11 passed (11)
