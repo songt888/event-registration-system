@@ -1,0 +1,17 @@
+Command: npm test -w server -- -t "TEST-07" --reporter=verbose
+Tested commit: 827f874 (sprint-1-staging head after PR #69)
+Run: 2026-11-07
+Result: 2 test files passed; 10 TEST-07 tests passed, 0 failed (57 other tests not selected by -t)
+
+ ✓ |unit| src/events.service.unit.test.ts > F-02 event service > TEST-07 AC-07 rejects capacity 0 with VALIDATION_ERROR
+ ✓ |unit| src/events.service.unit.test.ts > F-02 event service > TEST-07 AC-07 rejects capacity -1 with VALIDATION_ERROR
+ ✓ |unit| src/events.service.unit.test.ts > F-02 event service > TEST-07 AC-07 rejects capacity 1.5 with VALIDATION_ERROR
+ ✓ |unit| src/events.service.unit.test.ts > F-02 event service > TEST-07 AC-07 rejects capacity 10001 with VALIDATION_ERROR
+ ✓ |unit| src/events.service.unit.test.ts > F-02 event service > TEST-07 AC-07 rejects capacity "10" with VALIDATION_ERROR
+ ✓ |integration| src/events.int.test.ts > F-02 publish event API > TEST-07 AC-07 rejects capacity 0 with 400 and stores nothing
+ ✓ |integration| src/events.int.test.ts > F-02 publish event API > TEST-07 AC-07 rejects capacity -1 with 400 and stores nothing
+ ✓ |integration| src/events.int.test.ts > F-02 publish event API > TEST-07 AC-07 rejects capacity 1.5 with 400 and stores nothing
+ ✓ |integration| src/events.int.test.ts > F-02 publish event API > TEST-07 AC-07 rejects capacity 10001 with 400 and stores nothing
+ ✓ |integration| src/events.int.test.ts > F-02 publish event API > TEST-07 AC-07 rejects capacity "10" with 400 and stores nothing
+ Test Files  2 passed | 10 skipped (12)
+      Tests  10 passed | 57 skipped (67)

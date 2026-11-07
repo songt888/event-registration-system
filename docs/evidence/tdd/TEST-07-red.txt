@@ -1,0 +1,19 @@
+Command: npm test -w server -- -t "TEST-07"
+Tested commit: f0f7f12 (feature/s1-05-publish-event, PR #63: failing API and DB tests, after the failing service tests in c571cc1, before the implementation in e0d386b)
+Run: 2026-11-07, repeated on that commit for this file; the original red output is in the "TDD evidence" section of PR #63
+Result: 2 test files failed; 5 integration tests failed, 0 passed; the unit file fails to load
+
+ FAIL  |unit| src/events.service.unit.test.ts [ src/events.service.unit.test.ts ]
+ Error: Cannot find module './events.service.js' imported from 'server/src/events.service.unit.test.ts'
+ (the service does not exist yet, so the 5 unit TEST-07 cases cannot run)
+
+ FAIL  |integration| src/events.int.test.ts > F-02 publish event API > TEST-07 AC-07 rejects capacity 0 with 400 and stores nothing
+ FAIL  |integration| src/events.int.test.ts > F-02 publish event API > TEST-07 AC-07 rejects capacity -1 with 400 and stores nothing
+ FAIL  |integration| src/events.int.test.ts > F-02 publish event API > TEST-07 AC-07 rejects capacity 1.5 with 400 and stores nothing
+ FAIL  |integration| src/events.int.test.ts > F-02 publish event API > TEST-07 AC-07 rejects capacity 10001 with 400 and stores nothing
+ FAIL  |integration| src/events.int.test.ts > F-02 publish event API > TEST-07 AC-07 rejects capacity "10" with 400 and stores nothing
+ AssertionError: expected 404 to be 400 // Object.is equality
+ (POST /api/events does not exist yet)
+
+ Test Files  2 failed | 5 skipped (7)
+      Tests  5 failed | 31 skipped (36)

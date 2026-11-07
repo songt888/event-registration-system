@@ -78,11 +78,23 @@ Summary: 51 of 51 AC have a passing test on the staging head. Also in the full r
 | NFR | Check | Result |
 |---|---|---|
 | NFR-04 | TEST-37, five runs | pass 5 of 5 (section 1) |
-| NFR-08 | `README.md` setup block has 8 commands (clone, cd, cp, docker compose, npm install, migrate, seed, dev); limit is 10 | counted from the README; a run from a fresh clone was not done in this QA run |
-| NFR-06 | data survives a server restart | not run: this run could not call the API with `curl` to create data, stop the server and read it back |
-| NFR-09 | loading, empty and error states on the five S1 screens | not run: manual browser checklist not done in this QA run |
+| NFR-08 | B (teammate of the README author) follows `README.md` from a fresh clone at `c1ee1ce`: clone, cd, cp, docker compose, npm install, migrate, seed, dev; then `npm test` | pass: 8 commands (limit 10); `npm install` 261 packages with Prisma Client generated, migrate and seed OK, UI 200, API 401 without a session, `npm test` 67 of 67; recorded on [Issue #3](https://github.com/songt888/event-registration-system/issues/3#issuecomment-6709039641) |
+| NFR-06 | on the dev database: organizer1 creates and publishes a synthetic event, participant1 registers; read both back with `curl`; stop the server (port 3000 free); start it again without a reset; log in again and read both back | pass: event (PUBLISHED, `remainingPlaces` 4) and registration (ACTIVE) are byte-identical before and after the restart; server code identical to `c1ee1ce` |
+| NFR-09 | loading, empty and error states on the five S1 screens (system SDS 3.2), checklist in section 3.1 | pass: 14 of 14 checks |
+
+### 3.1 NFR-09 checklist
+
+Run on `827f874` with `npm run dev` and seeded data, in headless Chromium (Playwright 1.65) on 2026-11-07. Each state was forced on one API call with a Playwright route: **loading** holds the response until the screenshot is taken; **empty** returns the real response with its list emptied; **error** returns 500 `INTERNAL_ERROR` with the server's generic message "Something went wrong. Please try again." The screen text was checked and every screenshot was looked at. Screenshots are in [`nfr-09/`](nfr-09/). Event detail shows one record, so it has no empty state.
+
+| Screen | Role | Loading | Empty | Error |
+|---|---|---|---|---|
+| Events list `/events` | participant | pass: "Loading events..." | pass: "No published events yet" | pass: message in an alert |
+| Event detail `/events/:id` | participant | pass: "Loading event..." | not applicable | pass: message in an alert |
+| My registrations `/my/registrations` | participant | pass: "Loading..." | pass: "You have no registrations yet." | pass: message in an alert |
+| My events `/organizer/events` | organizer | pass: "Loading..." | pass: "No events yet" | pass: message in an alert, plus "Try again" |
+| Event registrations `/organizer/events/:id/registrations` | organizer | pass: "Loading..." | pass: "No registrations yet." | pass: message in an alert |
 
 ## 4. Not covered by this run
 
-- NFR-06, NFR-09 and the fresh-clone part of NFR-08 (section 3) are open. They are run by hand by B and recorded here before the release PR (10.4); there is no accepted gap.
+- NFR-06, NFR-08 and NFR-09 were added after the first QA run (section 3). NFR-06 is checked locally only; the deployed check is Lab 5 (SRS NFR-06).
 - This file records the staging head only. Issue 10.1 (#41) repeats the run on the tagged release.
