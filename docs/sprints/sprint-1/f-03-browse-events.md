@@ -91,7 +91,7 @@ Defined by the F-02 contract (#18). Not redefined here.
 ## 9. Dependencies on other contracts
 - F-01 (#17): `requireSession`, the 401 response and the error handler.
 - F-02 (#18): `GET /api/events/:id`. F-03's Event detail screen needs that response to include `remainingPlaces` for a PUBLISHED event, because FR-05 covers viewing an event with its remaining places. The positive PUBLISHED-detail AC belongs to #18 (traceability line 22).
-- Issue 3: schema, seed and Vitest runner. TEST-11 is the first Playwright test: the Playwright config and `npm run test:e2e` (D-14, `DATABASE_URL_E2E`) must exist before Issue 6 merges; who adds them is listed in the PR under "Needs a decision by both students". Issue 9 reuses that setup for TEST-22..TEST-24.
+- Issue 3: schema, seed and Vitest runner. TEST-11 is the first Playwright test: the Playwright config and `npm run test:e2e` (D-14, `DATABASE_URL_E2E`) must exist before Issue 6 merges; A adds them, with one smoke test, in Issue 3.3 (#25), as agreed in PR #53. Issue 9 reuses that setup for TEST-22..TEST-24.
 
 ## 10. Acceptance criteria
 | AC | Criterion | Linked |
