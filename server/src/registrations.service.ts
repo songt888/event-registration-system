@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import { AppError } from './lib/errors.js';
+import { AppError, forbidden } from './lib/errors.js';
 import { prisma } from './lib/prisma.js';
 
 const notFound = () => new AppError(404, 'EVENT_NOT_FOUND', 'Event not found.');
@@ -16,6 +16,20 @@ export function assertRegistrable(event: { status: string; startsAt: Date }, now
 type LockedEvent = { status: string; startsAt: Date; capacity: number };
 
 // D-10: one transaction; the event row is locked first, so parallel requests for the last place run one after another.
+// BR-05, D-13: a foreign DRAFT looks like a missing event; a foreign PUBLISHED event is forbidden.
+export async function listEventRegistrations(organizerId: string, eventId: string) {
+  const event = await prisma.event.findUnique({ where: { id: eventId } });
+  if (!event || (event.status === 'DRAFT' && event.ownerId !== organizerId)) throw notFound();
+  if (event.ownerId !== organizerId) throw forbidden();
+
+  const rows = await prisma.registration.findMany({
+    where: { eventId },
+    orderBy: { createdAt: 'asc' },
+    select: { id: true, status: true, createdAt: true, participant: { select: { name: true, email: true } } },
+  });
+  return { registrations: rows };
+}
+
 export async function registerForEvent(participantId: string, eventId: string, now: Date) {
   try {
     return await prisma.$transaction(

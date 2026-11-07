@@ -93,7 +93,7 @@ describe('F-06 event registrations API', () => {
   it('TEST-47 AC-47 returns 401 for no cookie, unknown token, expired session and logged-out session', async () => {
     const expired = await insertSession(f.o.id, new Date(Date.now() - 1000));
     const cookie = await login('o@example.com');
-    await request(app).post('/api/auth/logout').set('Cookie', cookie);
+    await request(app).post('/api/auth/logout').set('Cookie', cookie).send({});
     for (const c of [undefined, 'sid=unknown-token', `sid=${expired}`, cookie]) {
       const res = await list(f.e.id, c);
       expect(res.status).toBe(401);
