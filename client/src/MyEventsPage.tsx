@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, Navigate, useLocation } from 'react-router-dom';
 import { api, ApiError } from './api';
 
-type EventPayload = {
+export type EventPayload = {
   id: string;
   title: string;
   description: string;

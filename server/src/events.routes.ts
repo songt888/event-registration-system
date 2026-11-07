@@ -4,7 +4,7 @@ import { requireRole, requireSession } from './auth/middleware.js';
 import { jsonBody } from './lib/body.js';
 import { asyncHandler, validationError, zodDetails } from './lib/errors.js';
 import { prisma } from './lib/prisma.js';
-import { createEvent, getEvent, listMyEvents, parseCreateEvent, publishEvent } from './events.service.js';
+import { createEvent, getEvent, listMyEvents, listPublishedEvents, parseCreateEvent, publishEvent } from './events.service.js';
 
 const idSchema = z.string().uuid();
 const publishSchema = z.object({}).strict();
@@ -25,6 +25,14 @@ eventsRouter.post(
   asyncHandler(async (req, res) => {
     const input = parseCreateEvent(req.body);
     res.status(201).json(await createEvent(prisma, res.locals.user.id, input, new Date()));
+  }),
+);
+
+eventsRouter.get(
+  '/events',
+  requireSession,
+  asyncHandler(async (_req, res) => {
+    res.json({ events: await listPublishedEvents(prisma) });
   }),
 );
 
