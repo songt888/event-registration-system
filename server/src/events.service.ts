@@ -39,9 +39,17 @@ export async function createEvent(db: Db, ownerId: string, input: CreateEventInp
   return toPayload(await db.event.create({ data: { ...input, ownerId }, include: withActiveCount }));
 }
 
+export async function listPublishedEvents(db: Db) {
+  return listEvents(db, { status: 'PUBLISHED' });
+}
+
 export async function listMyEvents(db: Db, ownerId: string) {
+  return listEvents(db, { ownerId });
+}
+
+async function listEvents(db: Db, where: { ownerId?: string; status?: 'PUBLISHED' }) {
   const events = await db.event.findMany({
-    where: { ownerId },
+    where,
     orderBy: [{ startsAt: 'asc' }, { id: 'asc' }],
     include: withActiveCount,
   });

@@ -2,7 +2,7 @@ import request, { type Test } from 'supertest';
 import { describe, expect, it } from 'vitest';
 import { createApp } from './app';
 import { prisma } from '../test/setup-db';
-import { createUser, errorBody, insertSession } from '../test/fixtures';
+import { PASSWORD, createUser, errorBody, insertSession, sidFrom } from '../test/fixtures';
 
 const app = createApp();
 const DAY = 24 * 60 * 60 * 1000;
@@ -283,5 +283,46 @@ describe('F-02 publish event API', () => {
     ];
     for (const c of cases) expectError(await c, 400, 'VALIDATION_ERROR');
     expect(await allEvents()).toEqual(before);
+  });
+});
+
+describe('F-03 browse events API', () => {
+  it('TEST-10 AC-10 lists only PUBLISHED events with remaining places', async () => {
+    const { user: o, cookie: oCookie } = await signIn('ORGANIZER', 'o1@example.com');
+    const { user: p1, cookie } = await signIn('PARTICIPANT', 'p1@example.com');
+    const p2 = await createUser('PARTICIPANT', 'p2@example.com');
+    const e1 = await seedEvent(o.id, { status: 'PUBLISHED', capacity: 3, startsAt: new Date(Date.now() + 2 * DAY) });
+    const e2 = await seedEvent(o.id, { status: 'PUBLISHED', capacity: 2, startsAt: new Date(Date.now() + DAY) });
+    await seedEvent(o.id);
+    for (const participantId of [p1.id, p2.id]) await prisma.registration.create({ data: { eventId: e2.id, participantId } });
+    const expected = { events: [payloadOf(e2, 0), payloadOf(e1, 3)] };
+    for (const c of [cookie, oCookie]) {
+      const res = await request(app).get('/api/events').set('Cookie', c);
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual(expected);
+    }
+  });
+
+  it('TEST-10 AC-10 returns an empty list when only DRAFT events exist', async () => {
+    const o = await createUser('ORGANIZER', 'o1@example.com');
+    const { cookie } = await signIn('PARTICIPANT', 'p1@example.com');
+    await seedEvent(o.id);
+    const res = await request(app).get('/api/events').set('Cookie', cookie);
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ events: [] });
+  });
+
+  it('TEST-38 AC-38 returns 401 and no event data for no, unknown, expired and logged-out sessions', async () => {
+    const o = await createUser('ORGANIZER', 'o1@example.com');
+    const p1 = await createUser('PARTICIPANT', 'p1@example.com');
+    await seedEvent(o.id, { status: 'PUBLISHED' });
+    const expired = `sid=${await insertSession(p1.id, new Date(Date.now() - 1000))}`;
+    const login = await request(app).post('/api/auth/login').send({ email: p1.email, password: PASSWORD });
+    const revoked = `sid=${sidFrom(login)}`;
+    expect((await request(app).post('/api/auth/logout').set('Cookie', revoked).send({})).status).toBe(204);
+    for (const c of [undefined, 'sid=unknown-token', expired, revoked]) {
+      const req = request(app).get('/api/events');
+      expectError(await (c ? req.set('Cookie', c) : req), 401, 'UNAUTHENTICATED');
+    }
   });
 });
