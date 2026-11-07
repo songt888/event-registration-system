@@ -127,7 +127,7 @@ describe('F-01 authentication API', () => {
     const valid = await insertSession(user.id, future);
     const otherValid = await insertSession(other.id, future);
 
-    for (const sid of ['unknown-token', expired]) {
+    for (const sid of ['unknown-token', '%E0', expired]) {
       const res = await request(app).get('/api/me').set('Cookie', `sid=${sid}`);
       expect(res.status).toBe(401);
       expect(errorBody(res).code).toBe('UNAUTHENTICATED');
