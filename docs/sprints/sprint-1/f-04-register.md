@@ -2,7 +2,7 @@
 
 Issue: #20 (sub-task 2.4 of Issue 2). Implementation: Issue 7 (`feature/s1-07-register`): B writes the failing tests (7.1, #32), A writes the implementation and UI (7.2, #33).
 Author: B (stickkersz). Reviewer: A (songt888).
-Sources: `docs/srs.md` (FR-06, BR-02, BR-03, BR-04, NFR-04, NFR-07, NFR-09), `docs/decisions.md` (D-02, D-03, D-04, D-10, D-12, D-13, D-14), `docs/system-sds.md` (sections 1.3, 2.1, 3, 4, 5, 9), `deliverable1-plan.md` section 5.
+Sources: `docs/srs.md` (FR-06, BR-02, BR-03, BR-04, NFR-01, NFR-03, NFR-04, NFR-07, NFR-09), `docs/decisions.md` (D-02, D-03, D-04, D-10, D-12, D-13, D-14), `docs/system-sds.md` (sections 1.3, 2.1, 2.3, 3, 4, 5, 9, 11), `docs/traceability.md` (NFR-01, NFR-03, NFR-07 rows and coverage gaps), `deliverable1-plan.md` sections 3 and 5.
 
 ## 1. Linked requirements
 | ID | How F-04 covers it |
@@ -11,8 +11,10 @@ Sources: `docs/srs.md` (FR-06, BR-02, BR-03, BR-04, NFR-04, NFR-07, NFR-09), `do
 | BR-02 | ACTIVE registrations never exceed `capacity`, also for parallel requests for the last place. One transaction locks the event row before any check (D-10). |
 | BR-03 | One ACTIVE registration per participant per event: service check inside the transaction, plus the partial unique index from Issue 3 (D-02). |
 | BR-04 | Only a PUBLISHED event with `startsAt` strictly later than now is registrable; `startsAt` equal to now counts as started (D-04, D-12). |
+| NFR-01 | An anonymous or logged-out call to `POST /api/events/:id/registrations` gets 401 `UNAUTHENTICATED` and stores nothing (AC-43). |
+| NFR-03 | The participant is always the session user; a request body that names a `participantId` is rejected with 400 and stores nothing (AC-44). |
 | NFR-04 | 20 parallel registration requests from 20 different participants for a capacity-5 event store exactly 5 ACTIVE registrations (AC-37). |
-| NFR-07 | Errors use the shared shape `{ "error": { "code", "message" } }`; no stack trace. |
+| NFR-07 | Inputs are validated server-side: a non-UUID `:id` or any body field gets 400 `VALIDATION_ERROR` (AC-44). Errors use the shared shape `{ "error": { "code", "message" } }`; no stack trace; every STS error case asserts the shape (section 11). |
 | NFR-09 | On the Event detail screen (one of the five NFR-09 screens) a registration rejected with 409 shows the API `error.message` readably; 403, 404, submitting and success states follow system SDS 3.2. |
 | D-13 | Organizer: 403 `FORBIDDEN`. DRAFT or missing event: 404 `EVENT_NOT_FOUND`. Started event: 409 `EVENT_STARTED`. |
 
@@ -41,10 +43,10 @@ Because the event row is locked first, a second request for the same event waits
 ## 4. Failure and boundary cases
 | Case | Result |
 |---|---|
-| No session, expired or revoked session | 401 `UNAUTHENTICATED` from `requireSession` (F-01 contract); not re-tested in F-04 |
+| No session, expired or revoked session | 401 `UNAUTHENTICATED`, nothing stored (AC-43); expired-session handling of `requireSession` is tested in the F-01 contract |
 | Caller is an organizer (owner or not, any event ID) | 403 `FORBIDDEN`, nothing stored (AC-16) |
 | Event ID unknown or event is DRAFT | 404 `EVENT_NOT_FOUND`, nothing stored (AC-27) |
-| `:id` not a UUID | 400 `VALIDATION_ERROR`, nothing stored |
+| `:id` not a UUID | 400 `VALIDATION_ERROR`, nothing stored (AC-44) |
 | Event PUBLISHED but `startsAt` in the past | 409 `EVENT_STARTED`, nothing stored (AC-28) |
 | `startsAt` exactly equal to `now` (boundary) | 409 `EVENT_STARTED` (AC-28, BR-04) |
 | Participant already has an ACTIVE registration for the event | 409 `ALREADY_REGISTERED`, still one row (AC-14) |
@@ -52,7 +54,7 @@ Because the event row is locked first, a second request for the same event waits
 | One place left (`capacity - 1` ACTIVE) | the request succeeds; the event is then full (AC-12, AC-15) |
 | Several requests at once for the last place | exactly one 201, the others 409 `EVENT_FULL` (AC-15) |
 | 20 parallel requests, capacity 5, no prior registrations | exactly five 201, fifteen 409 `EVENT_FULL` (AC-37) |
-| A body with any field | 400 `VALIDATION_ERROR`, nothing stored |
+| A body with any field, for example `participantId` | 400 `VALIDATION_ERROR`, nothing stored (AC-44) |
 | Unexpected server or database failure | 500 `INTERNAL_ERROR`, generic message, no stack trace (NFR-07) |
 
 When several rules fail at once, the first failing step in section 2 decides the code: a participant who is already registered for a full event gets `ALREADY_REGISTERED`; a full event that has started gets `EVENT_STARTED`.
@@ -122,11 +124,14 @@ Shared states follow system SDS 3.2. The UI never decides capacity, duplicates o
 | AC-27 | Registering for a DRAFT event or an unknown event ID returns 404 `EVENT_NOT_FOUND` and stores no row. | FR-06, BR-04, D-13 |
 | AC-28 | Registering for a PUBLISHED event whose `startsAt` is in the past returns 409 `EVENT_STARTED` and stores no row; `startsAt` equal to `now` is also rejected as started. | FR-06, BR-04, D-12 |
 | AC-37 | For 20 different participants sending registration requests at the same time to a PUBLISHED, future event with capacity 5 and no registrations, exactly 5 requests get 201, 15 get 409 `EVENT_FULL`, and exactly 5 ACTIVE registrations are stored. | NFR-04, BR-02 |
+| AC-43 | `POST /api/events/:id/registrations` with no cookie, or with the cookie of a logged-out session, returns 401 `UNAUTHENTICATED` and stores no row. | NFR-01, FR-06 |
+| AC-44 | A participant's request with body `{ "participantId": "<another participant's id>" }`, or with a non-UUID `:id`, returns 400 `VALIDATION_ERROR` and stores no row. | NFR-03, NFR-07, FR-06 |
 
-TEST-37 is already named as the NFR-04 verification in `docs/srs.md` (NFR-04, BR-02), `docs/system-sds.md` (sections 9 and 11) and `deliverable1-plan.md` section 3, which says it is "specified in the F-04 contract, #20"; this contract defines AC-37 with the same number. No other new AC is added.
+TEST-37 is already named as the NFR-04 verification in `docs/srs.md` (NFR-04, BR-02), `docs/system-sds.md` (sections 9 and 11) and `deliverable1-plan.md` section 3, which says it is "specified in the F-04 contract, #20"; this contract defines AC-37 with the same number.
+AC-43 and AC-44 are new: no existing AC covered an unauthenticated registration request (AC-03 covers `/api/me`, AC-09 covers `POST /api/events`, AC-38 covers `GET /api/events`), or a registration request that names another participant or has an invalid `:id`. `docs/traceability.md` asks the F-01..F-06 contract authors to enumerate session checks on protected routes (NFR-01 row, coverage gaps) and to add explicit validation and direct-request assertions (NFR-03, NFR-07). The numbers follow AC-42, the highest AC found on `sprint-1-staging`, every remote branch and the open PRs.
 
 ## 11. Software test specification (STS)
-All API tests below are API + DB integration tests (Vitest + Supertest, `DATABASE_URL_TEST`, tables truncated in `beforeEach`, D-14). Fixtures are inserted directly in the database; "log in" means `POST /api/auth/login` with the fixture's password. Every `POST` in these tests sends `{}` as JSON.
+All API tests below are API + DB integration tests (Vitest + Supertest, `DATABASE_URL_TEST`, tables truncated in `beforeEach`, D-14). Fixtures are inserted directly in the database; "log in" means `POST /api/auth/login` with the fixture's password. Every `POST` in these tests sends `{}` as JSON, except the body case of TEST-44. Every error response is also asserted to be exactly `{ "error": { "code", "message" } }` with no `stack` field (NFR-07).
 
 | TEST | AC | Level | Setup | Steps | Expected |
 |---|---|---|---|---|---|
@@ -138,6 +143,8 @@ All API tests below are API + DB integration tests (Vitest + Supertest, `DATABAS
 | TEST-27 | AC-27 | API + DB integration | O; P1; D DRAFT owned by O, capacity 5, future. Log in as P1. | Register for D; for a random UUID. | Both 404 `EVENT_NOT_FOUND`. Database: no Registration rows. |
 | TEST-28 | AC-28 | API + DB integration and unit | O; P1; S PUBLISHED, capacity 5, `startsAt` now minus 1 hour (inserted directly, D-12). Log in as P1. Unit case: no database. | Register for S. Unit case: call the service's eligibility check with a fixed `now` equal to the event's `startsAt`. | API: 409 `EVENT_STARTED`; no Registration rows. Unit: rejected with `EVENT_STARTED`. |
 | TEST-37 | AC-37 | API + DB integration, concurrent | O; participants P1..P20; E PUBLISHED, capacity 5, future, no registrations. Log in P1..P20 one by one first, keeping each cookie. | Send the 20 registration requests at the same time with `Promise.all`, all inside one test. | Exactly five 201 and fifteen 409 `EVENT_FULL`. Database: exactly 5 ACTIVE Registrations for E, from 5 different participants. |
+| TEST-43 | AC-43 | API + DB integration | O; P1; E PUBLISHED, capacity 5, future, owned by O. | (a) `POST /api/events/E/registrations` with no cookie. (b) Log in as P1, `POST /api/auth/logout`, then `POST /api/events/E/registrations` with the old cookie. | Both 401, `error.code` `UNAUTHENTICATED`. Database: no Registration rows. |
+| TEST-44 | AC-44 | API + DB integration | O; participants P1, P2; E PUBLISHED, capacity 5, future, owned by O. Log in as P1. | (a) `POST /api/events/E/registrations` with body `{ "participantId": "<P2 id>" }`. (b) `POST /api/events/not-a-uuid/registrations` with `{}`. | Both 400, `error.code` `VALIDATION_ERROR`. Database: no Registration rows (none for P1 or P2). |
 
 Test names start with their IDs, for example `TEST-13 AC-13 rejects registration when event is full`.
 TEST-13 is a TDD sample for the PDF: its failing run is saved as `docs/evidence/tdd/TEST-13-red.txt` and its passing run as `TEST-13-green.txt` (team-workflow).
@@ -146,7 +153,7 @@ TEST-15 and TEST-37 are each run five times in the 9.4 QA run (issue-plan 9.4).
 
 ## 12. Definition of Done (F-04)
 The Sprint 1 Definition of Done (F-01 contract, #17) applies. For F-04 in addition:
-- TEST-12..TEST-16, TEST-27, TEST-28 and TEST-37 exist, run and pass; none skipped.
+- TEST-12..TEST-16, TEST-27, TEST-28, TEST-37, TEST-43 and TEST-44 exist, run and pass; none skipped.
 - The failing tests are committed before the implementation on `feature/s1-07-register`, and the failing run is saved (TEST-13 in `docs/evidence/tdd/`).
 - The registration runs in one transaction that locks the event row first (D-10); no "atomic conditional insert".
 - The Register button shows submitting, success and error states.
@@ -156,3 +163,4 @@ The Sprint 1 Definition of Done (F-01 contract, #17) applies. For F-04 in additi
 | Version | Date | Change | Author | Reviewer |
 |---|---|---|---|---|
 | 1.0 | 2026-11-07 | First F-04 contract (Issue #20) | B (stickkersz) | A (songt888) |
+| 1.1 | 2026-11-07 | Before the PR: added AC-43/TEST-43 (NFR-01, 401 on registration) and AC-44/TEST-44 (NFR-03, NFR-07, 400 for a `participantId` body or non-UUID `:id`); STS asserts the error shape; sources list completed | B (stickkersz) | A (songt888) |
