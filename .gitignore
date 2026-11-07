@@ -8,6 +8,7 @@ node_modules/
 dist/
 build/
 coverage/
+*.tsbuildinfo
 
 # test artifacts (keep curated evidence in docs/evidence/)
 test-results/

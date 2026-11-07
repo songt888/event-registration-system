@@ -9,7 +9,7 @@ const inDays = (days: number) => new Date(Date.now() + days * DAY);
 async function main() {
   const password = process.env.SEED_PASSWORD;
   if (!password) throw new Error('SEED_PASSWORD is not set (see .env.example)');
-  const passwordHash = await bcrypt.hash(password, 10); // NFR-02: cost >= 10
+  const passwordHash = await bcrypt.hash(password, 12); // NFR-02: cost >= 10, configured 12 (system SDS 6)
 
   await prisma.registration.deleteMany();
   await prisma.event.deleteMany();
