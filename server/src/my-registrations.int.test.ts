@@ -90,7 +90,7 @@ describe('F-05 my registrations API', () => {
     const past = new Date(Date.now() - 1000);
     const expired = { mine: await insertSession(P1.id, past), one: await insertSession(P1.id, past) };
     const old = await cookieFor('p1@example.com');
-    await request(app).post('/api/auth/logout').set('Cookie', old);
+    expect((await request(app).post('/api/auth/logout').set('Cookie', old).send({})).status).toBe(204);
 
     for (const [path, token] of [['/api/registrations/mine', expired.mine], [`/api/registrations/${R1}`, expired.one]]) {
       for (const cookie of [undefined, 'sid=unknown-token', `sid=${token}`, old]) {

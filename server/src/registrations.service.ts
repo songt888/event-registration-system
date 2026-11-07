@@ -45,3 +45,22 @@ export async function registerForEvent(participantId: string, eventId: string, n
     throw err;
   }
 }
+
+// F-05 (BR-05): a participant reads only rows where participantId is the session user.
+const mineSelect = {
+  id: true,
+  status: true,
+  createdAt: true,
+  event: { select: { id: true, title: true, location: true, startsAt: true } },
+} as const;
+
+export function listMyRegistrations(participantId: string) {
+  return prisma.registration.findMany({ where: { participantId }, select: mineSelect, orderBy: { createdAt: 'desc' } });
+}
+
+// Unknown ID and another participant's row give the same 404 (D-13).
+export async function getMyRegistration(participantId: string, id: string) {
+  const r = await prisma.registration.findFirst({ where: { id, participantId }, select: mineSelect });
+  if (!r) throw new AppError(404, 'NOT_FOUND', 'Registration not found.');
+  return r;
+}
