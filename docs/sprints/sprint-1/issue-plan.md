@@ -54,7 +54,7 @@ Each Issue stays as the parent on the board. Each sub-task is its own GitHub Iss
 | 2.5 (#21) | F-05 + F-06 contract | feature SDS, AC, STS for My registrations and organizer view | B | `docs/s1-02-f05-f06` |
 | 3.1 (#23) | Skeleton and database | `client/`, `server/`, docker-compose Postgres, `.env.example` | A | `feature/s1-03-skeleton` |
 | 3.2 (#24) | Schema and seed | Prisma schema, migration with partial unique index, seed with relative dates | A | `feature/s1-03-schema` |
-| 3.3 (#25) | Test runner and README | Vitest projects, `DATABASE_URL_TEST`, sequential integration files, README commands | A | `feature/s1-03-test-runner` |
+| 3.3 (#25) | Test runner and README | Vitest projects, `DATABASE_URL_TEST`, sequential integration files, README commands; Playwright config, `npm run test:e2e`, `DATABASE_URL_E2E` (D-14) and one E2E smoke test (agreed in PR #53) | A | `feature/s1-03-test-runner` |
 | 7.1 (#32) | Register red tests | failing tests TEST-12..16, TEST-27 and TEST-28; no separate PR: done when the red commit is pushed to the shared branch, the failing run output is saved (see team-workflow section 3) and A is tagged on #33 | B | `feature/s1-07-register` |
 | 7.2 (#33) | Register implementation and UI | transaction with row lock, duplicate check, capacity; register button, full and already-registered messages (same branch as 7.1, A opens the PR) | A | `feature/s1-07-register` |
 | 8.1 (#35) | My registrations | participant API and UI, ownership denial | A | `feature/s1-08-my-registrations` |

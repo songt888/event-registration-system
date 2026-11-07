@@ -1,13 +1,23 @@
 {
   "name": "event-registration-system",
   "private": true,
-  "workspaces": ["server", "client"],
+  "workspaces": [
+    "server",
+    "client"
+  ],
   "scripts": {
     "dev": "concurrently -n server,client \"npm run dev -w server\" \"npm run dev -w client\"",
-    "build": "npm run build -w server && npm run build -w client"
+    "build": "npm run build -w server && npm run build -w client",
+    "migrate": "npm run migrate -w server",
+    "seed": "npm run seed -w server",
+    "test": "npm test -w server",
+    "test:e2e": "playwright test"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.0",
     "concurrently": "^9.1.0"
   },
-  "engines": { "node": ">=20" }
+  "engines": {
+    "node": ">=20"
+  }
 }

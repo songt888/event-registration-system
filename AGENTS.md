@@ -47,8 +47,9 @@ Docs: `docs/srs.md`, `docs/features.md`, `docs/traceability.md`, `docs/system-sd
 
 ## Commands (fill in as they are created; keep README identical)
 ```bash
-docker compose up -d db          # PostgreSQL
-cd server && npm install && npx prisma migrate dev && npm run seed
+cp .env.example server/.env      # local placeholders
+docker compose up -d db          # PostgreSQL (dev, test, E2E databases)
+npm install && npm run migrate && npm run seed
 npm run dev                      # server and client
 npm test                         # unit + API/DB integration (uses DATABASE_URL_TEST, a separate test database, never the dev one)
 npm run test:e2e                 # Playwright (uses DATABASE_URL_E2E, reset and seeded before each run)
