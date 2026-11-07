@@ -14,7 +14,7 @@ Sources: `docs/srs.md` (FR-06, BR-02, BR-03, BR-04, NFR-01, NFR-03, NFR-04, NFR-
 | NFR-01 | An anonymous or logged-out call to `POST /api/events/:id/registrations` gets 401 `UNAUTHENTICATED` and stores nothing (AC-43). |
 | NFR-03 | The participant is always the session user; a request body that names a `participantId` is rejected with 400 and stores nothing (AC-44). |
 | NFR-04 | 20 parallel registration requests from 20 different participants for a capacity-5 event store exactly 5 ACTIVE registrations (AC-37). |
-| NFR-07 | Inputs are validated server-side: a non-UUID `:id` or any body field gets 400 `VALIDATION_ERROR` (AC-44). Errors use the shared shape `{ "error": { "code", "message" } }`; no stack trace; every STS error case asserts the shape (section 11). |
+| NFR-07 | Inputs are validated server-side: a non-UUID `:id` or any body field gets 400 `VALIDATION_ERROR` (AC-44). Errors use the shared shape `{ "error": { "code", "message" } }`, plus `details` for 400 `VALIDATION_ERROR` only, and no `stack` field (system SDS 4.2); every STS error case asserts the shape (section 11). |
 | NFR-09 | On the Event detail screen (one of the five NFR-09 screens) a registration rejected with 409 shows the API `error.message` readably; 403, 404, submitting and success states follow system SDS 3.2. |
 | D-13 | Organizer: 403 `FORBIDDEN`. DRAFT or missing event: 404 `EVENT_NOT_FOUND`. Started event: 409 `EVENT_STARTED`. |
 
@@ -131,7 +131,7 @@ TEST-37 is already named as the NFR-04 verification in `docs/srs.md` (NFR-04, BR
 AC-43 and AC-44 are new: no existing AC covered an unauthenticated registration request (AC-03 covers `/api/me`, AC-09 covers `POST /api/events`, AC-38 covers `GET /api/events`), or a registration request that names another participant or has an invalid `:id`. `docs/traceability.md` asks the F-01..F-06 contract authors to enumerate session checks on protected routes (NFR-01 row, coverage gaps) and to add explicit validation and direct-request assertions (NFR-03, NFR-07). The numbers follow AC-42, the highest AC found on `sprint-1-staging`, every remote branch and the open PRs.
 
 ## 11. Software test specification (STS)
-All API tests below are API + DB integration tests (Vitest + Supertest, `DATABASE_URL_TEST`, tables truncated in `beforeEach`, D-14). Fixtures are inserted directly in the database; "log in" means `POST /api/auth/login` with the fixture's password. Every `POST` in these tests sends `{}` as JSON, except the body case of TEST-44. Every error response is also asserted to be exactly `{ "error": { "code", "message" } }` with no `stack` field (NFR-07).
+All API tests below are API + DB integration tests (Vitest + Supertest, `DATABASE_URL_TEST`, tables truncated in `beforeEach`, D-14). Fixtures are inserted directly in the database; "log in" means `POST /api/auth/login` with the fixture's password. Every `POST` in these tests sends `{}` as JSON, except the body case of TEST-44. Every error response is also asserted to have the shape `{ "error": { "code", "message" } }`, plus `details` for 400 `VALIDATION_ERROR` only, and no `stack` field (NFR-07, system SDS 4.2): the 401, 403, 404 and 409 responses have exactly the keys `code` and `message` in `error`; the 400 responses (TEST-44) are checked for `error.code` and the absence of `stack` only.
 
 | TEST | AC | Level | Setup | Steps | Expected |
 |---|---|---|---|---|---|
@@ -144,7 +144,7 @@ All API tests below are API + DB integration tests (Vitest + Supertest, `DATABAS
 | TEST-28 | AC-28 | API + DB integration and unit | O; P1; S PUBLISHED, capacity 5, `startsAt` now minus 1 hour (inserted directly, D-12). Log in as P1. Unit case: no database. | Register for S. Unit case: call the service's eligibility check with a fixed `now` equal to the event's `startsAt`. | API: 409 `EVENT_STARTED`; no Registration rows. Unit: rejected with `EVENT_STARTED`. |
 | TEST-37 | AC-37 | API + DB integration, concurrent | O; participants P1..P20; E PUBLISHED, capacity 5, future, no registrations. Log in P1..P20 one by one first, keeping each cookie. | Send the 20 registration requests at the same time with `Promise.all`, all inside one test. | Exactly five 201 and fifteen 409 `EVENT_FULL`. Database: exactly 5 ACTIVE Registrations for E, from 5 different participants. |
 | TEST-43 | AC-43 | API + DB integration | O; P1; E PUBLISHED, capacity 5, future, owned by O. | (a) `POST /api/events/E/registrations` with no cookie. (b) Log in as P1, `POST /api/auth/logout`, then `POST /api/events/E/registrations` with the old cookie. | Both 401, `error.code` `UNAUTHENTICATED`. Database: no Registration rows. |
-| TEST-44 | AC-44 | API + DB integration | O; participants P1, P2; E PUBLISHED, capacity 5, future, owned by O. Log in as P1. | (a) `POST /api/events/E/registrations` with body `{ "participantId": "<P2 id>" }`. (b) `POST /api/events/not-a-uuid/registrations` with `{}`. | Both 400, `error.code` `VALIDATION_ERROR`. Database: no Registration rows (none for P1 or P2). |
+| TEST-44 | AC-44 | API + DB integration | O; participants P1, P2; E PUBLISHED, capacity 5, future, owned by O. Log in as P1. | (a) `POST /api/events/E/registrations` with body `{ "participantId": "<P2 id>" }`. (b) `POST /api/events/not-a-uuid/registrations` with `{}`. | Both 400, `error.code` `VALIDATION_ERROR`; `error` has no `stack` field (`details` may be present, system SDS 4.2). Database: no Registration rows (none for P1 or P2). |
 
 Test names start with their IDs, for example `TEST-13 AC-13 rejects registration when event is full`.
 TEST-13 is a TDD sample for the PDF: its failing run is saved as `docs/evidence/tdd/TEST-13-red.txt` and its passing run as `TEST-13-green.txt` (team-workflow).
@@ -164,3 +164,4 @@ The Sprint 1 Definition of Done (F-01 contract, #17) applies. For F-04 in additi
 |---|---|---|---|---|
 | 1.0 | 2026-11-07 | First F-04 contract (Issue #20) | B (stickkersz) | A (songt888) |
 | 1.1 | 2026-11-07 | Before the PR: added AC-43/TEST-43 (NFR-01, 401 on registration) and AC-44/TEST-44 (NFR-03, NFR-07, 400 for a `participantId` body or non-UUID `:id`); STS asserts the error shape; sources list completed | B (stickkersz) | A (songt888) |
+| 1.2 | 2026-11-07 | Before the PR: error shape allows `details` on 400 `VALIDATION_ERROR` only (system SDS 4.2); TEST-44 asserts `error.code` and no `stack` | B (stickkersz) | A (songt888) |
