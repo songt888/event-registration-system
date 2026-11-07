@@ -38,7 +38,7 @@ A later hardening feature does not defer Sprint 1 quality obligations. These res
 | Capacity under concurrency | NFR-04 | Established and verified in F-04/S1, including both the last-place case and the distinct 20-participant/capacity-5 scenario; no test design is redefined here. |
 | Server validation and safe error responses | NFR-07 | Established in the S1 API foundation/authentication flow and verified for every applicable feature; retained in later regression. |
 | Persistent data and reproducible local setup | NFR-06, NFR-08 | Foundation/README responsibility in S1; fresh-clone setup and restart/retrieval checks in S1 QA. NFR-06 is also verified for deployment in Lab 5 and revisited in F-13. |
-| Shared loading, empty and error states | NFR-09 | Required on all five S1 data-loading screens within F-02 through F-06; verified in S1 QA and revisited in F-13 for hardening. |
+| Shared loading, empty and error states | NFR-09 | Required on all five S1 data-loading screens within F-02 through F-06; verified in S1 QA and revisited in F-13 for hardening. A shared visual style for all S1 screens is added in S1 (D-15, Issue #73). |
 | Published-list performance | NFR-05 | Measured in F-13/S3 against the SRS target: p95 below 500 ms with 1,000 events; measurement parameters agreed before execution. |
 
 ## 3. Scope boundaries and remaining elaboration
