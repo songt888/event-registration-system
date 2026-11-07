@@ -17,6 +17,8 @@ npm run migrate                  # apply migrations to the dev database
 npm run seed                     # synthetic demo data (password = SEED_PASSWORD)
 npm run dev                      # API http://localhost:3000, UI http://localhost:5173
 ```
+Command count (NFR-08, at most 10): each line in the block above is one command, so setup and run take 8 commands. The tools under Requirements are installed beforehand and not counted. `npx playwright install chromium` is a one-time test step and not part of setup.
+
 Seeded accounts: `organizer1@example.com`, `organizer2@example.com`, `participant1@example.com` .. `participant4@example.com`.
 
 ## Tests
