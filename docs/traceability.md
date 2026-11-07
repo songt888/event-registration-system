@@ -2,7 +2,7 @@
 
 Event Registration and Attendance System | CPE 334, Semester 1/2026 | Issue #14
 
-This matrix maps the whole-product [SRS](srs.md) to [features](features.md), completion/verification sprints and the current planned acceptance/test skeleton in [the master plan](../deliverable1-plan.md), Section 5. It is a planning baseline, not an execution-results table. At preparation time, the detailed S1 contracts, executable tests and result files have not been created.
+This matrix maps the whole-product [SRS](srs.md) to [features](features.md), completion/verification sprints and the current planned acceptance/test skeleton in [the master plan](../deliverable1-plan.md), Section 5. It is a planning baseline, not an execution-results table. The [F-01 contract](sprints/sprint-1/f-01-auth.md) now elaborates authentication; other S1 contracts, executable tests and result files remain pending. Contract content is not execution evidence.
 
 ## 1. Reading the matrix
 
@@ -15,9 +15,9 @@ This matrix maps the whole-product [SRS](srs.md) to [features](features.md), com
 
 | Requirement | Feature or responsibility | Sprint | Existing planned AC | Existing planned TEST | Coverage / remaining work |
 |---|---|---|---|---|---|
-| FR-01 Login | F-01 | S1 | AC-01, AC-02; AC-24 UI | TEST-01, TEST-02; TEST-24 | Login success/failure skeleton; detailed auth contract pending #17. |
-| FR-02 Logout/revocation | F-01 | S1 | AC-04; AC-24 UI | TEST-04; TEST-24 | Replayed cookie rejection belongs in the API case (D-08); contract pending #17. |
-| FR-03 Current-user identity | F-01 | S1 | AC-03 (no session); AC-01 returns login user | TEST-03; TEST-01 | Partial: authenticated `/api/me` response fields still need explicit contract verification (#17). |
+| FR-01 Login | F-01 | S1 | AC-01, AC-02; AC-24 UI | TEST-01, TEST-02; TEST-24 | Login success/failure elaborated in the F-01 contract (#17); executable verification pending. |
+| FR-02 Logout/revocation | F-01 | S1 | AC-04; AC-24 UI | TEST-04; TEST-24 | Replayed cookie rejection belongs in the API case (D-08); specified in the F-01 contract (#17); executable verification pending. |
+| FR-03 Current-user identity | F-01 | S1 | AC-03 (no session); AC-01 returns login user; AC-39 authenticated current user | TEST-03; TEST-01; TEST-39 | F-01 contract specifies exact id/name/role response; execution pending. |
 | FR-04 Create DRAFT/publish own event | F-02 | S1 | AC-06, AC-07, AC-08, AC-09, AC-25, AC-26, AC-29, AC-30, AC-35, AC-36 | TEST-06, TEST-07, TEST-08, TEST-09, TEST-25, TEST-26, TEST-29, TEST-30, TEST-35, TEST-36 | Creation/publication, role, ownership and time skeleton; boundary/matrix gaps below; contract pending #18. |
 | FR-05 Published-event browse/detail | F-03; F-02 owns shared detail definition | S1 | AC-10 (list), AC-11 (empty UI) | TEST-10, TEST-11 | Partial: positive PUBLISHED-detail behavior is not an explicit AC in the skeleton; resolve in #18, referenced by #19. |
 | FR-06 Register | F-04 | S1 | AC-12, AC-13, AC-14, AC-15, AC-16, AC-27, AC-28 | TEST-12, TEST-13, TEST-14, TEST-15, TEST-16, TEST-27, TEST-28 | Valid, full, duplicate, last-place, wrong-role, hidden/missing and started-event skeleton; contract pending #20. |
@@ -49,13 +49,13 @@ This matrix maps the whole-product [SRS](srs.md) to [features](features.md), com
 
 | Requirement | Feature or responsibility | Verification sprint | Existing planned AC | Existing planned TEST / method | Coverage / remaining work |
 |---|---|---|---|---|---|
-| NFR-01 No-session rejection without private data | F-01; every protected feature | S1; regress S2/S3 | AC-03, AC-09 (examples) | TEST-03, TEST-09 | Partial: enumerate no/invalid/expired/revoked-session checks across protected routes in #17..#21. |
-| NFR-02 Password hashes/private responses | F-01; response protection in all API features | S1; auth regression | AC-01 (login response), AC-05 (stored hash) | TEST-01, TEST-05 | Partial: bcrypt cost >= 10 and sensitive-field absence across responses must be asserted in the contracts. |
-| NFR-03 Backend role/ownership enforcement | F-01 foundation; all protected features | S1; regress S2/S3 | AC-08, AC-16, AC-18, AC-20, AC-21, AC-26, AC-32, AC-33, AC-34 (samples) | Matching TEST-08, TEST-16, TEST-18, TEST-20, TEST-21, TEST-26, TEST-32, TEST-33, TEST-34 | Partial: complete the SDS role/ownership matrix using D-13 check order, including direct API requests bypassing UI. |
+| NFR-01 No-session rejection without private data | F-01; every protected feature | S1; regress S2/S3 | AC-03, AC-04, AC-09 (examples); AC-40, AC-42 (F-01) | TEST-03, TEST-04, TEST-09; TEST-40, TEST-42 | Partial: enumerate no/invalid/expired/revoked-session checks across protected routes in #17..#21. |
+| NFR-02 Password hashes/private responses | F-01; response protection in all API features | S1; auth regression | AC-01 (login response), AC-05 (stored hash), AC-39 (current-user response) | TEST-01, TEST-05, TEST-39 | Partial: bcrypt cost >= 10 and sensitive-field absence across responses must be asserted in the contracts. |
+| NFR-03 Backend role/ownership enforcement | F-01 foundation; all protected features | S1; regress S2/S3 | AC-08, AC-16, AC-18, AC-20, AC-21, AC-26, AC-32, AC-33, AC-34 (samples); AC-42 (shared guards) | Matching TEST-08, TEST-16, TEST-18, TEST-20, TEST-21, TEST-26, TEST-32, TEST-33, TEST-34; TEST-42 | Partial: complete the SDS role/ownership matrix using D-13 check order, including direct API requests bypassing UI. |
 | NFR-04 20 participants/capacity 5 -> exactly 5 ACTIVE | F-04 | S1 | Dedicated AC pending #20; AC-15 is the different last-place case | TEST-37 reference; TEST-15 stays separate | Scenario referenced in the approved plan/SRS/SDS; full AC/STS belongs to B's #20 contract. This matrix does not assign a new AC. |
 | NFR-05 List p95 < 500 ms / 1,000 events | F-13; F-03 list responsibility | S3 | Pending S3 contract | Performance script planned; no ID assigned | Agree sampling/warm-up/concurrency; retain SRS numeric target. |
 | NFR-06 Data survives restart | Foundation/persistence; F-11, F-13 and persisted S1 journeys | S1 local; Lab 5 deployed; S3 regression | No dedicated AC in current skeleton | Planned restart-and-retrieve check in 9.4 QA; deployment repeat | API/DB persistence samples and AC-22 do not prove survival across restart; actual evidence pending. |
-| NFR-07 Server validation/uniform safe errors | F-01, F-02, F-04; every API feature | S1; regress S2/S3 | AC-07, AC-13, AC-14, AC-16, AC-18, AC-26, AC-27, AC-28, AC-29, AC-30, AC-35, AC-36 (samples) | Matching numbered tests | Partial: response-code samples do not alone cover uniform shape, all invalid input or absence of stack traces. |
+| NFR-07 Server validation/uniform safe errors | F-01, F-02, F-04; every API feature | S1; regress S2/S3 | AC-02, AC-07, AC-13, AC-14, AC-16, AC-18, AC-26, AC-27, AC-28, AC-29, AC-30, AC-35, AC-36 (samples); AC-41 (login validation) | Matching numbered tests | Partial: response-code samples do not alone cover uniform shape, all invalid input or absence of stack traces. |
 | NFR-08 README setup in <= 10 commands | Foundation/README: Issue #3 and its fresh-clone review | S1 | No dedicated AC in current skeleton | Planned fresh-clone command-count check; repeat in 9.4 QA | Named responsibility; agree command-count convention and retain the actual commands/outcome. No invented feature/test ID. |
 | NFR-09 Five S1 screens: loading/empty/error | F-02, F-03, F-04, F-05, F-06; F-13 hardening later | S1; S3 hardening/regression | AC-11 covers only empty published list | TEST-11 plus planned five-screen manual checklist in 9.4 QA | Partial: loading/error and other list-empty states require the documented checklist/contracts; do not defer S1 obligation to F-13. |
 
@@ -76,7 +76,7 @@ Every FR/BR/NFR has a feature or named responsibility and sprint above; this is 
 | Gap / limitation | Affected scope | Planned closure / owner |
 |---|---|---|
 | Detailed S1 feature contracts and executable tests are absent at this checkpoint. | All S1 mappings; none is an executed pass. | Issue #2 shares: A #17/#18, B #19/#20/#21, before feature implementation. |
-| Authenticated current-user response and positive published-event detail lack dedicated AC in the skeleton. | FR-03, FR-05 | A elaborates #17 and the shared detail definition in #18; B #19 refers to that definition. Add justified new IDs in those contracts, not silently reinterpret old ACs. |
+| Positive published-event detail lacks a dedicated AC in the skeleton. Authenticated current-user response is now AC-39/TEST-39 in F-01. | FR-05; FR-03 contract elaborated, not executed | A elaborates shared detail in #18; B #19 refers to that definition. Preserve IDs; F-01 adds AC/TEST-39..42 for current user, expiry, validation and guards, leaving 37 to F-04 and 38 to B's F-03 draft. |
 | Representative role/ownership tests are not the full route matrix; invalid/expired sessions, wrong-role publication and foreign-DRAFT registration-list cases need explicit coverage. | FR-04, FR-08; BR-01, BR-05; NFR-01, NFR-03; D-13 | Contract authors #17..#21 map all applicable SDS permissions. Preserve session -> role -> ownership precedence. |
 | Existing boundary samples do not explicitly cover every approved bound. | BR-01 capacity maximum; BR-04 `startsAt == now`; BR-09 publish equality | #18/#20 elaborate approved boundaries without inventing changed limits. |
 | The capacity-5 concurrency scenario has a TEST-37 reference but no full dedicated AC/STS yet. | NFR-04, BR-02 | B defines in #20; QA #40 later runs TEST-15 and TEST-37 separately, five times each. |
