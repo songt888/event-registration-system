@@ -1,6 +1,6 @@
 # AC to TEST results (Sprint 1 QA run, Issue #40)
 
-Single results artifact named in [traceability](../traceability.md) section 8. Run on the `sprint-1-staging` head, commit `dc0e34f4f144827241a3449b4858c522e352d294`, 2026-11-07 22:04 (Asia/Bangkok), local machine, Node 20+, PostgreSQL 16 in Docker. Updated again after the release tag by Issue 10.1 (#41).
+Single results artifact named in [traceability](../traceability.md) section 8. Run on the `sprint-1-staging` head, commit `c1ee1ce273e9d8e2853d575a2af6300a41f98b4b`, 2026-11-07 22:22 (Asia/Bangkok), local machine, Node 20+, PostgreSQL 16 in Docker. Updated again after the release tag by Issue 10.1 (#41).
 
 ## 1. Commands and counts
 
@@ -8,7 +8,7 @@ Single results artifact named in [traceability](../traceability.md) section 8. R
 |---|---|
 | `npm run build` (server `prisma generate && tsc`, client `tsc -b && vite build`) | passed, no errors |
 | `npm test` (Vitest, `DATABASE_URL_TEST`) | 12 files passed; 67 tests: 67 passed, 0 failed, 0 skipped (10 unit, 57 integration) |
-| `npm run test:e2e` (Playwright, `DATABASE_URL_E2E`) | 2 tests: 2 passed, 0 failed, 0 skipped (TEST-11 and the smoke test) |
+| `npm run test:e2e` (Playwright, `DATABASE_URL_E2E`) | 5 tests: 5 passed, 0 failed, 0 skipped (TEST-11, TEST-22, TEST-23, TEST-24 and the smoke test) |
 | `npm test -w server -- -t "TEST-15\|TEST-37"`, runs 1 to 5 | 5 of 5 runs passed; each run 2 passed (TEST-15 and TEST-37), 65 not selected by the name filter |
 
 "Skipped" in the filtered runs means not selected by `-t`; no test was skipped or weakened in the full run.
@@ -40,9 +40,9 @@ Server files are under `server/src/`. Every test name begins with its TEST and A
 | AC-19 | TEST-19 | `event-registrations.int.test.ts` owned event registrations, oldest first, name and email only | pass |
 | AC-20 | TEST-20 | `event-registrations.int.test.ts` 403 for another organizer on a PUBLISHED event | pass |
 | AC-21 | TEST-21 | `event-registrations.int.test.ts` 403 for a participant on any event ID | pass |
-| AC-22 | TEST-22 | not on the staging head (9.1, Issue #37, has no merged PR) | not run |
-| AC-23 | TEST-23 | not on the staging head (9.2, Issue #38, PR #68 open) | not run |
-| AC-24 | TEST-24 | not on the staging head (9.1, Issue #37, has no merged PR) | not run |
+| AC-22 | TEST-22 | `e2e/golden-journey.spec.ts` organizer publishes, participant registers and sees it, owner sees the registrant | pass |
+| AC-23 | TEST-23 | `e2e/full-event.spec.ts` full event shows the full message and My registrations stays unchanged | pass |
+| AC-24 | TEST-24 | `e2e/golden-journey.spec.ts` header shows name and role for each role; after logout a protected page opens login | pass |
 | AC-25 | TEST-25 | `events.int.test.ts` publishes the owner DRAFT, persists PUBLISHED with publishedAt | pass |
 | AC-26 | TEST-26 | `events.int.test.ts` 404 when another organizer publishes the DRAFT | pass |
 | AC-27 | TEST-27 | `registrations.int.test.ts` 404 for DRAFT or unknown event | pass |
@@ -71,7 +71,7 @@ Server files are under `server/src/`. Every test name begins with its TEST and A
 | AC-50 | TEST-50 | `events.int.test.ts` role before lookup, ownership before state on publish | pass |
 | AC-51 | TEST-51 | `events.int.test.ts` malformed create, publish and ID input rejected | pass |
 
-Summary: 48 of 51 AC have a passing test on the staging head; 3 (AC-22, AC-23, AC-24) are not run because their E2E branches are not merged. Also in the full run, `foundation.int.test.ts` (2 tests, health and test-database isolation) has no AC.
+Summary: 51 of 51 AC have a passing test on the staging head. Also in the full run, `foundation.int.test.ts` (2 tests, health and test-database isolation) has no AC.
 
 ## 3. NFR checks
 
@@ -84,5 +84,5 @@ Summary: 48 of 51 AC have a passing test on the staging head; 3 (AC-22, AC-23, A
 
 ## 4. Not covered by this run
 
-- AC-22, AC-23, AC-24 (see section 2), and NFR-06, NFR-09 and the fresh-clone part of NFR-08 (section 3) are open. They must be run and recorded here before the release PR (10.4), or recorded as an accepted gap.
+- NFR-06, NFR-09 and the fresh-clone part of NFR-08 (section 3) are open. They are run by hand by B and recorded here before the release PR (10.4); there is no accepted gap.
 - This file records the staging head only. Issue 10.1 (#41) repeats the run on the tagged release.
