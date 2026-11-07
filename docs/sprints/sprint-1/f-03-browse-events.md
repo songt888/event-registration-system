@@ -2,13 +2,13 @@
 
 Issue: #19 (sub-task 2.3 of Issue 2). Implementation: Issue 6 (`feature/s1-06-browse-events`).
 Author: B (stickkersz). Reviewer: A (songt888).
-Sources: `docs/srs.md` (FR-05, NFR-01, NFR-07, NFR-09), `docs/decisions.md` (D-07, D-13, D-14), `docs/system-sds.md` (sections 1.3, 2.1, 3, 4, 5), `deliverable1-plan.md` section 5.
+Sources: `docs/srs.md` (FR-05, NFR-01, NFR-07, NFR-09), `docs/decisions.md` (D-07, D-08, D-13, D-14), `docs/system-sds.md` (sections 1.3, 2.1, 3, 4, 5, 6), `deliverable1-plan.md` section 5.
 
 ## 1. Linked requirements
 | ID | How F-03 covers it |
 |---|---|
 | FR-05 | Any signed-in user lists PUBLISHED events with `remainingPlaces = capacity - ACTIVE registrations`; DRAFT events never appear in the list. |
-| NFR-01 | `GET /api/events` without a valid session returns 401 and no event data. |
+| NFR-01 | `GET /api/events` with no, invalid, expired or revoked session returns 401 and no event data (AC-38). |
 | NFR-07 | Errors use the shared shape `{ "error": { "code", "message" } }`; no stack trace. |
 | NFR-09 | The Events screen and the Event detail screen show loading, empty (list only) and error states. |
 | D-07 | Only PUBLISHED events are listed. |
@@ -33,8 +33,7 @@ PUBLISHED events whose `startsAt` has passed stay in the list in Sprint 1. FR-05
 ## 4. Failure and boundary cases
 | Case | Result |
 |---|---|
-| No session or revoked (logged-out) session | 401 `UNAUTHENTICATED`, no event data (AC-38) |
-| Expired or invalid session cookie | 401 `UNAUTHENTICATED` from `requireSession` (F-01 contract); not re-tested in F-03 |
+| No session cookie, invalid session cookie, expired session or revoked (logged-out) session | 401 `UNAUTHENTICATED`, no event data (AC-38) |
 | No PUBLISHED events (DRAFT events may exist) | 200 with an empty list; the UI shows the empty state (AC-10, AC-11) |
 | Event with no ACTIVE registrations | `remainingPlaces` equals `capacity` (AC-10) |
 | Event whose ACTIVE registrations equal its capacity | `remainingPlaces` is `0`; the event is still listed (AC-10) |
@@ -99,7 +98,7 @@ Defined by the F-02 contract (#18). Not redefined here.
 |---|---|---|
 | AC-10 | A signed-in user's `GET /api/events` returns 200 with every PUBLISHED event and no DRAFT event. Each item has `remainingPlaces = capacity - ACTIVE registrations` (equal to `capacity` with no registrations, `0` when full). With only DRAFT events stored, the list is empty (200, `{ "events": [] }`). | FR-05, D-07 |
 | AC-11 | When `GET /api/events` returns an empty list, the Events screen shows "No published events yet" and no event rows. | FR-05, NFR-09 |
-| AC-38 | `GET /api/events` without a session cookie, or with the cookie of a logged-out session, returns 401 `UNAUTHENTICATED` and the body contains no event data. | NFR-01, FR-05 |
+| AC-38 | `GET /api/events` without a session cookie, with a cookie whose token matches no session, with the cookie of an expired session (`expiresAt <= now`), or with the cookie of a logged-out session, returns 401 `UNAUTHENTICATED` and the body contains no event data. | NFR-01, FR-05 |
 
 AC-38 is new: no existing AC covered an unauthenticated request to the event list (AC-03 covers `/api/me`, AC-09 covers `POST /api/events`).
 
@@ -108,9 +107,10 @@ AC-38 is new: no existing AC covered an unauthenticated request to the event lis
 |---|---|---|---|---|---|
 | TEST-10 | AC-10 | API + DB integration (Vitest + Supertest, `DATABASE_URL_TEST`) | Insert directly: organizer O, participants P1 and P2; event E1 PUBLISHED capacity 3 with no registrations; E2 PUBLISHED capacity 2 with ACTIVE registrations for P1 and P2; E3 DRAFT owned by O. Log in as P1. | `GET /api/events`. | 200; exactly E1 and E2 in the list, E3 absent; E1 `remainingPlaces` 3; E2 `remainingPlaces` 0. Also run the list as O: same two events. Second case (fresh database, only E3 DRAFT inserted, log in as P1): `GET /api/events` returns 200 with `{ "events": [] }`. |
 | TEST-11 | AC-11 | E2E UI (Playwright, `DATABASE_URL_E2E`) | Seeded database; log in through the UI as a seeded participant. Replace only the `GET /api/events` response with `{ "events": [] }` (Playwright `page.route`), since the seeded database always has PUBLISHED events. | Open `/events`. | "No published events yet" is visible; no event row is rendered. |
-| TEST-38 | AC-38 | API + DB integration (Vitest + Supertest, `DATABASE_URL_TEST`) | Insert directly: organizer O, participant P1, and one PUBLISHED event owned by O. | (a) `GET /api/events` with no cookie. (b) Log in as P1, log out, then `GET /api/events` with the old cookie. | Both 401 with `error.code` `UNAUTHENTICATED`; the body has no `events` field. |
+| TEST-38 | AC-38 | API + DB integration (Vitest + Supertest, `DATABASE_URL_TEST`) | Insert directly: organizer O, participant P1, one PUBLISHED event owned by O, and a `Session` row for P1 with `tokenHash` = SHA-256 of a known token T and `expiresAt` in the past (system SDS 6, D-08). | (a) `GET /api/events` with no cookie. (b) `GET /api/events` with a session cookie holding a random token that has no `Session` row. (c) `GET /api/events` with a session cookie holding T. (d) Log in as P1, log out, then `GET /api/events` with the old cookie. | All four 401 with `error.code` `UNAUTHENTICATED`; the body has no `events` field. |
 
 Test names start with their IDs, for example `TEST-10 AC-10 lists only PUBLISHED events with remaining places`.
+TEST-11 is UI-only coverage with a mocked API response; evidence must label it so. The real API and database behavior of the list is covered by TEST-10.
 The loading and error states of both screens (NFR-09) are checked by hand in the 9.4 QA run checklist in `docs/evidence/`, not by an automated test.
 
 ## 12. Definition of Done (F-03)
