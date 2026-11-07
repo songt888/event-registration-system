@@ -123,7 +123,7 @@ Shared states follow system SDS 3.2. The UI never decides capacity, duplicates o
 | AC-28 | Registering for a PUBLISHED event whose `startsAt` is in the past returns 409 `EVENT_STARTED` and stores no row; `startsAt` equal to `now` is also rejected as started. | FR-06, BR-04, D-12 |
 | AC-37 | For 20 different participants sending registration requests at the same time to a PUBLISHED, future event with capacity 5 and no registrations, exactly 5 requests get 201, 15 get 409 `EVENT_FULL`, and exactly 5 ACTIVE registrations are stored. | NFR-04, BR-02 |
 
-TEST-37 is already named as the NFR-04 verification in `deliverable1-plan.md` section 3 and `docs/srs.md` (NFR-04, BR-02), "specified in the F-04 contract, #20"; this contract defines AC-37 with the same number. No other new AC is added.
+TEST-37 is already named as the NFR-04 verification in `docs/srs.md` (NFR-04, BR-02), `docs/system-sds.md` (sections 9 and 11) and `deliverable1-plan.md` section 3, which says it is "specified in the F-04 contract, #20"; this contract defines AC-37 with the same number. No other new AC is added.
 
 ## 11. Software test specification (STS)
 All API tests below are API + DB integration tests (Vitest + Supertest, `DATABASE_URL_TEST`, tables truncated in `beforeEach`, D-14). Fixtures are inserted directly in the database; "log in" means `POST /api/auth/login` with the fixture's password. Every `POST` in these tests sends `{}` as JSON.
