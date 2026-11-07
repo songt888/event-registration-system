@@ -15,7 +15,6 @@ export function assertRegistrable(event: { status: string; startsAt: Date }, now
 
 type LockedEvent = { status: string; startsAt: Date; capacity: number };
 
-// D-10: one transaction; the event row is locked first, so parallel requests for the last place run one after another.
 // BR-05, D-13: a foreign DRAFT looks like a missing event; a foreign PUBLISHED event is forbidden.
 export async function listEventRegistrations(organizerId: string, eventId: string) {
   const event = await prisma.event.findUnique({ where: { id: eventId } });
@@ -30,6 +29,7 @@ export async function listEventRegistrations(organizerId: string, eventId: strin
   return { registrations: rows };
 }
 
+// D-10: one transaction; the event row is locked first, so parallel requests for the last place run one after another.
 export async function registerForEvent(participantId: string, eventId: string, now: Date) {
   try {
     return await prisma.$transaction(
@@ -58,4 +58,23 @@ export async function registerForEvent(participantId: string, eventId: string, n
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') throw alreadyRegistered();
     throw err;
   }
+}
+
+// F-05 (BR-05): a participant reads only rows where participantId is the session user.
+const mineSelect = {
+  id: true,
+  status: true,
+  createdAt: true,
+  event: { select: { id: true, title: true, location: true, startsAt: true } },
+} as const;
+
+export function listMyRegistrations(participantId: string) {
+  return prisma.registration.findMany({ where: { participantId }, select: mineSelect, orderBy: { createdAt: 'desc' } });
+}
+
+// Unknown ID and another participant's row give the same 404 (D-13).
+export async function getMyRegistration(participantId: string, id: string) {
+  const r = await prisma.registration.findFirst({ where: { id, participantId }, select: mineSelect });
+  if (!r) throw new AppError(404, 'NOT_FOUND', 'Registration not found.');
+  return r;
 }
