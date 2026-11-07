@@ -20,7 +20,9 @@ export default defineConfig({
         test: {
           name: 'integration',
           include: ['src/**/*.int.test.ts'],
-          fileParallelism: false,
+          // A single fork runs the files one at a time; `fileParallelism` alone is ignored inside a project.
+          pool: 'forks',
+          poolOptions: { forks: { singleFork: true } },
           globalSetup: ['test/global-setup.ts'],
           setupFiles: ['test/setup-db.ts'],
           testTimeout: 20000,
