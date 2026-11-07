@@ -18,7 +18,7 @@ This matrix maps the whole-product [SRS](srs.md) to [features](features.md), com
 | FR-01 Login | F-01 | S1 | AC-01, AC-02; AC-24 UI | TEST-01, TEST-02; TEST-24 | Login success/failure elaborated in the F-01 contract (#17); executable verification pending. |
 | FR-02 Logout/revocation | F-01 | S1 | AC-04; AC-24 UI | TEST-04; TEST-24 | Replayed cookie rejection belongs in the API case (D-08); specified in the F-01 contract (#17); executable verification pending. |
 | FR-03 Current-user identity | F-01 | S1 | AC-03 (no session); AC-01 returns login user; AC-39 authenticated current user | TEST-03; TEST-01; TEST-39 | F-01 contract specifies exact id/name/role response; execution pending. |
-| FR-04 Create DRAFT/publish own event | F-02 | S1 | AC-06, AC-07, AC-08, AC-09, AC-25, AC-26, AC-29, AC-30, AC-35, AC-36; AC-50 | TEST-06, TEST-07, TEST-08, TEST-09, TEST-25, TEST-26, TEST-29, TEST-30, TEST-35, TEST-36; TEST-50 | Creation/publication, role, ownership and time skeleton; boundary/matrix gaps below; contract pending #18. |
+| FR-04 Create DRAFT/publish own event | F-02 | S1 | AC-06, AC-07, AC-08, AC-09, AC-25, AC-26, AC-29, AC-30, AC-35, AC-36; AC-50 | TEST-06, TEST-07, TEST-08, TEST-09, TEST-25, TEST-26, TEST-29, TEST-30, TEST-35, TEST-36; TEST-50 | Creation, publication, role, ownership, time and input validation specified in the F-02 contract (#18); executable verification pending. |
 | FR-05 Published-event browse/detail | F-03; F-02 owns shared detail definition | S1 | AC-10 (list), AC-11 (empty UI); AC-49 | TEST-10, TEST-11; TEST-49 | Published list remains F-03; shared published detail is specified by F-02 AC-49/TEST-49. |
 | FR-06 Register | F-04 | S1 | AC-12, AC-13, AC-14, AC-15, AC-16, AC-27, AC-28 | TEST-12, TEST-13, TEST-14, TEST-15, TEST-16, TEST-27, TEST-28 | Valid, full, duplicate, last-place, wrong-role, hidden/missing and started-event skeleton; contract pending #20. |
 | FR-07 Own registrations | F-05 | S1 | AC-17, AC-18 | TEST-17, TEST-18 | Own retrieval/foreign-record rejection skeleton; statuses and UI details elaborated in #21. |
@@ -35,7 +35,7 @@ This matrix maps the whole-product [SRS](srs.md) to [features](features.md), com
 
 | Requirement | Feature or responsibility | Sprint | Existing planned AC | Existing planned TEST | Coverage / remaining work |
 |---|---|---|---|---|---|
-| BR-01 Organizer-only publication; valid capacity | F-02; F-08 capacity changes later | S1; S2 extension | AC-06, AC-07, AC-08, AC-09, AC-25; AC-50 | TEST-06, TEST-07, TEST-08, TEST-09, TEST-25; TEST-50 | Partial: skeleton has invalid capacity samples and create-role checks; upper bound 10,000 and publication access matrix need elaboration (#18). |
+| BR-01 Organizer-only publication; valid capacity | F-02; F-08 capacity changes later | S1; S2 extension | AC-06, AC-07, AC-08, AC-09, AC-25; AC-50 | TEST-06, TEST-07, TEST-08, TEST-09, TEST-25; TEST-50 | Capacity 1..10,000 boundaries (AC-06, AC-07) and the publication access matrix (AC-50) specified in the F-02 contract (#18); capacity changes are S2 (F-08); executable verification pending. |
 | BR-02 Never exceed capacity | F-04; F-08 capacity changes later | S1; S2 extension | AC-12, AC-13, AC-15; dedicated NFR-04 AC pending #20 | TEST-12, TEST-13, TEST-15; TEST-37 reference | Last-place and capacity-5 scenarios are distinct. Row-lock implementation/DB assertions belong to #20; S2 must also prevent reducing capacity below ACTIVE count. |
 | BR-03 At most one ACTIVE registration | F-04; F-07 cancellation/re-registration later | S1; S2 extension | AC-14 | TEST-14 | API rejection plus partial unique-index verification planned; S2 adds cancel/re-register behavior. |
 | BR-04 Only PUBLISHED, not-started registration | F-04; F-09 deadline extension | S1; S2 extension | AC-12, AC-27, AC-28 | TEST-12, TEST-27, TEST-28 | Skeleton covers valid, DRAFT/missing and started cases; exact start-time equality must be explicit in #20. |
@@ -43,7 +43,7 @@ This matrix maps the whole-product [SRS](srs.md) to [features](features.md), com
 | BR-06 Deadline closes registration | F-09 | S2 | Pending S2 contract | Pending S2 contract | Future rule retained; no fabricated boundary/IDs. |
 | BR-07 Cancellation frees place/re-registration | F-07 | S2 | Pending S2 contract | Pending S2 contract | Future rule retained; preserve BR-03. |
 | BR-08 ACTIVE/once/owner/window check-in | F-10 | S3; starts S2 | Pending check-in contract | Pending check-in contract | Future rule retained; exact event window unresolved. |
-| BR-09 Future start at create/publish; owner/state rules | F-02 | S1 | AC-25, AC-26, AC-29, AC-30, AC-35, AC-36 | TEST-25, TEST-26, TEST-29, TEST-30, TEST-35, TEST-36 | Create equality is explicit; publish-at-equality needs contract elaboration. No state change on rejection. |
+| BR-09 Future start at create/publish; owner/state rules | F-02 | S1 | AC-25, AC-26, AC-29, AC-30, AC-35, AC-36 | TEST-25, TEST-26, TEST-29, TEST-30, TEST-35, TEST-36 | Create and publish past and equal start times specified in the F-02 contract (#18) (AC-29, AC-30, AC-35); no state change on rejection; executable verification pending. |
 
 ## 4. Non-functional requirements
 

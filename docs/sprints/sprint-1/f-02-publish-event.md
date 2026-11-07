@@ -33,25 +33,25 @@ Session check precedes role check, then validate input before resource lookup. E
 
 Use the corresponding TEST ID in each executable test name. Use Vitest service tests for fixed time and Supertest against real PostgreSQL for API/database assertions. Run integration tests with `DATABASE_URL_TEST` and D-14 isolation. Each negative API case checks status, the shared error envelope with code and message, validation details shape when present, and absence of stack traces and private data. For writes, compare relevant database rows before and after rejection.
 
-| AC / TEST | Setup and action | Expected |
-|---|---|---|
-| AC-06 / TEST-06 | Organizer submits valid input; parameterize capacity 1 and 10000 with future start. | 201, persisted DRAFT owned by the session user with matching fields, null publishedAt and full remainingPlaces. |
-| AC-07 / TEST-07 | Try capacity 0, negative, non-integer and above 10000; also reject a numeric string. | 400 VALIDATION_ERROR; no event stored. |
-| AC-08 / TEST-08 | Participant submits a valid create request. | 403 FORBIDDEN; no event stored. |
-| AC-09 / TEST-09 | Call each F-02 route with no cookie, invalid token, expired session and revoked session; use a valid payload/UUID where applicable and an independent expired session per route. | Every call returns 401 UNAUTHENTICATED; no event data or writes. |
-| AC-25 / TEST-25 | Owner publishes a future DRAFT; assert the result from a DB reread. | 200 and persisted PUBLISHED with publishedAt set. |
-| AC-26 / TEST-26 | Another organizer attempts to publish the owner's DRAFT. | 404 EVENT_NOT_FOUND; DRAFT and publishedAt unchanged. |
-| AC-29 / TEST-29 | Organizer creates with a past startsAt. | 400 INVALID_START_TIME; no event stored. |
-| AC-30 / TEST-30 | Owner publishes a seeded DRAFT with past startsAt in API integration and equal startsAt with fixed service time. | 400 INVALID_START_TIME; DRAFT and publishedAt unchanged. |
-| AC-31 / TEST-31 | Owner requests own DRAFT by ID. | 200 with matching payload and DRAFT status. |
-| AC-32 / TEST-32 | Participant and other organizer request the DRAFT and a missing valid UUID. | Same 404 EVENT_NOT_FOUND envelope with no event fields. |
-| AC-33 / TEST-33 | Create owned and foreign events of each status, then call My events as owner and as a third organizer without events. | 200 with exact own-event IDs for both statuses, ordered as specified; third organizer receives empty array. |
-| AC-34 / TEST-34 | Participant requests My events. | 403 FORBIDDEN without event data. |
-| AC-35 / TEST-35 | Create with startsAt equal to injected now. | 400 INVALID_START_TIME; no insert. |
-| AC-36 / TEST-36 | Owner publishes already PUBLISHED event, including one whose start passed. | 409 ALREADY_PUBLISHED; state and timestamp unchanged. |
-| AC-49 / TEST-49 | Participant, owner and other organizer fetch a PUBLISHED event with ACTIVE registrations and capacity above the active count; repeat for a full event. | 200 with exact event payload, remainingPlaces equal to capacity minus ACTIVE count and zero when full, no registrant data. |
-| AC-50 / TEST-50 | Participant attempts publish on DRAFT, PUBLISHED and missing UUIDs; non-owner organizer attempts publish on another organizer's PUBLISHED and a missing UUID. | Participant receives identical 403 for all IDs. Non-owner receives 403 for PUBLISHED and 404 for missing. No writes. |
-| AC-51 / TEST-51 | Organizer tries invalid create field lengths or shapes, invalid datetime, forbidden fields, malformed/non-JSON POST, nonempty publish body and malformed UUIDs for detail/publish. | 400 VALIDATION_ERROR for each invalid shape, no leaks or writes. |
+| AC / TEST | Level | Setup and action | Expected |
+|---|---|---|---|
+| AC-06 / TEST-06 | API + DB | Organizer submits valid input; parameterize capacity 1 and 10000 with future start. | 201, persisted DRAFT owned by the session user with matching fields, null publishedAt and full remainingPlaces. |
+| AC-07 / TEST-07 | Service unit + API + DB | Try capacity 0, negative, non-integer and above 10000; also reject a numeric string. | 400 VALIDATION_ERROR; no event stored. |
+| AC-08 / TEST-08 | API + DB | Participant submits a valid create request. | 403 FORBIDDEN; no event stored. |
+| AC-09 / TEST-09 | API + DB | Call each F-02 route with no cookie, invalid token, expired session and revoked session; use a valid payload/UUID where applicable and an independent expired session per route. | Every call returns 401 UNAUTHENTICATED; no event data or writes. |
+| AC-25 / TEST-25 | API + DB | Owner publishes a future DRAFT; assert the result from a DB reread. | 200 and persisted PUBLISHED with publishedAt set. |
+| AC-26 / TEST-26 | API + DB | Another organizer attempts to publish the owner's DRAFT. | 404 EVENT_NOT_FOUND; DRAFT and publishedAt unchanged. |
+| AC-29 / TEST-29 | Service unit + API + DB | Organizer creates with a past startsAt. | 400 INVALID_START_TIME; no event stored. |
+| AC-30 / TEST-30 | Service unit + API + DB | Owner publishes a seeded DRAFT with past startsAt in API integration and equal startsAt with fixed service time. | 400 INVALID_START_TIME; DRAFT and publishedAt unchanged. |
+| AC-31 / TEST-31 | API + DB | Owner requests own DRAFT by ID. | 200 with matching payload and DRAFT status. |
+| AC-32 / TEST-32 | API | Participant and other organizer request the DRAFT and a missing valid UUID. | Same 404 EVENT_NOT_FOUND envelope with no event fields. |
+| AC-33 / TEST-33 | API + DB | Create owned and foreign events of each status, then call My events as owner and as a third organizer without events. | 200 with exact own-event IDs for both statuses, ordered as specified; third organizer receives empty array. |
+| AC-34 / TEST-34 | API | Participant requests My events. | 403 FORBIDDEN without event data. |
+| AC-35 / TEST-35 | Service unit | Create with startsAt equal to injected now. | 400 INVALID_START_TIME; no insert. |
+| AC-36 / TEST-36 | API + DB | Owner publishes already PUBLISHED event, including one whose start passed. | 409 ALREADY_PUBLISHED; state and timestamp unchanged. |
+| AC-49 / TEST-49 | API + DB | Participant, owner and other organizer fetch a PUBLISHED event with ACTIVE registrations and capacity above the active count; repeat for a full event. | 200 with exact event payload, remainingPlaces equal to capacity minus ACTIVE count and zero when full, no registrant data. |
+| AC-50 / TEST-50 | API + DB | Participant attempts publish on DRAFT, PUBLISHED and missing UUIDs; non-owner organizer attempts publish on another organizer's PUBLISHED and a missing UUID. | Participant receives identical 403 for all IDs. Non-owner receives 403 for PUBLISHED and 404 for missing. No writes. |
+| AC-51 / TEST-51 | API + DB | Organizer tries invalid create field lengths or shapes, invalid datetime, forbidden fields, malformed/non-JSON POST, nonempty publish body and malformed UUIDs for detail/publish. | 400 VALIDATION_ERROR for each invalid shape, no leaks or writes. |
 
 AC/TEST-49..51 cover positive shared detail, publish authorization precedence and malformed input respectively. Earlier IDs retain their assigned meaning. Cross-feature TEST-22 exercises the create and publish journey when E2E work lands.
 
