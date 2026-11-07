@@ -1,9 +1,10 @@
 import { expect, test } from '@playwright/test';
 
-// Foundation smoke test (Issue 3.3): the UI loads and reaches the API through the dev proxy.
-// The journeys TEST-22..TEST-24 come in Issue 9.
-test('home page shows the API as ok', async ({ page }) => {
+// Foundation smoke test: the UI loads, asks the API for the session through the dev proxy,
+// and sends a signed-out visitor to the login form. The journeys TEST-22..TEST-24 come in Issue 9.
+test('signed-out visitor is sent to the login form', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'Event Registration' })).toBeVisible();
-  await expect(page.getByText('API: ok')).toBeVisible();
+  await expect(page).toHaveURL(/\/login$/);
+  await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
+  await expect(page.getByLabel('Email')).toBeVisible();
 });
