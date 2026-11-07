@@ -1,0 +1,9 @@
+Command: npm test
+Tested commit: b8956d5 (feature/s1-08-organizer-view)
+Result: 11 test files passed, 63 tests passed, 0 failed, 0 skipped
+
+ ✓ |integration| src/event-registrations.int.test.ts (5 tests)
+   TEST-19, TEST-20, TEST-21, TEST-47, TEST-48 pass
+
+ Test Files  11 passed (11)
+      Tests  63 passed (63)

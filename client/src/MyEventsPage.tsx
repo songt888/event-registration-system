@@ -89,6 +89,7 @@ export function MyEventsPage() {
                 </td>
                 <td>{e.status}</td>
                 <td>
+                  <Link to={`/organizer/events/${e.id}/registrations`}>Registrations</Link>{' '}
                   {e.status === 'DRAFT' && (
                     <button onClick={() => publish(e.id)} disabled={publishing === e.id}>
                       {publishing === e.id ? 'Publishing...' : 'Publish'}

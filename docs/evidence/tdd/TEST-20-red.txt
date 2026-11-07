@@ -1,0 +1,13 @@
+Command: npm test -- event-registrations
+Tested commit: e30f6f8 (feature/s1-08-organizer-view)
+Result: 1 test file failed; 5 integration tests failed, 0 passed
+
+ FAIL |integration| src/event-registrations.int.test.ts > F-06 event registrations API > TEST-20 AC-20 returns 403 for another organizer on a PUBLISHED event
+ AssertionError: expected 404 to be 403 // Object.is equality
+ (GET /api/events/:id/registrations does not exist yet: "Cannot GET")
+
+ Other failing tests, same reason (route missing):
+ TEST-19, TEST-21, TEST-47, TEST-48 (integration)
+
+ Test Files  1 failed (1)
+      Tests  5 failed (5)
