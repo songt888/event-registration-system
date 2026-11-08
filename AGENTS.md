@@ -22,7 +22,7 @@ Out of scope in Sprint 1: cancellation, deadlines, check-in, attendance reports,
 1. **Business rules live in the backend service layer** and, where possible, DB constraints. Never only in React.
 2. **Authorization is enforced on the backend** from the session. Never trust a client-supplied user ID or role. Every protected route checks authentication, role, and ownership.
 3. **Ownership:** a participant reads only their own registrations; an organizer manages and views only events they own.
-4. **Capacity and duplicates:** never exceed capacity, even for concurrent requests for the last place (one transaction: lock the event row with `SELECT ... FOR UPDATE` first, then check duplicate, count ACTIVE, insert; D-10). One ACTIVE registration per participant per event (partial unique index plus service check).
+4. **Capacity and duplicates:** never exceed capacity, even for concurrent requests for the last place (one transaction: lock the event row with `SELECT ... FOR UPDATE` first, then check duplicate, count ACTIVE, insert; D-10). One ACTIVE registration per participant per event (partial unique index plus service check). Prisma schema cannot declare a partial index, so it is added with raw SQL in a migration; check in Issue 3 that `prisma migrate dev` reports no drift and does not drop it.
 5. **No plaintext passwords.** Never return `passwordHash`. No real secrets in Git, docs, screenshots, or PDF. Only `.env.example`; `.env` is gitignored. Demo data is synthetic.
 6. **Errors** use one JSON shape: `{ "error": { "code": "...", "message": "..." } }`. Codes: 400 validation, 401 unauthenticated, 403 forbidden, 404 not found, 409 rule conflict. No stack traces to clients.
 7. **Do not weaken, skip, or delete tests to get green.** Report failed and skipped tests honestly.
@@ -32,7 +32,7 @@ Out of scope in Sprint 1: cancellation, deadlines, check-in, attendance reports,
 Work one bounded GitHub Issue at a time, in the order of `docs/sprints/sprint-1/issue-plan.md`.
 Kanban: Backlog → Specified → Started → PR Review → Fixing → Done. Never commit on `main`. Branch names: `feature/s1-NN-topic`.
 1. Read the feature contract in `docs/sprints/sprint-1/` (feature SDS, AC, STS). If it is missing or wrong, **update the contract first** and commit it alone (`docs: ...`).
-2. Branch from `sprint-1-staging`: `feature/F-0X-short-name` (fixes: `fix/...`).
+2. Branch from `sprint-1-staging`: `feature/s1-NN-topic`, where NN is the Issue number (docs: `docs/s1-NN-topic`, fixes: `fix/s1-NN-topic`).
 3. **TDD:** commit failing tests (red) → commit implementation (green) → refactor. Test names must contain the TEST ID, e.g. `TEST-13 AC-13 rejects registration when event is full`.
 4. Run the full test suite, inspect the diff, update docs/README.
 5. Open a PR into `sprint-1-staging`, linked to the Issue (FR/BR/F/AC IDs in the description). **The teammate reviews with a specific check or finding. Authors never approve their own PR.**
@@ -47,11 +47,12 @@ Docs: `docs/srs.md`, `docs/features.md`, `docs/traceability.md`, `docs/system-sd
 
 ## Commands (fill in as they are created; keep README identical)
 ```bash
-docker compose up -d db          # PostgreSQL
-cd server && npm install && npx prisma migrate dev && npm run seed
+cp .env.example server/.env      # local placeholders
+docker compose up -d db          # PostgreSQL (dev, test, E2E databases)
+npm install && npm run migrate && npm run seed
 npm run dev                      # server and client
-npm test                         # unit + API/DB integration
-npm run test:e2e                 # Playwright
+npm test                         # unit + API/DB integration (uses DATABASE_URL_TEST, a separate test database, never the dev one)
+npm run test:e2e                 # Playwright (uses DATABASE_URL_E2E, reset and seeded before each run)
 ```
 
 ## Definition of Done

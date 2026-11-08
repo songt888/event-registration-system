@@ -1,0 +1,14 @@
+Command: npm test -- registrations
+Tested commit: 6153fbb (feature/s1-07-register)
+Result: 2 test files failed; 7 integration tests failed, 0 passed; the unit file fails to load
+
+ FAIL |integration| src/registrations.int.test.ts > F-04 register API > TEST-13 AC-13 rejects registration when event is full
+ AssertionError: expected 404 to be 409 // Object.is equality
+ (POST /api/events/:id/registrations does not exist yet: "Cannot POST")
+
+ Other failing tests, same reason (route missing):
+ TEST-12, TEST-14, TEST-15, TEST-16, TEST-27, TEST-28 (integration)
+ TEST-28 (unit file): Cannot find module './registrations.service.js'
+
+ Test Files  2 failed (2)
+      Tests  7 failed (7)

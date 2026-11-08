@@ -1,0 +1,8 @@
+Command: npm test -- my-registrations
+Tested commit: 9d04020 (feature/s1-08-my-registrations)
+Result: 1 test file passed; 4 tests passed, 0 failed
+
+ ✓ |integration| src/my-registrations.int.test.ts > F-05 my registrations API > TEST-18 AC-18 returns 404 for another participant's registration 25ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)

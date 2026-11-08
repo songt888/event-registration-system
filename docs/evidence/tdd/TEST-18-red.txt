@@ -1,0 +1,13 @@
+Command: npm test -- my-registrations
+Tested commit: 57acab6 (feature/s1-08-my-registrations)
+Result: 1 test file failed; 4 integration tests failed, 0 passed
+
+ FAIL |integration| src/my-registrations.int.test.ts > F-05 my registrations API > TEST-18 AC-18 returns 404 for another participant's registration
+ Error: not an error envelope: <!DOCTYPE html> ...
+ (GET /api/registrations/:id does not exist yet: Express default "Cannot GET" page)
+
+ Other failing tests, same reason (routes missing):
+ TEST-17, TEST-45, TEST-46 (integration)
+
+ Test Files  1 failed (1)
+      Tests  4 failed (4)

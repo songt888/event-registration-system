@@ -1,0 +1,619 @@
+/* Millennium OS: the ONE shared UI style of the app (D-15, D-16, Issue #73), chosen by both students.
+   Palette and fonts follow the Y2K showcase (aqua, deep blue, chrome, translucent plastic, pixel type).
+   Every screen is a window on a desktop; texts, labels, roles and table rows are unchanged.
+
+   Theme owner: B (stickkersz), D-15. Changing the existing theme (colors, fonts, radii, shadows, shell, 3D layer,
+   sounds) is agreed with B on the Issue first and made or approved by B.
+   Rules for anyone (person or AI) styling a screen, including 73.2:
+   - Use only this file. No other stylesheet, theme, CSS module, inline color or font, UI library or framework.
+   - Do not change existing colors, fonts, radii or shadows. A new rule goes at the end of this file and uses
+     only the variables below (--aqua, --ink, --paper, --lime, --amber, --pink, --deep, --body, --pixel).
+   - Status cells use <span className={`led led-${status.toLowerCase()}`}>; table action cells use td.actions;
+     a link that acts as a button uses className="button". Each page's <h1> stays its window title bar. */
+@font-face {
+  font-family: 'Press Start 2P';
+  src: url('/fonts/pressstart2p.woff2') format('woff2');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'VT323';
+  src: url('/fonts/vt323.woff2') format('woff2');
+  font-display: swap;
+}
+
+:root {
+  --aqua: #38c8ff;
+  --aqua-2: #0b7fe0;
+  --aqua-3: #075bb0;
+  --deep: #041a3d;
+  --ink: #0a2a55;
+  --ink-2: #33507a;
+  --pink: #ff6fd8;
+  --lime: #c6ff4d;
+  --amber: #ffc94d;
+  --paper: #f4fbff;
+  --glass: rgba(226, 246, 255, 0.72);
+  --error: #a3123a;
+  --ok: #0f6b2f;
+  --pixel: 'Press Start 2P', ui-monospace, monospace;
+  --body: Verdana, Tahoma, 'Segoe UI', system-ui, sans-serif; /* the 2000-era screen fonts, built to be read on screens */
+  --spring: cubic-bezier(0.2, 0.9, 0.25, 1.12);
+  --smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--ink);
+  min-height: 100%;
+  background:
+    radial-gradient(120% 80% at 80% -10%, #bdf0ff 0, transparent 55%),
+    radial-gradient(90% 70% at -10% 110%, #ffd2f3 0, transparent 50%),
+    linear-gradient(180deg, #6fd6ff 0%, #1d8ee6 55%, #0b4fa6 100%) fixed;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+
+/* desktop: aqua sky, the 3D layer sits on top of this gradient */
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+#root { padding-top: 1px; } /* stops the window's top margin collapsing through body */
+
+.desktop3d, .sparkles {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.desktop3d { z-index: 0; }
+.sparkles { z-index: 50; }
+
+#root { position: relative; z-index: 1; padding-bottom: 5rem; }
+
+p { margin: 0 0 0.6rem; }
+
+/* ---------- window ---------- */
+main {
+  position: relative;
+  max-width: 52rem;
+  margin: 2.5rem auto 0;
+  padding: 0 1.5rem 1.5rem;
+  background: var(--glass);
+  backdrop-filter: blur(14px) saturate(1.3);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 14px 14px 10px 10px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 24px 60px rgba(4, 26, 61, 0.45),
+    0 4px 12px rgba(4, 26, 61, 0.25);
+}
+main.logon { animation: window-open 420ms var(--spring) both; }
+@keyframes window-open {
+  from { opacity: 0; transform: translateY(14px) scale(0.97); }
+}
+
+/* the page heading is the window's chrome title bar; gumdrop buttons are painted, not text */
+main > h1 {
+  position: relative;
+  margin: 0 -1.5rem 1.25rem;
+  padding: 0.95rem 1.5rem 0.95rem 6.2rem;
+  font-family: var(--pixel);
+  font-size: 0.95rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #fff;
+  text-shadow: 0 1px 0 var(--aqua-3), 0 0 8px rgba(255, 255, 255, 0.35);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0, rgba(255, 255, 255, 0.08) 30%, transparent 34%),
+    linear-gradient(180deg, #1574cc 0, #0a5cad 55%, #064a92 100%); /* deep enough for white text: AA */
+  border-radius: 13px 13px 0 0;
+  border-bottom: 1px solid var(--aqua-3);
+}
+main.logon > h1::before {
+  content: '';
+  position: absolute;
+  left: 1.1rem;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin-top: -7px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 30%, #fff 0, #ff9a8a 35%, #e0321f 100%);
+  box-shadow:
+    22px 0 0 0 #e3a50b, 22px 0 0 0 #e3a50b,
+    44px 0 0 0 #2fae1f;
+}
+
+h2 {
+  margin: 0.25rem 0 0.75rem;
+  font-family: var(--body);
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+a { color: var(--aqua-3); text-underline-offset: 3px; }
+a:hover { color: var(--deep); }
+
+/* focus: glowing aqua with a dark core, visible on glass and on chrome */
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible {
+  outline: 3px solid var(--deep);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 6px rgba(56, 200, 255, 0.85);
+}
+
+.muted { color: var(--ink-2); }
+
+/* ---------- glossy aqua buttons ---------- */
+button, .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.6rem;
+  padding: 0.35rem 1.3rem;
+  font-family: var(--body);
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #fff;
+  text-decoration: none;
+  text-shadow: 0 1px 0 var(--aqua-3);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0, rgba(255, 255, 255, 0.1) 30%, transparent 34%),
+    linear-gradient(180deg, #1574cc 0, #0a5cad 60%, #064a92 100%);
+  border: 1px solid var(--aqua-3);
+  border-radius: 999px;
+  box-shadow: 0 2px 0 rgba(255, 255, 255, 0.6) inset, 0 3px 8px rgba(4, 26, 61, 0.35);
+  cursor: pointer;
+  transition: transform 160ms var(--spring), filter 160ms var(--smooth);
+}
+button:hover:not(:disabled), .button:hover { filter: brightness(1.08) saturate(1.1); transform: translateY(-1px); }
+button:active:not(:disabled) { transform: translateY(1px) scale(0.98); }
+button:disabled {
+  color: #5a6b80;
+  text-shadow: none;
+  background: linear-gradient(180deg, #eef4f8 0, #c9d6e0 100%);
+  border-color: #9fb0c0;
+  cursor: progress;
+}
+
+/* ---------- forms: bevelled inset fields in a setup-wizard panel ---------- */
+form {
+  display: grid;
+  gap: 1rem;
+  max-width: 34rem;
+}
+form div { display: grid; gap: 0.3rem; }
+label {
+  font-family: var(--body);
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--ink);
+}
+input, textarea {
+  font-family: var(--body);
+  font-size: 1rem;
+  padding: 0.45rem 0.6rem;
+  color: var(--ink);
+  background: #fff;
+  border: 2px solid;
+  border-color: #6b819b #e8f2fa #e8f2fa #6b819b; /* classic inset bevel */
+  border-radius: 4px;
+  box-shadow: 1px 1px 0 #3e5470 inset;
+}
+textarea { min-height: 5.5rem; }
+form button { justify-self: start; }
+
+/* ---------- messages: error dialog and system balloon; the words carry the meaning ---------- */
+[role='alert'], [role='status'] {
+  position: relative;
+  margin: 0.6rem 0;
+  padding: 0.5rem 0.8rem 0.5rem 2.6rem;
+  font-size: 1rem;
+  border: 1px solid;
+  border-radius: 10px;
+  box-shadow: 0 6px 16px rgba(4, 26, 61, 0.18);
+}
+[role='alert'] {
+  color: var(--error);
+  background: #fff3f6;
+  border-color: #e7a3b5;
+}
+[role='alert']::before, [role='status']::before {
+  content: '';
+  position: absolute;
+  left: 0.8rem;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  margin-top: -9px;
+  border-radius: 50%;
+}
+[role='alert']::before { background: radial-gradient(circle at 40% 30%, #ffb3c1, #d1103d); }
+[role='status'] {
+  color: var(--ok);
+  background: #f2fff0;
+  border-color: #9fdc9a;
+  animation: balloon 380ms var(--spring) both;
+}
+[role='status']::before { background: radial-gradient(circle at 40% 30%, #e5ffb0, #3cb52a); }
+@keyframes balloon { from { opacity: 0; transform: translateY(8px) scale(0.96); } }
+
+/* ---------- Explorer list view tables ---------- */
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.95rem;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #9cc4e4;
+  border-radius: 8px;
+  overflow: hidden;
+}
+th {
+  padding: 0.45rem 0.75rem;
+  font-family: var(--body);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: left;
+  color: var(--ink);
+  background: linear-gradient(180deg, #ffffff 0, #dceefb 100%);
+  border-bottom: 1px solid #9cc4e4;
+}
+td {
+  padding: 0.4rem 0.75rem;
+  border-bottom: 1px dotted #b7d3ea;
+  font-variant-numeric: tabular-nums;
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: rgba(56, 200, 255, 0.14); }
+
+/* LED status lights: always next to their word, never color alone */
+.led {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  white-space: nowrap;
+}
+.led::before {
+  content: '';
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.35);
+  background: radial-gradient(circle at 40% 30%, #fff 0, #9aa8b5 60%);
+}
+.led-published::before, .led-active::before {
+  background: radial-gradient(circle at 40% 30%, #f4ffd2 0, var(--lime) 40%, #57a300 100%);
+  box-shadow: 0 0 8px rgba(198, 255, 77, 0.95);
+}
+.led-draft::before {
+  background: radial-gradient(circle at 40% 30%, #fff6d6 0, var(--amber) 45%, #c47f00 100%);
+  box-shadow: 0 0 6px rgba(255, 201, 77, 0.8);
+}
+
+/* ---------- Events: CD jewel cases on the desktop ---------- */
+.cd-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cd-case {
+  position: relative;
+  padding: 1rem;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.95) 0, rgba(220, 240, 252, 0.9) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  border-radius: 10px;
+  box-shadow: 0 1px 0 #fff inset, 0 10px 24px rgba(4, 26, 61, 0.22);
+  perspective: 600px;
+}
+.cd-case h2 { font-size: 1.1rem; line-height: 1.35; margin: 0.9rem 0 0.35rem; }
+.cd-case h2 a { color: var(--ink); text-decoration: none; }
+.cd-case h2 a::after { content: ''; position: absolute; inset: 0; border-radius: 10px; } /* whole case opens the event */
+.cd-case h2 a:focus-visible { outline: none; box-shadow: none; }
+.cd-case:focus-within { outline: 3px solid var(--deep); outline-offset: 2px; box-shadow: 0 0 0 6px rgba(56, 200, 255, 0.85); }
+.cd-case p { font-size: 0.95rem; margin: 0; }
+
+/* the disc: iridescent conic gradient, spins in 3D on hover */
+.disc {
+  width: 7.5rem;
+  height: 7.5rem;
+  margin: 0 auto;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, #e9f6ff 0 12%, #9fb3c4 12.5% 14%, transparent 14.5%),
+    radial-gradient(circle, transparent 0 30%, rgba(255, 255, 255, 0.5) 31%, transparent 33%),
+    conic-gradient(from 0deg, #c9f3ff, #ffc7f0, #fff4b8, #c6ffd9, #b9d4ff, #ffc7f0, #c9f3ff);
+  box-shadow: 0 0 0 1px rgba(10, 42, 85, 0.25), 0 6px 14px rgba(4, 26, 61, 0.3);
+  transition: transform 900ms var(--smooth);
+}
+.cd-case:hover .disc, .cd-case:focus-within .disc { transform: rotateX(18deg) rotate(200deg); }
+
+/* capacity: a segmented installer progress bar; the text beside it is the information */
+.places { margin-top: 0.6rem; }
+.places .bar {
+  height: 14px;
+  margin-bottom: 0.3rem;
+  padding: 2px;
+  background: #fff;
+  border: 2px solid;
+  border-color: #6b819b #e8f2fa #e8f2fa #6b819b;
+  border-radius: 3px;
+}
+.places .bar span {
+  display: block;
+  height: 100%;
+  background: repeating-linear-gradient(90deg, var(--aqua-2) 0 9px, transparent 9px 11px);
+}
+.places p { font-size: 1rem; font-weight: 700; }
+.full {
+  display: inline-block;
+  padding: 0.05rem 0.6rem;
+  color: #fff;
+  background: linear-gradient(180deg, #ff6f96, #c3123f);
+  border-radius: 999px;
+}
+
+/* ---------- Event detail: Properties window ---------- */
+.props {
+  display: grid;
+  grid-template-columns: 12rem 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+.props .disc { width: 11rem; height: 11rem; }
+.burning .disc { animation: burn 1.4s var(--smooth); }
+@keyframes burn {
+  0% { transform: rotate(0); }
+  70% { transform: rotate(1080deg) scale(1.04); filter: saturate(1.6) brightness(1.1); }
+  100% { transform: rotate(1260deg); }
+}
+
+/* ---------- taskbar ---------- */
+header {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  padding: 0.45rem 0.75rem;
+  color: #fff;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0, transparent 50%),
+    linear-gradient(180deg, #1c5fb8 0, var(--deep) 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 -6px 20px rgba(4, 26, 61, 0.35);
+}
+header nav { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-right: auto; align-items: center; }
+.orb {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 30%, #fff 0, #9ff09a 25%, #2fae1f 70%, #145f0b 100%);
+  box-shadow: 0 0 10px rgba(198, 255, 77, 0.8);
+}
+header nav a {
+  padding: 0.25rem 0.9rem;
+  font-family: var(--body);
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.5;
+  color: #fff;
+  text-decoration: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.06));
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 6px;
+}
+header nav a:hover, header nav a[aria-current='page'] { background: linear-gradient(180deg, #1574cc, #0a5cad); border-color: var(--aqua); }
+header span { font-size: 0.95rem; }
+.clock { font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+header button { min-height: 2.2rem; font-size: 0.9rem; }
+header [role='alert'] { position: absolute; bottom: 110%; right: 1rem; }
+
+/* ---------- login: boot screen, then the log-on window ---------- */
+main.logon { max-width: 30rem; margin-top: 14vh; }
+.boot {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 0.3rem;
+  padding: 0 12vw;
+  font-family: 'VT323', ui-monospace, monospace;
+  font-size: 1.5rem;
+  color: #bfe9ff;
+  background: radial-gradient(circle at 50% 40%, #0b2a5c 0, var(--deep) 70%);
+  pointer-events: none; /* never blocks the form */
+  animation: boot-out 400ms ease 2.1s forwards;
+}
+.boot b { font-family: var(--pixel); font-size: 1rem; font-weight: 400; color: #fff; margin-bottom: 0.8rem; }
+.boot span { opacity: 0; animation: line-in 1ms linear forwards; }
+.boot span:nth-of-type(1) { animation-delay: 0.25s; }
+.boot span:nth-of-type(2) { animation-delay: 0.6s; }
+.boot span:nth-of-type(3) { animation-delay: 0.95s; }
+.boot i {
+  display: block;
+  width: min(22rem, 70vw);
+  height: 16px;
+  margin-top: 0.9rem;
+  border: 2px solid #6fa7d8;
+  background: repeating-linear-gradient(90deg, var(--aqua) 0 10px, transparent 10px 13px) no-repeat;
+  background-size: 0% 100%;
+  animation: boot-bar 1.8s steps(18) 0.2s forwards;
+}
+@keyframes line-in { to { opacity: 1; } }
+@keyframes boot-bar { to { background-size: 100% 100%; } }
+@keyframes boot-out { to { opacity: 0; visibility: hidden; } }
+
+/* ---------- small screens ---------- */
+@media (max-width: 640px) {
+  :root { font-size: 15px; }
+  main { margin: 1rem 0.5rem 0; padding: 0 0.9rem 1rem; }
+  main > h1 { margin: 0 -0.9rem 1rem; padding-left: 6.6rem; font-size: 0.8rem; }
+  .props { grid-template-columns: 1fr; }
+  .props .disc { width: 8rem; height: 8rem; }
+  table { display: block; overflow-x: auto; }
+  th, td { white-space: nowrap; }
+  .clock { display: none; }
+  /* two compact rows: tasks on top, who you are + sound + logout below, nothing off-screen */
+  header { gap: 0.35rem 0.5rem; padding: 0.35rem 0.5rem; }
+  header nav { flex: 1 0 100%; flex-wrap: nowrap; gap: 0.3rem; }
+  header > span:first-of-type { margin-right: auto; }
+  header nav a { padding: 0.2rem 0.55rem; font-size: 0.85rem; white-space: nowrap; }
+  .orb { width: 26px; height: 26px; flex: none; }
+  header span { font-size: 0.85rem; white-space: nowrap; }
+  header button { min-height: 2rem; padding: 0.2rem 0.75rem; font-size: 0.85rem; flex: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .boot { display: none; }
+}
+
+@media (forced-colors: active) {
+  main, .cd-case, table { border: 1px solid CanvasText; }
+  .led::before { forced-color-adjust: none; }
+}
+
+/* table action cell: link and button on one line, compact button */
+td.actions { white-space: nowrap; }
+td.actions > * { vertical-align: middle; }
+td.actions button { min-height: 2rem; margin-left: 0.75rem; padding: 0.2rem 0.95rem; font-size: 0.85rem; }
+
+/* sound toggle in the tray: a quiet outline button so Logout stays the main action */
+header button.tray {
+  color: #fff;
+  text-shadow: none;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: none;
+}
+header button.tray[aria-pressed='true'] { background: linear-gradient(180deg, #1574cc, #0a5cad); border-color: var(--aqua); }
+
+/* ---------- window manager: close, minimize, maximize ---------- */
+.wm {
+  position: relative;
+  max-width: 52rem;
+  margin: 2.5rem auto 0;
+  transition: max-width 320ms var(--smooth), margin 320ms var(--smooth);
+}
+.wm > main { margin: 0; max-width: none; }
+.wm-normal { animation: window-open 380ms var(--spring) both; }
+.wm-max { max-width: calc(100vw - 1.2rem); margin: 0.6rem auto 0; }
+.wm-max > main { min-height: calc(100vh - 5.2rem); }
+.wm-min { animation: win-min 320ms var(--smooth) forwards; }
+.wm-closed { animation: win-close 220ms ease-in forwards; }
+@keyframes win-min { to { transform: translate(-30vw, 75vh) scale(0.12); opacity: 0; visibility: hidden; } }
+@keyframes win-close { to { transform: scale(0.92); opacity: 0; visibility: hidden; } }
+
+.win-ctrl {
+  position: absolute;
+  z-index: 2;
+  top: 0.95rem;
+  left: 0.7rem;
+  display: flex;
+  gap: 2px;
+}
+.win-ctrl .dot {
+  position: relative;
+  width: 24px;
+  min-height: 24px;
+  height: 24px;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  box-shadow: none;
+  transform: none;
+}
+.win-ctrl .dot::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+}
+.dot-close::before { background: radial-gradient(circle at 50% 30%, #fff 0, #ff9a8a 35%, #e0321f 100%); }
+.dot-min::before { background: radial-gradient(circle at 50% 30%, #fff 0, #ffe58a 35%, #e3a50b 100%); }
+.dot-max::before { background: radial-gradient(circle at 50% 30%, #fff 0, #b8ff9a 35%, #2fae1f 100%); }
+/* glyphs appear on hover or keyboard focus, like the real thing (the accessible name comes from aria-label) */
+.win-ctrl .dot::after {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font: 700 11px/1 var(--body);
+  color: rgba(60, 0, 0, 0.75);
+  opacity: 0;
+}
+.dot-close::after { content: '\00d7'; }
+.dot-min::after { content: '\2212'; }
+.dot-max::after { content: '+'; }
+.win-ctrl:hover .dot::after, .win-ctrl:focus-within .dot::after { opacity: 1; }
+.win-ctrl .dot:hover:not(:disabled) { filter: none; transform: none; }
+
+/* minimized window waits in the taskbar */
+header nav .task-min {
+  min-height: 0;
+  padding: 0.25rem 0.9rem;
+  font-size: 0.9rem;
+  color: #fff;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.06));
+  border: 1px dashed rgba(255, 255, 255, 0.7);
+  border-radius: 6px;
+  box-shadow: none;
+  animation: window-open 300ms var(--spring) both;
+}
+
+/* closed window becomes a desktop icon */
+.desk-icon {
+  position: fixed;
+  left: 50%;
+  top: 38%;
+  z-index: 3;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 14rem;
+  padding: 0.9rem 1.2rem;
+  font-size: 0.95rem;
+  color: #fff;
+  text-shadow: none;
+  background: rgba(4, 26, 61, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  transform: translate(-50%, -50%);
+  animation: window-open 320ms var(--spring) both;
+}
+.desk-icon:hover:not(:disabled) { transform: translate(-50%, -52%); }
+.desk-folder {
+  width: 64px;
+  height: 48px;
+  border-radius: 4px 10px 6px 6px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0, transparent 40%),
+    linear-gradient(180deg, #9fe6ff, #38c8ff);
+  box-shadow: 0 -8px 0 -2px #7fd6f7, 0 6px 14px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 640px) {
+  .wm { margin: 1rem 0.5rem 0; }
+  .wm-max { margin: 0.4rem 0.3rem 0; max-width: none; }
+  .win-ctrl { top: 0.75rem; left: 0.5rem; }
+}
+
+/* A window without a page title (loading, error and not-found messages) has no title bar for the window buttons
+   to sit on: leave room for them so they never cover the message. */
+.wm > main:not(:has(> h1)) { padding-top: 3.4rem; }
