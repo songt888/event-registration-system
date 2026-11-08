@@ -1,0 +1,100 @@
+[
+  {
+    "screen": "events-list",
+    "state": "loading",
+    "expected": "Loading events...",
+    "result": "pass",
+    "buttonsClearOfMessage": true
+  },
+  {
+    "screen": "events-list",
+    "state": "empty",
+    "expected": "No published events yet",
+    "result": "pass",
+    "buttonsClearOfMessage": true
+  },
+  {
+    "screen": "events-list",
+    "state": "error",
+    "expected": "alert \"Something went wrong. Please try again.\"",
+    "result": "pass",
+    "buttonsClearOfMessage": true
+  },
+  {
+    "screen": "event-detail",
+    "state": "loading",
+    "expected": "Loading event...",
+    "result": "pass",
+    "buttonsClearOfMessage": true
+  },
+  {
+    "screen": "event-detail",
+    "state": "error",
+    "expected": "alert \"Something went wrong. Please try again.\"",
+    "result": "pass",
+    "buttonsClearOfMessage": true
+  },
+  {
+    "screen": "my-registrations",
+    "state": "loading",
+    "expected": "Loading...",
+    "result": "pass",
+    "buttonsClearOfMessage": true
+  },
+  {
+    "screen": "my-registrations",
+    "state": "empty",
+    "expected": "You have no registrations yet.",
+    "result": "pass",
+    "buttonsClearOfMessage": true
+  },
+  {
+    "screen": "my-registrations",
+    "state": "error",
+    "expected": "alert \"Something went wrong. Please try again.\"",
+    "result": "pass",
+    "buttonsClearOfMessage": true
+  },
+  {
+    "screen": "my-events",
+    "state": "loading",
+    "expected": "Loading...",
+    "result": "pass",
+    "buttonsClearOfMessage": true
+  },
+  {
+    "screen": "my-events",
+    "state": "empty",
+    "expected": "No events yet",
+    "result": "pass",
+    "buttonsClearOfMessage": true
+  },
+  {
+    "screen": "my-events",
+    "state": "error",
+    "expected": "alert \"Something went wrong. Please try again.\"",
+    "result": "pass",
+    "buttonsClearOfMessage": true
+  },
+  {
+    "screen": "event-registrations",
+    "state": "loading",
+    "expected": "Loading...",
+    "result": "pass",
+    "buttonsClearOfMessage": true
+  },
+  {
+    "screen": "event-registrations",
+    "state": "empty",
+    "expected": "No registrations yet.",
+    "result": "pass",
+    "buttonsClearOfMessage": true
+  },
+  {
+    "screen": "event-registrations",
+    "state": "error",
+    "expected": "alert \"Something went wrong. Please try again.\"",
+    "result": "pass",
+    "buttonsClearOfMessage": true
+  }
+]
