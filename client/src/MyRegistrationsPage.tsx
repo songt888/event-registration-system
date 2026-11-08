@@ -46,7 +46,7 @@ export function MyRegistrationsPage() {
                 </td>
                 <td>{new Date(r.event.startsAt).toLocaleString()}</td>
                 <td>{r.event.location}</td>
-                <td>{r.status}</td>
+                <td><span className={`led led-${r.status.toLowerCase()}`}>{r.status}</span></td>
               </tr>
             ))}
           </tbody>
