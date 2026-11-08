@@ -71,18 +71,18 @@ These journeys supplement service/API/DB checks; they do not replace negative au
 
 ## 6. Coverage gaps and planned closure
 
-Every FR/BR/NFR has a feature or named responsibility and sprint above; S1 gaps are now closed by the passing results; closed rows are kept so the history stays visible. No baseline requirement is removed to close a gap.
+Every FR/BR/NFR has a feature or named responsibility and sprint above; each S1 row starts with `Closed:` or `Open:`, and the later-sprint row with `Planned (S2/S3):`; closed rows are kept so the history stays visible. Two rows are `Open:`: the server-side 500 error check and the release run on the tag. No baseline requirement is removed to close a gap.
 
 | Gap / limitation | Affected scope | Planned closure / owner |
 |---|---|---|
 | S1 feature contracts are merged (Issue #2); executable tests were absent. | All S1 mappings | Closed: Issues 4 to 8 wrote the tests; 51 of 51 AC pass. |
-| Positive published-event detail lacks a dedicated AC in the skeleton. Authenticated current-user response is now AC-39/TEST-39 in F-01. | FR-05; FR-03 contract elaborated, not executed | A elaborates shared detail in #18; B #19 refers to that definition. Preserve IDs; F-01 adds AC/TEST-39..42 for current user, expiry, validation and guards, leaving 37 to F-04 and 38 to B's F-03 draft. |
-| Representative role/ownership tests are not the full route matrix; invalid/expired sessions, wrong-role publication and foreign-DRAFT registration-list cases need explicit coverage. | FR-04, FR-08; BR-01, BR-05; NFR-01, NFR-03; D-13 | Contract authors #17..#21 map all applicable SDS permissions. Preserve session -> role -> ownership precedence. |
-| Existing boundary samples do not explicitly cover every approved bound. | BR-01 capacity maximum; BR-04 `startsAt == now`; BR-09 publish equality | #18/#20 elaborate approved boundaries without inventing changed limits. |
+| Published-event detail and current-user response. | FR-05; FR-03 | Closed: AC-49/TEST-49 and AC-39/TEST-39 pass (results section 2). |
+| Representative role/ownership tests are not the full route matrix; invalid/expired sessions, wrong-role publication and foreign-DRAFT registration-list cases need explicit coverage. | FR-04, FR-08; BR-01, BR-05; NFR-01, NFR-03; D-13 | Closed: AC-38, AC-40, AC-42, AC-43, AC-45, AC-47 (sessions), AC-50 (wrong-role publication, D-13 order) and AC-48 (foreign DRAFT list) pass (results section 2). |
+| Existing boundary samples do not explicitly cover every approved bound. | BR-01 capacity maximum; BR-04 `startsAt == now`; BR-09 publish equality | Closed: AC-06/TEST-06 (capacity 10,000), AC-28/TEST-28 (`startsAt == now`) and AC-30/TEST-30 (publish equality) pass (results section 2). |
 | The capacity-5 concurrency scenario was specified but not executed. | NFR-04, BR-02 | Closed: QA #40 ran TEST-15 and TEST-37 five times each, all pass. |
-| Hash-cost/response privacy and uniform safe-error assertions need complete contract coverage. | NFR-02, NFR-07 | Relevant contract authors add explicit assertions/verification; passing status codes alone are insufficient. |
-| Restart, setup count and five UI-state checks were planned only. | NFR-06, NFR-08, NFR-09 | Closed for S1: all three pass (results section 3); NFR-06 deployed repeat is Lab 5. |
-| Later-sprint contracts and measurement parameters are intentionally not fully elaborated yet. | FR-09..FR-14, BR-06..BR-08, NFR-05; later changes to existing rules | S2/S3 contracts before implementation; resolve deadline/check-in/no-show/state boundaries and performance sampling. |
+| Hash-cost/response privacy and uniform safe-error assertions need complete contract coverage. | NFR-02, NFR-07 | Open: no automated test that an unexpected server error returns 500 in the uniform shape without a stack trace. AC-05, AC-19, AC-39 (hash cost, no private fields) and the exact error keys asserted in the 4xx tests pass (results section 2). |
+| Restart, setup count and five UI-state checks were planned only. | NFR-06, NFR-08, NFR-09 | Closed: NFR-06, NFR-08 and NFR-09 checks pass (results section 3); the NFR-06 deployed repeat is Lab 5. |
+| Later-sprint contracts and measurement parameters are intentionally not fully elaborated yet. | FR-09..FR-14, BR-06..BR-08, NFR-05; later changes to existing rules | Planned (S2/S3): contracts before implementation; resolve deadline/check-in/no-show/state boundaries and performance sampling. |
 | Release evidence on the tag does not exist yet. | All S1 rows | Open: Issue 10.1 (#41) repeats build, test and E2E on `v0.1.0-sprint1` and updates the results file. |
 
 ## 7. Approved changes and retained decisions
@@ -99,7 +99,7 @@ This table records changes already visible in the merged baseline; it does not a
 | Feature inventory PR #50, merge `79e0dcd` | F-01..F-13 allocated with dependencies and cross-cutting responsibilities. | S1 F-01..F-06; S2 F-07..F-09; S3 F-10..F-13 (F-10 starts S2). S1 NFR duties stay in S1. |
 | Issue #2 contract PRs #52, #53, #54, #55, #56 | S1 contracts add AC/TEST-37..51: current user, expiry, validation and guards (F-01, 39..42); F-03 session cases (38); F-04 capacity-5, session and input cases (37, 43, 44); F-05/F-06 session, role, input and DRAFT cases (45..48); F-02 detail, access matrix and validation (49..51). | New IDs are added to the rows above; no ID is renumbered. Recorded here as the A-owned follow-up agreed in PR #53 and #54. |
 | QA PR #72, Issue #40 | S1 run on staging `c1ee1ce`: build, `npm test` 67 of 67, E2E 5 of 5, TEST-15/37 five runs; NFR-06/08/09 checks added. | S1 rows above now state verified results with a link to the results file. |
-| D-15, D-16; Issue #73, PRs #76 and #77 | Scope addition: one shared Y2K visual style for every S1 screen, a decorative 3D layer, self-hosted fonts and Web Audio sounds. F-03 Events list shows CD cases (contract v1.1). | No FR/BR/NFR, route, API or data change; no new AC/TEST ID. Existing tests still pass (`npm test` 67 of 67 at `934dc51`). |
+| D-15, D-16; Issue #73, PRs #76 and #77 | Scope addition: one shared Y2K visual style for every S1 screen, a decorative 3D layer, self-hosted fonts and Web Audio sounds. F-03 Events list shows CD cases (contract v1.1). | No FR/BR/NFR, route, API or data change; no new AC/TEST ID. Existing tests still pass (`npm test` 67 of 67 at merge `934dc51`, recorded on Issue #75). |
 
 ## 8. Sources and updating actual results
 
