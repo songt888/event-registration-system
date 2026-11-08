@@ -2,7 +2,7 @@
 
 Event Registration and Attendance System | CPE 334, Semester 1/2026 | Theme 3
 
-Status: draft for Issue #12 and teammate review. This document specifies the whole product baseline; Sprint 1 is the Deliverable 1 implementation scope. Requirements and verification below are planned, not claims of implemented or tested behavior.
+Status: baseline reviewed and merged in PR #48 (Issue #12). This document specifies the whole product baseline; Sprint 1 is the Deliverable 1 implementation scope. The Sprint 1 requirements are implemented and verified in release `v0.1.0-sprint1` (results in [traceability](traceability.md) and `docs/evidence/`); Sprint 2 and 3 requirements remain planned, not claims of implemented or tested behavior.
 
 ## 1. Purpose, context and actors
 
