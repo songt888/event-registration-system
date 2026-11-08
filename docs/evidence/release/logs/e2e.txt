@@ -1,0 +1,39 @@
+$ npm run test:e2e
+
+> test:e2e
+> playwright test
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "eventreg_e2e", schema "public" at "localhost:5432"
+
+Applying migration `20261107093337_init`
+
+Database reset successful
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20261107093337_init/
+    └─ migration.sql
+
+Running generate... (Use --skip-generate to skip the generators)
+[2K[1A[2K[GRunning generate... - Prisma Client
+[2K[1A[2K[G✔ Generated Prisma Client (v5.22.0) to ./../node_modules/@prisma/client in 29ms
+
+
+> seed
+> tsx --env-file-if-exists=.env prisma/seed.ts
+
+Seed done: 2 organizers, 4 participants, 4 events, 1 registration.
+
+Running 5 tests using 1 worker
+
+  ✓  1 [chromium] › e2e/browse.spec.ts:4:1 › TEST-11 AC-11 Events screen shows the empty state for an empty list (1.1s)
+  ✓  2 [chromium] › e2e/full-event.spec.ts:12:1 › TEST-23 AC-23 full event shows the full message and My registrations stays unchanged (3.7s)
+  ✓  3 [chromium] › e2e/golden-journey.spec.ts:19:1 › TEST-22 AC-22 organizer publishes, participant registers and sees it, owner sees the registrant (4.7s)
+  ✓  4 [chromium] › e2e/golden-journey.spec.ts:53:1 › TEST-24 AC-24 header shows name and role for each role; after logout a protected page opens login (2.8s)
+  ✓  5 [chromium] › e2e/smoke.spec.ts:5:1 › signed-out visitor is sent to the login form (132ms)
+
+  5 passed (15.6s)
+exit=0
