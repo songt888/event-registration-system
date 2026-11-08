@@ -57,6 +57,8 @@ All Sprint 1 features also depend on Issue 3 (project skeleton, schema, seed, te
 | NFR-08 | fresh clone following the README, commands counted | Issue 3 review, 9.4 QA run |
 | NFR-09 | E2E TEST-11 + checklist on 5 screens | 9.4 QA run |
 
+Scope addition (D-15, D-16, Issue #73): a shared Y2K visual style for all S1 screens, with visible focus, AA contrast and a reduced-motion version, is added to Sprint 1 and merged before the release test run (10.4). It changes no feature and no existing text or test.
+
 ## 3. Sprint 2: core expansion
 | Feature | Covers | Depends on | Completion outcome |
 |---|---|---|---|
@@ -93,3 +95,4 @@ Every baseline feature F-01 to F-13 appears in exactly one sprint as its complet
 |---|---|---|---|---|
 | 1.0 | 2026-11-07 | First three-sprint plan for Deliverable 1 (Issue #15) | B (stickkersz) | A (songt888) |
 | 1.1 | 2026-11-07 | PR #49 review: NFR-04 verified by TEST-37, separate from TEST-15 | B (stickkersz) | A (songt888) |
+| 1.2 | 2026-11-08 | D-15 and D-16: shared Y2K UI style added to Sprint 1 (Issue #73) | B (stickkersz) | A (songt888) |

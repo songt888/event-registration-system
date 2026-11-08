@@ -1,6 +1,8 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './auth';
 import { CreateEventPage } from './CreateEventPage';
+import { Desktop3D } from './Desktop3D';
+import { Sparkles } from './Sparkles';
 import { EventRegistrationsPage } from './EventRegistrationsPage';
 import { EventDetailPage, EventsPage } from './EventsPage';
 import { MyEventsPage } from './MyEventsPage';
@@ -11,6 +13,8 @@ import { LoginPage } from './LoginPage';
 export function App() {
   return (
     <BrowserRouter>
+      <Desktop3D />
+      <Sparkles />
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
