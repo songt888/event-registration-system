@@ -613,3 +613,7 @@ header nav .task-min {
   .wm-max { margin: 0.4rem 0.3rem 0; max-width: none; }
   .win-ctrl { top: 0.75rem; left: 0.5rem; }
 }
+
+/* A window without a page title (loading, error and not-found messages) has no title bar for the window buttons
+   to sit on: leave room for them so they never cover the message. */
+.wm > main:not(:has(> h1)) { padding-top: 3.4rem; }
