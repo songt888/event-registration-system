@@ -354,7 +354,7 @@ def board():
             "<p>GitHub Project \"Event Registration - Sprint 1\" at the time of this build (Issues and sub-tasks; sub-tasks merged into "
             "others were closed as not planned and are not on the board). Release: tag <code>v0.1.0-sprint1</code> on "
             f"<code>{COMMIT}</code>, created after both students agreed on Issue #44.</p>"
-            + (figure("../figures/board.png", "GitHub Project board \"Event Registration - Sprint 1\" (Board view), captured on the submission day", "wide")
+            + (figure("../figures/board.png", "GitHub Project board \"Event Registration - Sprint 1\" captured on 2026-11-08 while the PDF PR #83 was open (so #43 shows in PR Review)", "wide")
                if (PDF / "figures" / "board.png").exists() else "")
             + f"<table><thead><tr><th>Column</th><th>Count</th><th>Issues</th></tr></thead><tbody>{rows}</tbody></table>")
 
