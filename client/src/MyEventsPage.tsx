@@ -52,7 +52,9 @@ export function MyEventsPage() {
   return (
     <main>
       <h1>My events</h1>
-      <Link to="/organizer/events/new">Create event</Link>
+      <Link to="/organizer/events/new" className="button">
+        Create event
+      </Link>
       {saved && <p role="status">Draft "{saved}" saved.</p>}
       {publishError && <p role="alert">{publishError}</p>}
       {error ? (
@@ -87,8 +89,8 @@ export function MyEventsPage() {
                 <td>
                   {e.remainingPlaces} of {e.capacity}
                 </td>
-                <td>{e.status}</td>
-                <td>
+                <td><span className={`led led-${e.status.toLowerCase()}`}>{e.status}</span></td>
+                <td className="actions">
                   <Link to={`/organizer/events/${e.id}/registrations`}>Registrations</Link>{' '}
                   {e.status === 'DRAFT' && (
                     <button onClick={() => publish(e.id)} disabled={publishing === e.id}>

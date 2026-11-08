@@ -47,7 +47,7 @@ export function EventRegistrationsPage() {
               <tr key={r.id}>
                 <td>{r.participant.name}</td>
                 <td>{r.participant.email}</td>
-                <td>{r.status}</td>
+                <td><span className={`led led-${r.status.toLowerCase()}`}>{r.status}</span></td>
                 <td>{new Date(r.createdAt).toLocaleString()}</td>
               </tr>
             ))}
