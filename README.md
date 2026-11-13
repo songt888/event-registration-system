@@ -4,7 +4,7 @@ CPE 334 group project (Semester 1/2026), Theme 3. Organizers publish events with
 Stack: React + Vite (`client/`), Express + TypeScript (`server/`), PostgreSQL 16 + Prisma. Design: [docs/system-sds.md](docs/system-sds.md).
 
 ## Requirements
-Node 20 or newer, npm, Docker Desktop (for PostgreSQL), Git.
+Node 22.9 or newer (the npm scripts use `--env-file-if-exists`, D-19), npm, Docker Desktop (for PostgreSQL), Git.
 
 ## Setup and run (from a fresh clone)
 ```bash
@@ -18,6 +18,8 @@ npm run seed                     # synthetic demo data (password = SEED_PASSWORD
 npm run dev                      # API http://localhost:3000, UI http://localhost:5173
 ```
 Command count (NFR-08, at most 10): each line in the block above is one command, so setup and run take 8 commands. The tools under Requirements are installed beforehand and not counted. `npx playwright install chromium` is a one-time test step and not part of setup.
+
+`npm run seed` empties every table first, so use it only on local, test and E2E databases. For a deployed database use `npm run seed:demo`, which only adds missing demo accounts and events and never deletes or changes data (Lab 5, D-20).
 
 Seeded accounts: `organizer1@example.com`, `organizer2@example.com`, `participant1@example.com` .. `participant4@example.com`.
 
