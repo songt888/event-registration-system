@@ -29,7 +29,7 @@ No value below is real. Secrets live only in Secret Manager (cloud) or the gitig
 | `SESSION_TTL_MINUTES` | session length (60) | no | `server/.env` | Cloud Run env var |
 | `COOKIE_SECURE` | `true` behind HTTPS | no | `server/.env` (`false`) | Cloud Run env var (`true`) |
 | `SEED_PASSWORD` | password of the synthetic demo accounts | yes on the deployed database | `server/.env` | Secret Manager, used only by the seed step |
-| `CLIENT_DIST` | folder of the built UI the API serves | no | unset (Vite serves the UI) | set in the image (planned `/app/client/dist`, #88) |
+| `CLIENT_DIST` | folder of the built UI the API serves | no | unset (Vite serves the UI) | set in the image (`/app/client/dist`, #88) |
 
 ## 3. Commands
 
@@ -42,11 +42,12 @@ No value below is real. Secrets live only in Secret Manager (cloud) or the gitig
 | Migrate | `npm run migrate` (runs `prisma migrate deploy`, local and deployed; never `migrate dev` or `migrate reset` on the deployed database) |
 | Seed (local, test, E2E only) | `npm run seed` (deletes all data first) |
 | Seed (deployed) | `npm run seed:demo` (adds missing demo data, deletes nothing). Accounts are matched by email and events by owner and title, so a renamed demo event is created again on the next release |
-| Docker image | filled in by #88 |
+| Docker image | `docker build -t eventreg .` (three stages: UI build, server build, runtime as user `node`, Node 24) |
+| Run everything in Docker | `cp .env.example .env`, then `docker compose up --build` (services `db`, `migrate`, `app`; UI and API on http://localhost:3000) |
 
 ## 4. To be completed
 
-- Image (#88): the migration job runs `prisma migrate deploy` and `npm run seed:demo` from the image, and both need `prisma` and `tsx`, which are devDependencies, so the runtime stage must keep them (the starter kit copies the full `node_modules`).
+- Image (#88, done): the runtime stage copies the server workspace `node_modules` including `prisma` and `tsx` (devDependencies), because the migration job runs `prisma migrate deploy` and `npm run seed:demo` from the same image. The cost is image size (about 580 MB); a pruned image is out of scope.
 - GCP project, region `asia-southeast1`, Cloud Run service, Cloud SQL instance, Artifact Registry repository, secret names (#90).
 - Release procedure, image tag = full commit SHA, how to find the running commit (#92).
 - Cost control and teardown (#95); rollback by redeploying an earlier image SHA (#92).

@@ -1,0 +1,17 @@
+# Keep secrets, dependencies, build output and tests out of the build context (R-02).
+.git
+.github
+.env
+.env.*
+!.env.example
+**/node_modules
+**/dist
+coverage
+test-results
+playwright-report
+e2e
+docs
+*.md
+.DS_Store
+.vscode
+.idea

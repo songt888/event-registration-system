@@ -23,6 +23,15 @@ Command count (NFR-08, at most 10): each line in the block above is one command,
 
 Seeded accounts: `organizer1@example.com`, `organizer2@example.com`, `participant1@example.com` .. `participant4@example.com`.
 
+## Run the whole app in Docker (Lab 5, R-01, R-02)
+```bash
+git clone https://github.com/songt888/event-registration-system.git
+cd event-registration-system
+cp .env.example .env             # root .env for Compose; set SEED_PASSWORD
+docker compose up --build        # db, migrate + seed:demo, then the app on http://localhost:3000
+```
+One image serves the UI and the API (D-18). The `migrate` service runs `prisma migrate deploy` and `npm run seed:demo`, so existing data is never reset. Stop with `docker compose down` (add `-v` to delete the database volume). Sign in with a seeded account and the `SEED_PASSWORD` you set.
+
 ## Tests
 ```bash
 npm test                         # unit + API/DB integration on DATABASE_URL_TEST (never the dev database)

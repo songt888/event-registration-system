@@ -51,6 +51,7 @@ cp .env.example server/.env      # local placeholders
 docker compose up -d db          # PostgreSQL (dev, test, E2E databases)
 npm install && npm run migrate && npm run seed
 npm run seed:demo                # non-destructive demo seed for a deployed database; never run `npm run seed` there (D-20)
+docker compose up --build        # whole app in Docker on :3000 (needs root .env: cp .env.example .env); `docker compose up -d db` still starts only the database
 npm run dev                      # server and client
 npm test                         # unit + API/DB integration (uses DATABASE_URL_TEST, a separate test database, never the dev one)
 npm run test:e2e                 # Playwright (uses DATABASE_URL_E2E, reset and seeded before each run)
