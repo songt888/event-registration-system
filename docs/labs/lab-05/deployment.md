@@ -44,6 +44,7 @@ No value below is real. Secrets live only in Secret Manager (cloud) or the gitig
 | Seed (deployed) | `npm run seed:demo` (adds missing demo data, deletes nothing). Accounts are matched by email and events by owner and title, so a renamed demo event is created again on the next release |
 | Docker image | `docker build -t eventreg .` (three stages: UI build, server build, runtime as user `node`, Node 24) |
 | Run everything in Docker | `cp .env.example .env`, then `docker compose up --build` (services `db`, `migrate`, `app`; UI and API on http://localhost:3000) |
+| CI | `.github/workflows/ci-docker.yml`, job `test-and-docker`, on every PR into `lab5-staging` and `main` (R-05, D-23): Postgres 16 service plus `eventreg_test`, `npm ci`, `npm run migrate`, `npm test`, `npm run build`, `docker build`. Actions are pinned to full commit SHAs; `.github/dependabot.yml` proposes updates weekly. E2E is not part of it |
 
 ## 4. To be completed
 
