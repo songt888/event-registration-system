@@ -17,6 +17,7 @@ services:
   # L5-03 (R-01, R-02): the same image Cloud Run runs. `docker compose up --build` migrates, seeds missing demo data, then serves UI and API on :3000.
   migrate:
     build: .
+    image: eventreg:local
     command: ["sh", "-c", "npm run migrate -w server && npm run seed:demo -w server"]
     environment:
       DATABASE_URL: postgresql://app:app@db:5432/eventreg
@@ -26,6 +27,7 @@ services:
         condition: service_healthy
   app:
     build: .
+    image: eventreg:local
     ports:
       - "3000:3000"
     environment:
