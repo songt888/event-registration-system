@@ -41,7 +41,7 @@ No value below is real. Secrets live only in Secret Manager (cloud) or the gitig
 | Run locally | `npm run dev` |
 | Migrate | `npm run migrate` (runs `prisma migrate deploy`, local and deployed; never `migrate dev` or `migrate reset` on the deployed database) |
 | Seed (local, test, E2E only) | `npm run seed` (deletes all data first) |
-| Seed (deployed) | `npm run seed:demo` (adds missing demo data, deletes nothing) |
+| Seed (deployed) | `npm run seed:demo` (adds missing demo data, deletes nothing). Accounts are matched by email and events by owner and title, so a renamed demo event is created again on the next release |
 | Docker image | filled in by #88 |
 
 ## 4. To be completed

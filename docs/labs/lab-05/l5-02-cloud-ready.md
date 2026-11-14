@@ -4,7 +4,7 @@ Lab 5 requirements R-02 (settings from the environment) and R-04 (data survives 
 
 ## 1. Behavior
 
-- **Built UI from the API.** When `CLIENT_DIST` names a folder that contains `index.html`, the API serves the files in it. Any `GET` path outside `/api` that is not a file returns `index.html`, so a reload on `/events/<id>` works. Without `CLIENT_DIST` nothing changes (local development keeps the Vite dev server).
+- **Built UI from the API.** When `CLIENT_DIST` names a folder that contains `index.html`, the API serves the files in it. Any `GET` path outside `/api` that is not a file returns `index.html`, so a reload on `/events/<id>` works. This includes a missing file such as `/assets/nope.js` (200 with `index.html`); accepted for Lab 5, because the built UI only links files that exist. Without `CLIENT_DIST` nothing changes (local development keeps the Vite dev server).
 - **Unknown API paths.** A request to an `/api` path that no route handles returns 404 with the standard shape `{ "error": { "code": "NOT_FOUND", "message": "Not found." } }`, never the UI page, never a stack trace.
 - **Demo seed for releases.** `npm run seed:demo` creates the demo accounts (organizer1, organizer2, participant1 to participant4 at example.com) and the four demo events only when they are missing, with passwords from `SEED_PASSWORD` (bcrypt cost 12). It never deletes or updates a row. Running it again, or on a database that already has real data, changes nothing. The destructive `npm run seed` stays for local, test and E2E use only.
 
@@ -32,4 +32,5 @@ Lab 5 requirements R-02 (settings from the environment) and R-04 (data survives 
 
 | Version | Date | Change | Review |
 |---|---|---|---|
-| 1.0 | 2026-11-13 | First L5-02 contract | pending B's review |
+| 1.0 | 2026-11-13 | First L5-02 contract | B, PR #96 (changes requested: AI use section) |
+| 1.1 | 2026-11-14 | Wrote down that a missing file also gets `index.html` (B's review note); no behavior change | B, PR #96 |
