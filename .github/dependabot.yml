@@ -1,0 +1,9 @@
+# L5-04 (R-05): keep the pinned action SHAs current. Dependabot opens PRs; they go through the same review and CI.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    labels:
+      - lab5
