@@ -12,7 +12,7 @@ Out of scope in Sprint 1: cancellation, deadlines, check-in, attendance reports,
 
 ## Stack (change only with a recorded decision)
 - UI: React + TypeScript + Vite
-- API: Node 20 + Express + TypeScript, zod validation
+- API: Node 22.9+ locally, Node 24 in the image and CI (D-19) + Express + TypeScript, zod validation
 - DB: PostgreSQL 16 + Prisma migrations + seed script (docker-compose for local DB)
 - Auth: bcrypt password hashes; server-side session (opaque token in httpOnly cookie, hash stored in a `Session` table, 1h expiry); logout deletes the session row (D-08)
 - Tests: Vitest (unit), Supertest (API + real DB integration), Playwright (few E2E journeys)
@@ -36,7 +36,7 @@ Kanban: Backlog → Specified → Started → PR Review → Fixing → Done. Nev
 3. **TDD:** commit failing tests (red) → commit implementation (green) → refactor. Test names must contain the TEST ID, e.g. `TEST-13 AC-13 rejects registration when event is full`.
 4. Run the full test suite, inspect the diff, update docs/README.
 5. Open a PR into `sprint-1-staging`, linked to the Issue (FR/BR/F/AC IDs in the description). **The teammate reviews with a specific check or finding. Authors never approve their own PR.**
-6. After integration and acceptance checks, open a reviewed release PR `sprint-1-staging` → `main`, then tag `v0.1.0-sprint1`. **No commits to `main` after the tag** before submission.
+6. After integration and acceptance checks, open a reviewed release PR `sprint-1-staging` → `main`, then tag `v0.1.0-sprint1`. **No commits to `main` after the tag** before submission (this applies to Deliverable 1 only; Lab 5 has its own rules below).
 7. Keep contract revisions visible; record justified scope changes instead of silently shrinking scope.
 
 Commit style: short imperative subject with IDs, e.g. `test(F-04): add failing capacity tests (AC-13, AC-15)`.
@@ -50,6 +50,7 @@ Docs: `docs/srs.md`, `docs/features.md`, `docs/traceability.md`, `docs/system-sd
 cp .env.example server/.env      # local placeholders
 docker compose up -d db          # PostgreSQL (dev, test, E2E databases)
 npm install && npm run migrate && npm run seed
+npm run seed:demo                # non-destructive demo seed for a deployed database; never run `npm run seed` there (D-20)
 npm run dev                      # server and client
 npm test                         # unit + API/DB integration (uses DATABASE_URL_TEST, a separate test database, never the dev one)
 npm run test:e2e                 # Playwright (uses DATABASE_URL_E2E, reset and seeded before each run)
@@ -65,3 +66,14 @@ Behavior implemented · planned tests executed and meaningful · no required tes
 - Prefer the simplest implementation that satisfies the AC. No extra features, options, or abstractions.
 - Record AI use for the declaration in the PDF (tool + task), no transcripts needed.
 - Deliverable 1 does not need Docker packaging, CI/CD, GCP, or a demo video (Lab 5 / final).
+
+## Lab 5 (cloud deployment and CI/CD): rules that apply only to Lab 5 work
+Plan: `lab5-plan.md` (Issues #86 to #95: order in section 8, who authors and reviews in section 3a). Handout and guide: `01_SE_Lab_5_updated`, `03_Student-Guide-GCP-Deployment-and+CI+CD` (in the user's Downloads). Everything above still applies unless this section says otherwise.
+- **Releases through `main` are allowed for Lab 5 only (D-17).** The tag `v0.1.0-sprint1` stays on `12dcd3c` and never moves. A Lab 5 release is a reviewed PR `lab5-staging` → `main`, then its own tag. Nobody commits directly on `main` or `lab5-staging`; both receive merges from reviewed PRs only. Only `main` deploys.
+- Lab 5 Issues and PRs carry the label `lab5`. Integration branch is `lab5-staging` (D-21), not `sprint-1-staging`: branches `feature/l5-NN-topic`, `docs/l5-NN-topic`, `fix/l5-NN-topic` start from `lab5-staging` and their PRs go into `lab5-staging`. `sprint-1-staging` keeps only Sprint 1 work. Console-only work still gets an Issue, closed with a screenshot.
+- Node: 22.9 or later for local development (the npm scripts use `--env-file-if-exists`, which Node 20 does not have); the Docker image and CI use Node 24 (D-19).
+- Production data is never reset: the destructive `server/prisma/seed.ts` is for local, test and E2E only. Releases run `prisma migrate deploy` and the non-destructive demo seed (D-20). Migrations only add tables or columns.
+- GCP account holder is A (D-24). Agents never change billing, IAM or databases on their own, read every `gcloud` command before it runs, and never see or paste a secret, password, `DATABASE_URL` or key file. No JSON key files: Workload Identity Federation. Actions are pinned to full commit SHAs.
+- The failing-check demo uses a temporary branch (for example `lab5/temp-failing-check`) and is never merged.
+- New AC/TEST IDs continue the sequence (AC-52, TEST-52, ...). Same TDD order: red commit, then green commit.
+- Lab 5 commands: `npm run seed:demo` (non-destructive demo seed for the deployed database, #87); `CLIENT_DIST` makes the API serve the built UI. Add each new command to the Commands section and the README when it is created.
