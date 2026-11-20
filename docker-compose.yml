@@ -21,7 +21,9 @@ services:
     command: ["sh", "-c", "npm run migrate -w server && npm run seed:demo -w server"]
     environment:
       DATABASE_URL: postgresql://app:app@db:5432/eventreg
-      SEED_PASSWORD: ${SEED_PASSWORD:?copy .env.example to .env and set SEED_PASSWORD}
+      # Not :? here: that check runs for every command, so `docker compose up -d db` would fail without a root .env.
+      # seed:demo stops with "SEED_PASSWORD is not set" instead, and app waits for migrate to succeed.
+      SEED_PASSWORD: ${SEED_PASSWORD:-}
     depends_on:
       db:
         condition: service_healthy
