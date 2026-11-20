@@ -22,8 +22,8 @@ def main(base):
     health = status == 200 and json.loads(body).get("status") == "ok"
     status, ctype, _ = get(base + "/")
     page = status == 200 and ctype.startswith("text/html")
-    status, _, _ = get(base + "/api/auth/me")
-    checks = {"GET /api/health is 200 ok": health, "GET / is 200 HTML": page, "GET /api/auth/me without a session is 401": status == 401}
+    status, _, _ = get(base + "/api/me")
+    checks = {"GET /api/health is 200 ok": health, "GET / is 200 HTML": page, "GET /api/me without a session is 401": status == 401}
     for name, ok in checks.items():
         print(("PASS: " if ok else "FAIL: ") + name)
     return 0 if all(checks.values()) else 1

@@ -160,7 +160,7 @@ jobs:
         run: bash deploy/release.sh
 
       # ------------------------------------------------------------------------
-      # 6. Smoke test the live URL: GET /api/health, / and 401 on /api/auth/me
+      # 6. Smoke test the live URL: GET /api/health, / and 401 on /api/me
       #    (read-only, no login)
       # ------------------------------------------------------------------------
       - name: Setup Python 3.14
