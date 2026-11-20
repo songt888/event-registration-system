@@ -53,4 +53,18 @@ No value below is real. Secrets live only in Secret Manager (cloud) or the gitig
 - Image (#88, done): the runtime stage copies the server workspace `node_modules` including `prisma` and `tsx` (devDependencies), because the migration job runs `prisma migrate deploy` and `npm run seed:demo` from the same image. The cost is image size (about 580 MB); a pruned image is out of scope.
 - GCP project, region `asia-southeast1`, Cloud Run service, Cloud SQL instance, Artifact Registry repository, secret names (#90).
 - Release procedure, image tag = full commit SHA, how to find the running commit (#92).
-- Cost control and teardown (#95); rollback by redeploying an earlier image SHA (#92).
+- Rollback by redeploying an earlier image SHA (#92).
+
+## 5. Cost control (#95)
+
+Credits are shared by all teams on the course project `cpe-se-course-2026` (D-25), so one team's waste costs every team. Our rules:
+
+| Rule | How it is kept |
+|---|---|
+| One Cloud SQL instance only | The course portal created `s47a6b53b-pg`, the smallest tier. We create no other instance, and `deploy/deploy.sh` creates no infrastructure |
+| Cloud Run scales 0 to 1 instances | `deploy/deploy.sh` updates the service `s47a6b53b` with `--min-instances 0 --max-instances 1` (512Mi, 1 CPU), so an idle service costs no instance time |
+| Other teams' resources are never touched | We never edit, delete or deploy over a resource that does not carry our prefix `s47a6b53b`; the script refuses any project other than `cpe-se-course-2026` |
+| The old `teardown.sh` is never run | It deletes resources, which the shared project does not allow (D-25) |
+| Billing, IAM and teardown belong to the course staff | We change no billing or IAM setting. We ask a TA to add members, pause or clean up |
+
+After grading ends we follow the instructor's announcement for cleanup and do not delete anything on our own.
