@@ -8,6 +8,7 @@
     "build": "prisma generate && tsc",
     "start": "node dist/index.js",
     "seed": "tsx --env-file-if-exists=.env prisma/seed.ts",
+    "seed:demo": "tsx --env-file-if-exists=.env prisma/seed-demo.ts",
     "test": "vitest run",
     "test:unit": "vitest run --project unit",
     "test:integration": "vitest run --project integration",

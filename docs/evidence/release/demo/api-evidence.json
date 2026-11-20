@@ -1,0 +1,146 @@
+[
+  {
+    "scenario": "1",
+    "ids": "AC-17",
+    "actor": "participant1",
+    "request": "GET /api/registrations/mine",
+    "expected": "200, includes the demo event",
+    "status": 200,
+    "body": {
+      "registrations": [
+        {
+          "id": "5782fa69-4af9-4079-91e0-f9845a9ffa2d",
+          "status": "ACTIVE",
+          "createdAt": "2026-11-08T06:49:22.293Z",
+          "event": {
+            "id": "df0244c4-c662-4c5e-9f81-53e5433f604d",
+            "title": "Demo: design review",
+            "location": "Room 302",
+            "startsAt": "2026-11-15T07:00:00.000Z"
+          }
+        },
+        {
+          "id": "630c5a5a-24f1-4bc1-b075-6beb565103d7",
+          "status": "ACTIVE",
+          "createdAt": "2026-11-08T06:49:20.513Z",
+          "event": {
+            "id": "99c80631-6cf9-4516-b213-ac6ca9f29c7a",
+            "title": "Career talk (small room)",
+            "location": "Room 105",
+            "startsAt": "2026-11-18T06:49:20.512Z"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "scenario": "2",
+    "ids": "AC-13",
+    "actor": "participant3",
+    "request": "POST /api/events/99c80631-6cf9-4516-b213-ac6ca9f29c7a/registrations",
+    "expected": "409 EVENT_FULL",
+    "status": 409,
+    "body": {
+      "error": {
+        "code": "EVENT_FULL",
+        "message": "This event has no places left."
+      }
+    }
+  },
+  {
+    "scenario": "2",
+    "ids": "AC-14",
+    "actor": "participant2",
+    "request": "POST /api/events/99c80631-6cf9-4516-b213-ac6ca9f29c7a/registrations",
+    "expected": "409 ALREADY_REGISTERED",
+    "status": 409,
+    "body": {
+      "error": {
+        "code": "ALREADY_REGISTERED",
+        "message": "You are already registered for this event."
+      }
+    }
+  },
+  {
+    "scenario": "2",
+    "ids": "AC-13",
+    "actor": "participant3",
+    "request": "GET /api/events/99c80631-6cf9-4516-b213-ac6ca9f29c7a",
+    "expected": "remainingPlaces 0 (never below)",
+    "status": 200,
+    "body": {
+      "remainingPlaces": 0,
+      "capacity": 2
+    }
+  },
+  {
+    "scenario": "3",
+    "ids": "AC-21",
+    "actor": "participant1",
+    "request": "GET /api/events/99c80631-6cf9-4516-b213-ac6ca9f29c7a/registrations",
+    "expected": "403 FORBIDDEN",
+    "status": 403,
+    "body": {
+      "error": {
+        "code": "FORBIDDEN",
+        "message": "You do not have access to this."
+      }
+    }
+  },
+  {
+    "scenario": "3",
+    "ids": "AC-04",
+    "actor": "participant1 (cookie from before logout)",
+    "request": "GET /api/me",
+    "expected": "401 UNAUTHENTICATED",
+    "status": 401,
+    "body": {
+      "error": {
+        "code": "UNAUTHENTICATED",
+        "message": "Please sign in."
+      }
+    }
+  },
+  {
+    "scenario": "3",
+    "ids": "AC-20",
+    "actor": "organizer2",
+    "request": "GET /api/events/99c80631-6cf9-4516-b213-ac6ca9f29c7a/registrations",
+    "expected": "403 FORBIDDEN",
+    "status": 403,
+    "body": {
+      "error": {
+        "code": "FORBIDDEN",
+        "message": "You do not have access to this."
+      }
+    }
+  },
+  {
+    "scenario": "3",
+    "ids": "AC-16",
+    "actor": "organizer2",
+    "request": "POST /api/events/fc1318ef-071e-4f51-9177-97321ad7d537/registrations",
+    "expected": "403 FORBIDDEN",
+    "status": 403,
+    "body": {
+      "error": {
+        "code": "FORBIDDEN",
+        "message": "You do not have access to this."
+      }
+    }
+  },
+  {
+    "scenario": "3",
+    "ids": "AC-18",
+    "actor": "participant2",
+    "request": "GET /api/registrations/5782fa69-4af9-4079-91e0-f9845a9ffa2d",
+    "expected": "404 NOT_FOUND",
+    "status": 404,
+    "body": {
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "Registration not found."
+      }
+    }
+  }
+]

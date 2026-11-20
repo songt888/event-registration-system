@@ -1,0 +1,46 @@
+$ git rev-parse HEAD
+12dcd3c1504a073507017c65a4e8168e8e0e5bef
+$ node -v
+v24.19.0
+$ npm run build
+
+> build
+> npm run build -w server && npm run build -w client
+
+
+> build
+> prisma generate && tsc
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+
+✔ Generated Prisma Client (v5.22.0) to ./../node_modules/@prisma/client in 23ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Curious about the SQL queries Prisma ORM generates? Optimize helps you enhance your visibility: https://pris.ly/tip-2-optimize
+
+┌─────────────────────────────────────────────────────────┐
+│  Update available 5.22.0 -> 8.0.0-rc.33                 │
+│                                                         │
+│  This is a major update - please follow the guide at    │
+│  https://pris.ly/d/major-version-upgrade                │
+│                                                         │
+│  Run the following to update                            │
+│    npm i --save-dev prisma@latest                       │
+│    npm i @prisma/client@latest                          │
+└─────────────────────────────────────────────────────────┘
+
+> build
+> tsc -b && vite build
+
+vite v5.4.21 building for production...
+transforming...
+✓ 46 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.40 kB │ gzip:  0.27 kB
+dist/assets/index-Do0HBjsD.css   14.22 kB │ gzip:  4.29 kB
+dist/assets/index-YDI6ezKK.js   189.38 kB │ gzip: 61.62 kB
+✓ built in 285ms
+exit=0

@@ -10,6 +10,7 @@
     "build": "npm run build -w server && npm run build -w client",
     "migrate": "npm run migrate -w server",
     "seed": "npm run seed -w server",
+    "seed:demo": "npm run seed:demo -w server",
     "test": "npm test -w server",
     "test:e2e": "playwright test"
   },
@@ -18,6 +19,6 @@
     "concurrently": "^9.1.0"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22.9"
   }
 }

@@ -1,6 +1,6 @@
-# AC to TEST results (Sprint 1 QA run, Issue #40)
+# AC to TEST results (Sprint 1 QA run, Issue #40, and release run, Issue #41)
 
-Single results artifact named in [traceability](../traceability.md) section 8. Run on the `sprint-1-staging` head, commit `c1ee1ce273e9d8e2853d575a2af6300a41f98b4b`, 2026-11-07 22:22 (Asia/Bangkok), local machine, Node 20+, PostgreSQL 16 in Docker. Updated again after the release tag by Issue 10.1 (#41).
+Single results artifact named in [traceability](../traceability.md) section 8. Run on the `sprint-1-staging` head, commit `c1ee1ce273e9d8e2853d575a2af6300a41f98b4b`, 2026-11-07 22:22 (Asia/Bangkok), local machine, Node 20+, PostgreSQL 16 in Docker. The release run (Issue 10.1, #41) repeated the commands on the release commit `12dcd3c` with the same results; see section 5.
 
 ## 1. Commands and counts
 
@@ -97,4 +97,17 @@ Run on `827f874` with `npm run dev` and seeded data, in headless Chromium (Playw
 ## 4. Not covered by this run
 
 - NFR-06, NFR-08 and NFR-09 were added after the first QA run (section 3). NFR-06 is checked locally only; the deployed check is Lab 5 (SRS NFR-06).
-- This file records the staging head only. Issue 10.1 (#41) repeats the run on the tagged release.
+- The AC to TEST table (section 2) was produced on `c1ee1ce`; the release run in section 5 reran every test it names on `12dcd3c`.
+
+## 5. Release run (Issue 10.1, #41)
+
+On `12dcd3c`, the release merge into `main` agreed for tag `v0.1.0-sprint1` ([Issue #44](https://github.com/songt888/event-registration-system/issues/44)), in a clean checkout with `npm ci`, 2026-11-08 (Asia/Bangkok). Details, logs and screenshots: [release/README.md](release/README.md).
+
+| Check | Result |
+|---|---|
+| `npm run build` | passed |
+| `npm test` | 12 files; 67 tests: 67 passed, 0 failed, 0 skipped. All 51 AC in section 2 pass again |
+| `npm run test:e2e` | 5 tests: 5 passed, 0 failed, 0 skipped (TEST-11, TEST-22, TEST-23, TEST-24, smoke) |
+| TEST-15 and TEST-37, 5 runs (NFR-04) | 5 of 5 runs pass, 2 passed each |
+| Part F2 demo scenarios 1 to 3 | 3 of 3 pass, with screenshots and API evidence |
+| NFR-09 rerun on the final UI | 14 of 14 pass; window buttons clear of the message in 14 of 14 |

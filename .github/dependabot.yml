@@ -1,0 +1,11 @@
+# L5-04 (R-05): keep the pinned action SHAs current. Dependabot opens PRs; they go through the same review and CI.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    # Version-update PRs go to the default branch (main) unless told otherwise. Lab 5 PRs go into lab5-staging (D-17, D-21).
+    target-branch: lab5-staging
+    schedule:
+      interval: weekly
+    labels:
+      - lab5

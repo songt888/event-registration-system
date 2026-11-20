@@ -4,7 +4,7 @@ CPE 334 group project (Semester 1/2026), Theme 3. Organizers publish events with
 Stack: React + Vite (`client/`), Express + TypeScript (`server/`), PostgreSQL 16 + Prisma. Design: [docs/system-sds.md](docs/system-sds.md).
 
 ## Requirements
-Node 20 or newer, npm, Docker Desktop (for PostgreSQL), Git.
+Node 22.9 or newer (the npm scripts use `--env-file-if-exists`, D-19), npm, Docker Desktop (for PostgreSQL), Git.
 
 ## Setup and run (from a fresh clone)
 ```bash
@@ -19,7 +19,28 @@ npm run dev                      # API http://localhost:3000, UI http://localhos
 ```
 Command count (NFR-08, at most 10): each line in the block above is one command, so setup and run take 8 commands. The tools under Requirements are installed beforehand and not counted. `npx playwright install chromium` is a one-time test step and not part of setup.
 
+`npm run seed` empties every table first, so use it only on local, test and E2E databases. For a deployed database use `npm run seed:demo`, which only adds missing demo accounts and events and never deletes or changes data (Lab 5, D-20).
+
 Seeded accounts: `organizer1@example.com`, `organizer2@example.com`, `participant1@example.com` .. `participant4@example.com`.
+
+## Run the whole app in Docker (Lab 5, R-01, R-02)
+```bash
+git clone https://github.com/songt888/event-registration-system.git
+cd event-registration-system
+cp .env.example .env             # root .env for Compose; set SEED_PASSWORD
+docker compose up --build        # db, migrate + seed:demo, then the app on http://localhost:3000
+```
+One image serves the UI and the API (D-18). The `migrate` service runs `prisma migrate deploy` and `npm run seed:demo`, so existing data is never reset. Stop with `docker compose down` (add `-v` to delete the database volume). Sign in with a seeded account and the `SEED_PASSWORD` you set.
+
+## Deploy to the course cloud (Lab 5, #90)
+```bash
+bash deploy/deploy.sh                # dry run (default): prints the gcloud and docker commands only
+DRY_RUN=0 bash deploy/deploy.sh      # on an up-to-date main, gcloud signed in: build, push, migrate + demo seed, update the service
+bash deploy/tests/test_deploy_stub.sh   # TEST-54, offline test of the script (no network)
+bash deploy/tests/test_release_stub.sh  # TEST-55, offline test of release.sh and smoke_test.py (fake gcloud, localhost stub)
+```
+Later releases run `.github/workflows/deploy.yml` on every push to `main`: CI, build and push the image tagged with the commit SHA, `deploy/release.sh` (migration job, then the service by digest), `python3 deploy/smoke_test.py <URL>` (read-only).
+Details: `docs/labs/lab-05/deployment.md` (D-25).
 
 ## Tests
 ```bash
