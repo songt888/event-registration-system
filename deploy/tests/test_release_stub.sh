@@ -84,7 +84,7 @@ class H(http.server.BaseHTTPRequestHandler):
             f.write(f'{self.command} {self.path}\n')
         if self.path == '/api/health':
             code, ctype, body = (500 if mode == 'health-fail' else 200), 'application/json', b'{"status":"ok"}'
-        elif self.path == '/api/auth/me':
+        elif self.path == '/api/me':
             code, ctype, body = (200 if mode == 'me-open' else 401), 'application/json', b'{}'
         elif self.path == '/':
             code, ctype, body = 200, 'text/html; charset=utf-8', b'<!doctype html><title>Event Registration</title>'
@@ -118,13 +118,13 @@ smoke() { # server mode
 
 smoke ok
 [ "$result" -eq 0 ] || fail "smoke ok: exit $result (f)"
-for req in 'GET /api/health' 'GET /' 'GET /api/auth/me'; do grep -qx "$req" "$REQ" || fail "smoke ok: missing $req (f)"; done
+for req in 'GET /api/health' 'GET /' 'GET /api/me'; do grep -qx "$req" "$REQ" || fail "smoke ok: missing $req (f)"; done
 if grep -qv '^GET ' "$REQ"; then fail "smoke ok: a request other than GET (f)"; fi
 echo "PASS: TEST-55 AC-55 smoke test passes on a healthy app with GET only"
 
 smoke me-open
 [ "$result" -eq 1 ] || fail "smoke me-open: exit $result, wanted 1 (g)"
-echo "PASS: TEST-55 AC-55 smoke test fails when /api/auth/me is not 401"
+echo "PASS: TEST-55 AC-55 smoke test fails when /api/me is not 401"
 
 smoke health-fail
 [ "$result" -eq 1 ] || fail "smoke health-fail: exit $result, wanted 1 (g)"
