@@ -11,25 +11,26 @@ The course runs one shared GCP project, `cpe-se-course-2026`, and its portal has
 - **Fixed target.** Project `cpe-se-course-2026`, region `asia-southeast1`; any other value exits 1. Names come from the portal: Artifact Registry repository and service `s47a6b53b`, migration job `s47a6b53b-migrate`, Cloud SQL `s47a6b53b-pg`, runtime service account `s47a6b53b-runner`, secrets `s47a6b53b-database-url` and `s47a6b53b-demo-password`. The script creates no infrastructure, IAM or secret.
 - **Only reviewed `main`.** A real run exits 1 unless the current branch is `main`, and the image tag is the full 40-character SHA of `HEAD`.
 - **Image.** Builds the root Dockerfile for `linux/amd64`, pushes it tagged with the commit SHA, then uses the image digest (`@sha256:`) for both the job and the service.
-- **Migration job.** Gets `DATABASE_URL` and `SEED_PASSWORD` (from `s47a6b53b-demo-password`) and runs `npm run migrate -w server && npm run seed:demo -w server`. It never runs the destructive `npm run seed` (D-20). If the job fails, the script exits 1 and does not update the service.
+- **Migration job.** Gets `DATABASE_URL` and runs `npm run migrate -w server`. With the kit's `--demo` flag it also gets `SEED_PASSWORD` (from `s47a6b53b-demo-password`) and runs `npm run migrate -w server && npm run seed:demo -w server`; the first deploy uses `--demo`. It never runs the destructive `npm run seed` (D-20). If the job fails, the script exits 1 and does not update the service.
 - **Service.** Gets only `DATABASE_URL` from Secret Manager, plus `NODE_ENV=production`, `COOKIE_SECURE=true` (HTTPS only) and `SESSION_TTL_MINUTES=60`, on port 3000, 0 to 1 instances. Env vars and secrets are changed with `--update-env-vars` and `--update-secrets`, never `--set-env-vars` or `--set-secrets`, because the course says `--set-*` replaces the values the portal set. All traffic goes to the new revision.
-- **No starter-kit leftovers.** No admin account, no `--demo` flag (the demo seed always runs and deletes nothing), no `/api/ready`. Any argument exits 1.
+- **Kit structure kept.** The file keeps the team kit's header, argument parsing (`--demo`), settings and steps 9 to 11, so the course portal can compare it with the Starter Kit; only the CHANGE ME points and the course rules differ. This app has no admin account and no `/api/ready`, so no call names `admin-password`. Any argument other than `--demo` exits 1.
 - **Dry run is the default.** Without `DRY_RUN=0` the script only prints each command with `[DRY_RUN]` and calls `gcloud` and `docker` zero times.
 
 ## 2. Acceptance criteria
 
 | AC | Criterion |
 |---|---|
-| AC-54 | With fake `gcloud`, `docker` and `git` on the PATH: (a) a real run on `main` builds for `linux/amd64`, pushes `…/s47a6b53b/s47a6b53b:<HEAD SHA>`, and gives the digest image to both the job and the service; (b) the job command is `npm run migrate -w server && npm run seed:demo -w server` with secrets `DATABASE_URL` and `SEED_PASSWORD`, and never the destructive `npm run seed`; (c) the service gets `COOKIE_SECURE=true` and only the `DATABASE_URL` secret, and no call uses `--set-env-vars` or `--set-secrets`; (d) when the job fails, the script exits 1 and the service is never updated; (e) a real run on another branch exits 1 before any `gcloud` or `docker` call; (f) no call creates infrastructure, IAM or secrets, and no call names `toktickit` or `admin-password`; (g) a dry run (the default) calls `gcloud` and `docker` zero times; (h) an argument such as `--demo` exits 1. |
+| AC-54 | With fake `gcloud`, `docker` and `git` on the PATH: (a) a real run on `main` builds for `linux/amd64`, pushes `…/s47a6b53b/s47a6b53b:<HEAD SHA>`, and gives the digest image to both the job and the service; (b) with `--demo` the job command is `npm run migrate -w server && npm run seed:demo -w server` with secrets `DATABASE_URL` and `SEED_PASSWORD`; without it the command is `npm run migrate -w server` and no `SEED_PASSWORD`; never the destructive `npm run seed`; (c) the service gets `COOKIE_SECURE=true` and only the `DATABASE_URL` secret, and no call uses `--set-env-vars` or `--set-secrets`; (d) when the job fails, the script exits 1 and the service is never updated; (e) a real run on another branch exits 1 before any `gcloud` or `docker` call; (f) no call creates infrastructure, IAM or secrets, and no call names `toktickit` or `admin-password`; (g) a dry run (the default) calls `gcloud` and `docker` zero times; (h) an argument other than `--demo`, such as `--admin`, exits 1. |
 
 ## 3. System test specification
 
 | TEST / AC | Level | Precondition | Steps | Expected result |
 |---|---|---|---|---|
-| TEST-54 / AC-54 | offline script test (bash, no network, no cost) | fake `gcloud`, `docker` and `git` that log each call; `git` reports branch `main` (or another branch) and a fixed SHA | `bash deploy/tests/test_deploy_stub.sh` runs: release on `main`, failed migration, other branch, dry run, `--demo` | one `PASS: TEST-54 AC-54 ...` line per scenario and exit 0; any `FAIL` line exits non-zero |
+| TEST-54 / AC-54 | offline script test (bash, no network, no cost) | fake `gcloud`, `docker` and `git` that log each call; `git` reports branch `main` (or another branch) and a fixed SHA | `bash deploy/tests/test_deploy_stub.sh` runs: release on `main` with `--demo`, release without `--demo`, failed migration, other branch, dry run, unknown argument | one `PASS: TEST-54 AC-54 ...` line per scenario and exit 0; any `FAIL` line exits non-zero |
 
 ## 4. Version history
 
 | Version | Date | Change | Review |
 |---|---|---|---|
-| 1.0 | 2026-11-20 | First L5-05 contract, for the course's shared cloud (D-25) and the team kit | pending B's review |
+| 1.0 | 2026-11-20 | First L5-05 contract, for the course's shared cloud (D-25) and the team kit | B approved in PR #100 |
+| 1.1 | 2026-11-21 | The portal reported "deploy/deploy.sh does not match the Starter Kit structure" on `main` `f23f233`; `deploy.sh` keeps the kit header and its `--demo` flag (seed only with `--demo`) | pending B's review |
