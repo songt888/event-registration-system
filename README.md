@@ -35,7 +35,7 @@ One image serves the UI and the API (D-18). The `migrate` service runs `prisma m
 ## Deploy to the course cloud (Lab 5, #90)
 ```bash
 bash deploy/deploy.sh                # dry run (default): prints the gcloud and docker commands only
-DRY_RUN=0 bash deploy/deploy.sh      # on an up-to-date main, gcloud signed in: build, push, migrate + demo seed, update the service
+DRY_RUN=0 bash deploy/deploy.sh --demo  # on an up-to-date main, gcloud signed in: build, push, migrate + demo seed, update the service
 bash deploy/tests/test_deploy_stub.sh   # TEST-54, offline test of the script (no network)
 bash deploy/tests/test_release_stub.sh  # TEST-55, offline test of release.sh and smoke_test.py (fake gcloud, localhost stub)
 ```
