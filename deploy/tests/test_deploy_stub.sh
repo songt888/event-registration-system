@@ -47,8 +47,8 @@ run() { # mode branch dry_run [args...]
   bash "$DEPLOY_SCRIPT" "$@" > "$STATE/out" 2>&1 || result=$?
 }
 
-# Release on main.
-run release main 0
+# Release on main with the kit's --demo flag (first deploy).
+run release main 0 --demo
 [ "$result" -eq 0 ] || fail "release: exit $result (a)"
 L="$CALL_LOG"
 grep -q "^docker build --platform linux/amd64 --tag asia-southeast1-docker.pkg.dev/cpe-se-course-2026/s47a6b53b/s47a6b53b:$SHA \.\$" "$L" || fail "release: amd64 build tagged with the HEAD SHA (a)"
@@ -68,7 +68,15 @@ grep -q '^gcloud run jobs execute s47a6b53b-migrate ' "$L" || fail "release: job
 [ "$(grep -n '^gcloud run jobs execute' "$L" | cut -d: -f1)" -lt "$(grep -n '^gcloud run services update ' "$L" | cut -d: -f1)" ] || fail "release: service updated before the migration (d)"
 if grep -Eq '^gcloud (sql|iam|secrets|projects|services enable|artifacts repositories create)|run deploy ' "$L"; then fail "release: creates infrastructure, IAM or secrets (f)"; fi
 if grep -qi 'toktickit\|admin-password' "$L"; then fail "release: starter-kit name left (f)"; fi
-echo "PASS: TEST-54 AC-54 release on main"
+echo "PASS: TEST-54 AC-54 release on main with --demo"
+
+# Without --demo: migration only, no demo seed and no demo password.
+run nodemo main 0
+[ "$result" -eq 0 ] || fail "nodemo: exit $result (b)"
+job="$(grep '^gcloud run jobs update s47a6b53b-migrate ' "$CALL_LOG")" || fail "nodemo: job not updated (b)"
+case "$job" in *'--args -c,npm run migrate -w server --max-retries'*) ;; *) fail "nodemo: job command must be migrate only (b)" ;; esac
+case "$job" in *SEED_PASSWORD*) fail "nodemo: SEED_PASSWORD given without --demo (b)" ;; esac
+echo "PASS: TEST-54 AC-54 without --demo the job only migrates"
 
 # Failed migration: the service is never updated.
 run job-fail main 0
@@ -90,7 +98,7 @@ bash "$DEPLOY_SCRIPT" > "$STATE/out" 2>&1 || fail "dry run exited non-zero (g)"
 grep -q '^\[DRY_RUN\] gcloud run services update s47a6b53b ' "$STATE/out" || fail "dry run did not print the service update (g)"
 echo "PASS: TEST-54 AC-54 dry run by default makes no calls"
 
-# No starter-kit --demo flag.
-run demo main 1 --demo
-[ "$result" -ne 0 ] || fail "--demo was accepted (h)"
+# Only the kit's --demo flag is accepted.
+run unknown main 1 --admin
+[ "$result" -ne 0 ] || fail "--admin was accepted (h)"
 echo "PASS: TEST-54 AC-54 rejects unknown arguments"
