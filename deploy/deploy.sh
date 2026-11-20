@@ -2,45 +2,21 @@
 set -euo pipefail
 
 # ==============================================================================
-# TokTickIT — Idempotent Google Cloud Run Deployment Script
+# Event Registration: first manual deploy to the course's shared Cloud Run (L5-05, #90; D-25)
 # ==============================================================================
-# Usage:
-#   ./deploy/deploy.sh [--demo]
+# Adapted from the team kit the course portal gave us (prefix s47a6b53b).
+# The portal has created every resource; this script creates no infrastructure,
+# IAM or secret. Contract: docs/labs/lab-05/l5-05-first-deploy.md
 #
-# Environment Variables (Optional):
-#   PROJECT_ID   GCP Project ID (defaults to active gcloud config project)
-#   REGION       GCP Region (default: asia-southeast1)
-#   DRY_RUN      Set DRY_RUN=1 to print all gcloud commands without executing
+# Usage (repo root, on an up-to-date main, gcloud signed in):
+#   bash deploy/deploy.sh               # dry run (default): prints the commands only
+#   DRY_RUN=0 bash deploy/deploy.sh     # build, push, migrate + demo seed, update the service
 #
-# WHAT THIS SCRIPT DOES  (one-time / manual first setup; safe to re-run)
-#   Creates every cloud resource the app needs and does the first deployment:
-#   1 enable APIs     2 Artifact Registry  3 Cloud SQL instance  4 database
-#   5 runtime SA+IAM  6 DB user + secret   7 admin password      8 demo password
-#   (secret access)   9 build image        10 migrate+seed job   11 Cloud Run service
-#   After this, routine releases are done by GitHub Actions (deploy.yml ->
-#   deploy/release.sh), which only UPDATES these resources.
-#
-# ⭐ IMPORTANT
-#   - Idempotent: existing resources/secrets are reused, never overwritten
-#     (a re-run does not replace credentials).
-#   - Passwords are generated with openssl and live only in Secret Manager;
-#     they are never printed (run_cmd redacts --password=...).
-#   - Preview first with:  DRY_RUN=1 ./deploy/deploy.sh   (no gcloud calls)
-#   - Run from the REPO ROOT (step 9 builds the root Dockerfile).
-#   - Offline test: deploy/tests/test_deploy_stub.sh
-#
-# REFERENCES
-#   - gcloud run deploy : https://cloud.google.com/sdk/gcloud/reference/run/deploy
-#   - Cloud Run jobs    : https://cloud.google.com/run/docs/create-jobs
-#   - Cloud SQL + Run   : https://cloud.google.com/sql/docs/postgres/connect-run
-#   - Secret Manager    : https://cloud.google.com/secret-manager/docs
-#   - Artifact Registry : https://cloud.google.com/artifact-registry/docs/docker
-#
-# ⭐ CHANGE ME — groups using another tech stack must review (marked below):
-#   # CHANGE ME: resource names (REPO_NAME, SQL_INSTANCE, SERVICE_NAME, ...)
-#   # CHANGE ME: database engine/version (steps 3, 4, 6)
-#   # CHANGE ME: migrate/seed command of the Cloud Run job (step 10)
-#   # CHANGE ME: port / memory / scaling flags (step 11)
+# Steps: build linux/amd64 image tagged with the HEAD SHA -> push -> resolve the
+# digest -> update and run the migration job (stops here if it fails) -> update
+# the service -> send all traffic to the new revision.
+# Env vars and secrets use --update-*, never --set-* (the course: --set-* replaces
+# the portal's values). Offline test: bash deploy/tests/test_deploy_stub.sh (TEST-54)
 # ==============================================================================
 
 # ------------------------------------------------------------------------------
@@ -49,20 +25,11 @@ set -euo pipefail
 DRY_RUN="${DRY_RUN:-1}"
 # CHANGE ME: default region if your group uses another one.
 REGION="${REGION:-asia-southeast1}"
-SEED_DEMO_DATA="false"
-
-for arg in "$@"; do
-  case "$arg" in
-    --demo)
-      SEED_DEMO_DATA="true"
-      ;;
-    *)
-      echo "Unknown argument: $arg" >&2
-      echo "Usage: $0 [--demo]" >&2
-      exit 1
-      ;;
-  esac
-done
+if [ "$#" -gt 0 ]; then
+  echo "Unknown argument: $1" >&2
+  echo "Usage: [DRY_RUN=0] $0" >&2
+  exit 1
+fi
 
 # Helper: prints the command (DRY_RUN=1) or prints then executes it.
 # ⭐ IMPORTANT: --password=... is redacted in the log; keep this behaviour.
@@ -111,36 +78,30 @@ fi
 [[ "$IMAGE_TAG" =~ ^[0-9a-f]{40}$ ]] || { echo 'Use full commit SHA' >&2; exit 1; }
 IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/${SERVICE_NAME}:${IMAGE_TAG}"
 
-# Secret Manager secret names (values are never stored in this repo).
+# Secret Manager secret names made by the portal (values never stored in this repo).
 SECRET_DB_URL="s47a6b53b-database-url"
-SECRET_ADMIN_PASS="s47a6b53b-admin-password"
+# The portal's demo password secret is used as SEED_PASSWORD for the synthetic demo accounts.
 SECRET_DEMO_PASS="s47a6b53b-demo-password"
 
-GENERATED_ADMIN_PASSWORD=""
-GENERATED_DEMO_PASSWORD=""
-
 echo "=================================================================="
-echo "TokTickIT Cloud Run Deployment"
+echo "Event Registration Cloud Run deployment"
 echo "Project : ${PROJECT_ID}"
 echo "Region  : ${REGION}"
-echo "Demo    : ${SEED_DEMO_DATA}"
+echo "Image   : ${IMAGE_URI}"
 echo "Dry Run : ${DRY_RUN}"
 echo "=================================================================="
 
 # ==============================================================================
 # Portal/TA pre-provisions infrastructure and public service IAM (Guide 5.3 steps 1–8, 5.4).
 # These names must exist. Never create or modify project-level IAM here.
-JOB_SECRETS="DATABASE_URL=${SECRET_DB_URL}:latest,ADMIN_PASSWORD=${SECRET_ADMIN_PASS}:latest"
-if [ "$SEED_DEMO_DATA" = "true" ]; then
-  JOB_SECRETS="${JOB_SECRETS},DEMO_USER_PASSWORD=${SECRET_DEMO_PASS}:latest"
-fi
+JOB_SECRETS="DATABASE_URL=${SECRET_DB_URL}:latest,SEED_PASSWORD=${SECRET_DEMO_PASS}:latest"
 if [ "$DRY_RUN" != "1" ]; then
   gcloud run services describe "$SERVICE_NAME" --project "$PROJECT_ID" --region "$REGION" >/dev/null
   gcloud run jobs describe "$MIGRATE_JOB_NAME" --project "$PROJECT_ID" --region "$REGION" >/dev/null
 fi
 # 9. Build & Push Unified Container Image via Cloud Build
 #    Builds the root Dockerfile (run this script from the repo root).
-#    Tag `latest` is only for this first manual setup; deploy.yml uses commit SHAs.
+#    Tagged with the full commit SHA of HEAD, like deploy.yml.
 # ==============================================================================
 run_cmd gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
 run_cmd docker build --platform linux/amd64 --tag "$IMAGE_URI" .
@@ -154,8 +115,9 @@ fi
 # 10. Create/Update & Execute Cloud Run Job for Migration + Non-destructive Seed
 #     ⭐ IMPORTANT: if this job fails the script stops BEFORE deploying the
 #        service, so a broken migration never reaches users.
-#     CHANGE ME: `--args` (prisma migrate deploy && npm run prisma:seed) is
-#        Prisma/npm specific — use your stack's migrate/seed command.
+#     The image's working directory is /app, so the workspace form is needed
+#     (`npx prisma migrate deploy` there finds no schema). seed:demo only adds
+#     missing demo data and never deletes (D-20).
 #     deploy.yml / release.sh later re-run this same job (name: s47a6b53b-migrate).
 # ==============================================================================
 run_cmd gcloud run jobs update "$MIGRATE_JOB_NAME" \
@@ -163,10 +125,10 @@ run_cmd gcloud run jobs update "$MIGRATE_JOB_NAME" \
   --region "$REGION" \
   --service-account "$SA_EMAIL" \
   --set-cloudsql-instances "$SQL_CONN_NAME" \
-  --set-secrets "$JOB_SECRETS" \
-  --set-env-vars "NODE_ENV=production,TZ=Asia/Bangkok,SEED_DEMO_DATA=${SEED_DEMO_DATA}" \
+  --update-secrets "$JOB_SECRETS" \
+  --update-env-vars "NODE_ENV=production,TZ=Asia/Bangkok" \
   --command "sh" \
-  --args "-c,npx prisma migrate deploy && npm run prisma:seed" \
+  --args "-c,npm run migrate -w server && npm run seed:demo -w server" \
   --max-retries 1 \
   --task-timeout 300s \
   --project "$PROJECT_ID"
@@ -183,8 +145,7 @@ fi
 
 # ==============================================================================
 # 11. Deploy Cloud Run Service
-#     CHANGE ME: --port must equal the port in the Dockerfile (3000); tune
-#                --memory / --cpu / --max-instances for your app.
+#     Port 3000 as in the Dockerfile; COOKIE_SECURE=true because Cloud Run is HTTPS only.
 #     ⚠️ --allow-unauthenticated makes the service public (needed for the demo).
 # ==============================================================================
 run_cmd gcloud run services update "$SERVICE_NAME" \
@@ -192,8 +153,8 @@ run_cmd gcloud run services update "$SERVICE_NAME" \
   --region "$REGION" \
   --service-account "$SA_EMAIL" \
   --add-cloudsql-instances "$SQL_CONN_NAME" \
-  --set-secrets "DATABASE_URL=${SECRET_DB_URL}:latest" \
-  --set-env-vars "NODE_ENV=production,TZ=Asia/Bangkok" \
+  --update-secrets "DATABASE_URL=${SECRET_DB_URL}:latest" \
+  --update-env-vars "NODE_ENV=production,TZ=Asia/Bangkok,COOKIE_SECURE=true,SESSION_TTL_MINUTES=60" \
   --min-instances 0 \
   --max-instances 1 \
   --memory 512Mi \
@@ -216,10 +177,5 @@ printf '%s\n' "=================================================================
 printf '%s\n' "Deployment Completed!"
 printf '%s\n' "Service URL    : ${SERVICE_URL}"
 printf '%s\n' "Health Check   : ${SERVICE_URL}/api/health"
-printf '%s\n' "Readiness Check: ${SERVICE_URL}/api/ready"
-printf '%s\n' "Admin Email    : john.smith@example.com (mustChangePassword: true)"
-printf '%s\n' "Admin Password : Stored in Secret Manager: ${SECRET_ADMIN_PASS} (not printed)."
-if [ "$SEED_DEMO_DATA" = "true" ]; then
-  printf '%s\n' "Demo Password  : Stored in Secret Manager: ${SECRET_DEMO_PASS} (not printed)."
-fi
+printf '%s\n' "Demo accounts  : organizer1@example.com, participant1@example.com, ... (password in Secret Manager: ${SECRET_DEMO_PASS}, not printed)"
 printf '%s\n' "=================================================================="

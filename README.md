@@ -32,6 +32,14 @@ docker compose up --build        # db, migrate + seed:demo, then the app on http
 ```
 One image serves the UI and the API (D-18). The `migrate` service runs `prisma migrate deploy` and `npm run seed:demo`, so existing data is never reset. Stop with `docker compose down` (add `-v` to delete the database volume). Sign in with a seeded account and the `SEED_PASSWORD` you set.
 
+## Deploy to the course cloud (Lab 5, #90)
+```bash
+bash deploy/deploy.sh                # dry run (default): prints the gcloud and docker commands only
+DRY_RUN=0 bash deploy/deploy.sh      # on an up-to-date main, gcloud signed in: build, push, migrate + demo seed, update the service
+bash deploy/tests/test_deploy_stub.sh   # TEST-54, offline test of the script (no network)
+```
+Details: `docs/labs/lab-05/deployment.md` (D-25).
+
 ## Tests
 ```bash
 npm test                         # unit + API/DB integration on DATABASE_URL_TEST (never the dev database)

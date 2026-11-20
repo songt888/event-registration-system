@@ -45,6 +45,8 @@ No value below is real. Secrets live only in Secret Manager (cloud) or the gitig
 | Docker image | `docker build -t eventreg .` (three stages: UI build, server build, runtime as user `node`, Node 24) |
 | Run everything in Docker | `cp .env.example .env`, then `docker compose up --build` (services `db`, `migrate`, `app`; UI and API on http://localhost:3000) |
 | CI | `.github/workflows/ci-docker.yml`, job `test-and-docker`, on every PR into `lab5-staging` and `main` (R-05, D-23): Postgres 16 service plus `eventreg_test`, `npm ci`, `npm run migrate`, `npm test`, `npm run build`, `docker build`. Actions are pinned to full commit SHAs; `.github/dependabot.yml` proposes updates weekly. E2E is not part of it |
+| First deploy (#90) | on an up-to-date `main` with `gcloud` signed in: `bash deploy/deploy.sh` (dry run, the default), then `DRY_RUN=0 bash deploy/deploy.sh`: builds and pushes the image tagged with the commit SHA, runs the migration job `s47a6b53b-migrate` (`npm run migrate -w server && npm run seed:demo -w server`), then updates the service `s47a6b53b` (D-25) |
+| Deploy script test | `bash deploy/tests/test_deploy_stub.sh` (TEST-54, fake `gcloud`, `docker` and `git`; no network) |
 
 ## 4. To be completed
 
