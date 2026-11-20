@@ -1,0 +1,57 @@
+# L5-04 (R-05, check C-01; D-21, D-23): the required check. Job id `test-and-docker` runs build, npm test against a
+# real Postgres and the Docker build on every PR into lab5-staging and main, and is reused by the deploy workflow.
+name: ci-docker
+
+on:
+  pull_request:
+    branches: [lab5-staging, main]
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-docker-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-and-docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app
+          POSTGRES_DB: eventreg
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U app -d eventreg"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # CI placeholders for the throwaway service container above, not real secrets.
+      DATABASE_URL: postgresql://app:app@localhost:5432/eventreg
+      DATABASE_URL_TEST: postgresql://app:app@localhost:5432/eventreg_test
+      SEED_PASSWORD: ci-only-placeholder
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      # docker/init-db.sql only runs in local compose, so create the test database here (D-14).
+      - name: Create the test database
+        run: PGPASSWORD=app psql -h localhost -U app -d eventreg -c 'CREATE DATABASE eventreg_test'
+      - run: npm ci
+      - name: Apply migrations to a fresh database
+        run: npm run migrate
+      - name: Unit and integration tests (real PostgreSQL)
+        run: npm test
+      - name: Build server and client
+        run: npm run build
+      - name: Build the Docker image
+        run: docker build -t eventreg:ci .
