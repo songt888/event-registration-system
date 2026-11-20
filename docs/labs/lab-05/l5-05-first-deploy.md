@@ -6,7 +6,7 @@ The course runs one shared GCP project, `cpe-se-course-2026`, and its portal has
 
 ## 1. Behavior
 
-`deploy/deploy.sh` is the first, manual deploy. A runs it from an up-to-date `main` checkout with `gcloud` signed in (D-24).
+`deploy/deploy.sh` is the first, manual deploy. A runs it in Cloud Shell from an up-to-date `main` checkout with `gcloud` signed in to the course project (D-25).
 
 - **Fixed target.** Project `cpe-se-course-2026`, region `asia-southeast1`; any other value exits 1. Names come from the portal: Artifact Registry repository and service `s47a6b53b`, migration job `s47a6b53b-migrate`, Cloud SQL `s47a6b53b-pg`, runtime service account `s47a6b53b-runner`, secrets `s47a6b53b-database-url` and `s47a6b53b-demo-password`. The script creates no infrastructure, IAM or secret.
 - **Only reviewed `main`.** A real run exits 1 unless the current branch is `main`, and the image tag is the full 40-character SHA of `HEAD`.
