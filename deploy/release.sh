@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# TokTickIT — release.sh (used by .github/workflows/deploy.yml)
+# Event Registration: release.sh (used by .github/workflows/deploy.yml; L5-07, #92; D-25)
+# Adapted from the team kit the course portal gave us (prefix s47a6b53b).
+# Contract: docs/labs/lab-05/l5-07-deploy-workflow.md
 # ==============================================================================
 # WHAT THIS SCRIPT DOES
 #   Update pre-provisioned resources only. Does not create SQL, IAM or secrets.
@@ -10,7 +12,7 @@
 #
 # INPUT (environment variables)
 #   PROJECT_ID, REGION, IMAGE_TAG   required (IMAGE_TAG = full 40-char commit SHA)
-#   SERVICE_NAME, MIGRATE_JOB_NAME  optional (default: toktickit, s47a6b53b-migrate)
+#   SERVICE_NAME, MIGRATE_JOB_NAME  optional (default: s47a6b53b, s47a6b53b-migrate)
 #   ROLLBACK                        true | false (default false)
 #   GITHUB_ENV                      when set, SERVICE_URL / DEPLOYED_IMAGE are
 #                                   appended so later workflow steps can use them
@@ -20,19 +22,16 @@
 #     updated, so a broken migration never reaches users.
 #   - The image is resolved to an immutable @sha256 digest so the job and the
 #     service run exactly the same image.
-#   - Offline test: deploy/tests/test_release_stub.sh
+#   - The job runs the command deploy/deploy.sh gave it (#90):
+#     `npm run migrate -w server && npm run seed:demo -w server`, never the
+#     destructive seed (D-20). Env vars and secrets are left as deploy.sh set them.
+#   - Offline test: bash deploy/tests/test_release_stub.sh (TEST-55)
 #
 # REFERENCES
 #   - gcloud run jobs update/execute : https://cloud.google.com/sdk/gcloud/reference/run/jobs
 #   - gcloud run services update     : https://cloud.google.com/sdk/gcloud/reference/run/services/update
 #   - update-traffic (--to-latest)   : https://cloud.google.com/sdk/gcloud/reference/run/services/update-traffic
 #   - Artifact Registry images       : https://cloud.google.com/sdk/gcloud/reference/artifacts/docker/images/describe
-#
-# ⭐ CHANGE ME — groups using another tech stack must review:
-#   # CHANGE ME: default SERVICE_NAME / MIGRATE_JOB_NAME and the image path
-#   #            `s47a6b53b/toktickit` (Artifact Registry repo / image name)
-#   # CHANGE ME: how the migration is run (the Cloud Run job is created by
-#   #            deploy/deploy.sh step 10 — change the command there)
 # ==============================================================================
 set -euo pipefail
 
@@ -40,7 +39,6 @@ set -euo pipefail
 # 1. Read and validate inputs (fail before any GCP call)
 # ------------------------------------------------------------------------------
 : "${PROJECT_ID:?Required}" "${REGION:?Required}" "${IMAGE_TAG:?Required}"
-# CHANGE ME: default resource names.
 SERVICE_NAME="${SERVICE_NAME:-s47a6b53b}"
 MIGRATE_JOB_NAME="${MIGRATE_JOB_NAME:-s47a6b53b-migrate}"
 ROLLBACK="${ROLLBACK:-false}"
@@ -49,7 +47,6 @@ ROLLBACK="${ROLLBACK:-false}"
 
 # ------------------------------------------------------------------------------
 # 2. Find the image and pin it by digest
-#    CHANGE ME: `s47a6b53b/toktickit` = <Artifact Registry repo>/<image name>.
 # ------------------------------------------------------------------------------
 IMAGE="$REGION-docker.pkg.dev/$PROJECT_ID/s47a6b53b/s47a6b53b:$IMAGE_TAG"
 # Resolve to a digest so the job and service run the exact same immutable image.
@@ -58,7 +55,7 @@ DIGEST_IMAGE="$(gcloud artifacts docker images describe "$IMAGE" --project="$PRO
 
 # ------------------------------------------------------------------------------
 # 3. Database migration (normal release only; `--wait` blocks until it finishes)
-#    ⭐ IMPORTANT: a failure here aborts the release (set -e) — service untouched.
+#    ⭐ IMPORTANT: a failure here aborts the release (set -e): service untouched.
 # ------------------------------------------------------------------------------
 if [[ "$ROLLBACK" == false ]]; then
   gcloud run jobs update "$MIGRATE_JOB_NAME" --image="$DIGEST_IMAGE" --project="$PROJECT_ID" --region="$REGION" --quiet

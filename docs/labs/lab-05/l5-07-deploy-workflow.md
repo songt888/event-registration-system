@@ -23,7 +23,7 @@ This contract covers the team kit files `.github/workflows/deploy.yml` and `depl
 
 | TEST / AC | Level | Precondition | Steps | Expected result |
 |---|---|---|---|---|
-| TEST-55 / AC-55 | offline script test (bash and python3, no network beyond localhost, no cost) | fake `gcloud` that logs each call; a local `python3 -m http.server`-style stub that logs each request | `bash deploy/tests/test_release_stub.sh` runs: release, failed migration, rollback, bad tag, smoke test pass, smoke test with `/api/auth/me` 200, smoke test with health 500 | one `PASS: TEST-55 AC-55 ...` line per scenario and exit 0; any `FAIL` line exits non-zero |
+| TEST-55 / AC-55 | offline script test (bash and python3, no network beyond localhost, no cost) | fake `gcloud` that logs each call; a local `python3 -m http.server`-style stub that logs each request | `bash deploy/tests/test_release_stub.sh` runs: release, failed migration, rollback, bad tag, a check over all logged calls, smoke test pass, smoke test with `/api/auth/me` 200, smoke test with health 500 | one `PASS: TEST-55 AC-55 ...` line per scenario and exit 0; any `FAIL` line exits non-zero |
 
 ## 4. Version history
 

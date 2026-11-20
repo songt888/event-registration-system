@@ -53,6 +53,8 @@ jobs:
         run: npm test
       - name: Deploy script test, offline (TEST-54)
         run: bash deploy/tests/test_deploy_stub.sh
+      - name: Release script and smoke test, offline (TEST-55)
+        run: bash deploy/tests/test_release_stub.sh
       - name: Build server and client
         run: npm run build
       - name: Build the Docker image

@@ -74,6 +74,7 @@ export function LoginPage() {
           {submitting ? 'Signing in...' : 'Sign in'}
         </button>
       </form>
+      <p>Demo running on Google Cloud Run.</p>
     </main>
     </>
   );
