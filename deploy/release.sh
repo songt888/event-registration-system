@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Event Registration: release.sh (used by .github/workflows/deploy.yml; L5-07, #92; D-25)
+# Event Registration: release.sh (manual release and rollback from Cloud Shell, not called by .github/workflows/deploy.yml; L5-07, #92; D-25)
 # Adapted from the team kit the course portal gave us (prefix s47a6b53b).
 # Contract: docs/labs/lab-05/l5-07-deploy-workflow.md
 # ==============================================================================
