@@ -47,6 +47,7 @@ No value below is real. Secrets live only in Secret Manager (cloud) or the gitig
 | CI | `.github/workflows/ci-docker.yml`, job `test-and-docker`, on every PR into `lab5-staging` and `main` (R-05, D-23): Postgres 16 service plus `eventreg_test`, `npm ci`, `npm run migrate`, `npm test`, `npm run build`, `docker build`. Actions are pinned to full commit SHAs; `.github/dependabot.yml` proposes updates weekly. E2E is not part of it |
 | First deploy (#90) | on an up-to-date `main` with `gcloud` signed in: `bash deploy/deploy.sh` (dry run, the default), then `DRY_RUN=0 bash deploy/deploy.sh --demo`: builds and pushes the image tagged with the commit SHA, runs the migration job `s47a6b53b-migrate` (`npm run migrate -w server && npm run seed:demo -w server`; without `--demo` only the migration), then updates the service `s47a6b53b` (D-25) |
 | Deploy script test | `bash deploy/tests/test_deploy_stub.sh` (TEST-54, fake `gcloud`, `docker` and `git`; no network) |
+| Release script test | `bash deploy/tests/test_release_stub.sh` (TEST-55: `release.sh`, `smoke_test.py` against a localhost stub, and the `deploy.yml` settings check; fake `gcloud`, no network) |
 
 ## 4. To be completed
 
@@ -111,7 +112,7 @@ The first real deploy (#90) was from Cloud Shell: `docker push` failed there thr
 
 - Console: Cloud Run, service `s47a6b53b`, tab Revision History. The revision with 100% of traffic shows its image by digest (`...@sha256:<digest>`), also after a pipeline deploy by tag.
 - Artifact Registry, repository `s47a6b53b`: the commit SHA is the tag of an image index; its Manifest tab lists the `linux/amd64` image digest that Cloud Run runs.
-- Example (C-06): revision `s47a6b53b-00005-5l7` runs `sha256:484ebb711eee...`; index `sha256:a01f2f654a54...` is tagged `04e85902befb951a01efd2e30236b6728352680c` and lists `484ebb711eee...` as its amd64 image; run 44941012107 logs `exporting manifest sha256:484ebb711eee...` for that build. Screenshots: `evidence/C-06-*.jpg`.
+- Example (C-06): revision `s47a6b53b-00005-5l7` came from pipeline run 44941012107 (`gcloud run deploy --image ...:<SHA>`), yet its Image field shows `...s47a6b53b@sha256:484ebb711eee...` (full value in the hover, `evidence/C-06-revision-image-digest.jpg`); index `sha256:a01f2f654a54...` is tagged `04e85902befb951a01efd2e30236b6728352680c` and lists `484ebb711eee...` as its amd64 image; run 44941012107 logs `exporting manifest sha256:484ebb711eee...` for that build. Screenshots: `evidence/C-06-*.jpg`.
 - Cloud Shell: `gcloud run revisions describe <revision> --region asia-southeast1 --format='value(status.imageDigest)'`.
 - The run summary of `Deploy to Google Cloud` shows the same image, and the commit links to its release PR.
 
