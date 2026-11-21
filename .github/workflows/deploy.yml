@@ -124,8 +124,10 @@ jobs:
           WIF_PROVIDER: ${{ vars.WIF_PROVIDER }}
           WIF_SERVICE_ACCOUNT: ${{ vars.WIF_SERVICE_ACCOUNT }}
         run: |
-          test -n "$PROJECT_ID" && test -n "$REGION"
-          test -n "$WIF_PROVIDER" && test -n "$WIF_SERVICE_ACCOUNT"
+          # One check per line: under bash -e a failed test before && does not stop the step.
+          for name in PROJECT_ID REGION WIF_PROVIDER WIF_SERVICE_ACCOUNT; do
+            [ -n "${!name}" ] || { echo "Missing setting: $name"; exit 1; }
+          done
           [[ "$IMAGE_TAG" =~ ^[0-9a-f]{40}$ ]] || { echo 'Image tag must be a full 40-character commit SHA.'; exit 1; }
 
       # ------------------------------------------------------------------------
