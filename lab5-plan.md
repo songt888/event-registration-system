@@ -37,7 +37,7 @@ Marks reward observable behavior, traceability and credible evidence, not length
 
 The portal reviewed `main` at `12dcd3c` and listed these Lab 5 files as missing: `Dockerfile`, `.github/workflows/ci-docker.yml`, `deploy/deploy.sh` (all three now on `lab5-staging`), `deploy/release.sh`, `.github/workflows/deploy.yml`, `deploy/smoke_test.py` (#92; the team kit has no `smoke_test.py`). After the release PR, "Recheck the latest main" should find them all.
 
-Team kit differences to adapt: our Prisma commands run through the server workspace (`npm run migrate -w server && npm run seed:demo -w server`), no admin account and no `--demo` flag, no `/api/ready` (the smoke test checks `/api/health`, `/`, and that `/api/auth/me` without a session is 401, all read-only), CI also runs on PRs into `lab5-staging`.
+Team kit differences to adapt: our Prisma commands run through the server workspace (`npm run migrate -w server && npm run seed:demo -w server`), no admin account, the kit's `--demo` flag adds the demo seed, no `/api/ready` (the smoke test checks `/api/health`, `/`, and that `/api/me` without a session is 401, all read-only), CI also runs on PRs into `lab5-staging`.
 
 ## 2. Decisions (in `docs/decisions.md`, never renumber)
 
@@ -97,7 +97,7 @@ New IDs continue the sequence (`AC-52`, `TEST-52`, never renumber). Names contai
 |---|---|---|
 | TEST-52 / AC-52 (#87, done) | API integration (Supertest) | `GET /` returns the page, `GET /events/123` returns `index.html`, `GET /api/unknown` returns the JSON 404 |
 | TEST-53 / AC-53 (#87, done) | integration, real DB | the demo seed run twice creates each account once; a registration created between the runs survives; no `deleteMany` |
-| TEST-54 / AC-54 (#90, done) | offline script test | `deploy.sh` with fake `gcloud`, `docker` and `git`: release on `main`, failed migration stops the release, other branch refused, dry run by default, `--demo` refused |
+| TEST-54 / AC-54 (#90, done) | offline script test | `deploy.sh` with fake `gcloud`, `docker` and `git`: release on `main`, failed migration stops the release, other branch refused, dry run by default, `--demo` adds the demo seed, other arguments refused |
 | TEST-55 / AC-55 (#92, contract first) | offline script test | `release.sh` and `smoke_test.py`, same style as TEST-54 |
 
 Existing tests plus E2E 5 must still pass. No test is weakened to get green. Red commit first, then green.
@@ -133,7 +133,7 @@ Stack and every change from the reference; each env var (purpose, secret or not,
 1. #91 ruleset on `main` and `lab5-staging` (A). In parallel: #92 workflow files into `lab5-staging` (B); #95 cost note.
 2. #91 failing PR from a temporary branch, screenshot, close without merging (B).
 3. #92 release PR `lab5-staging` → `main` (A opens, B approves and merges), tag `v0.1.1-lab5`.
-4. #90 first deploy from Cloud Shell on `main`: `bash deploy/deploy.sh`, then `DRY_RUN=0 bash deploy/deploy.sh`; C-04 on the live URL.
+4. #90 first deploy from Cloud Shell on `main`: `bash deploy/deploy.sh --demo`, then `DRY_RUN=0 bash deploy/deploy.sh --demo`; C-04 on the live URL.
 5. #91 portal: "Recheck the latest main", review the diff, activate; put the GitHub variables in environment `demo`; then #92 pipeline release (C-06).
 6. #93 persistence (C-05).
 7. #94 `deployment.md` and the PDF, then the Definition of Done below.
