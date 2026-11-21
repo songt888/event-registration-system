@@ -129,3 +129,22 @@ echo "PASS: TEST-55 AC-55 smoke test fails when /api/me is not 401"
 smoke health-fail
 [ "$result" -eq 1 ] || fail "smoke health-fail: exit $result, wanted 1 (g)"
 echo "PASS: TEST-55 AC-55 smoke test fails when /api/health fails"
+
+# The workflow's "Validate deployment settings" step, run under bash -e like the GitHub runner.
+WORKFLOW="${SCRIPT_DIR}/../../.github/workflows/deploy.yml"
+awk '/name: Validate deployment settings/{f=1} f&&/run: \|/{r=1;next} r&&/^ *$/{exit} r{sub(/^          /,"");print}' "$WORKFLOW" > "$STATE/validate.sh"
+[ -s "$STATE/validate.sh" ] || fail "validate: step not found in deploy.yml (h)"
+validate() { # empty_var
+  result=0
+  env -u "$1" PROJECT_ID=cpe-se-course-2026 REGION=asia-southeast1 WIF_PROVIDER=projects/1/locations/global/workloadIdentityPools/p/providers/g \
+    WIF_SERVICE_ACCOUNT=deployer@cpe-se-course-2026.iam.gserviceaccount.com IMAGE_TAG="$SHA" "$1=" \
+    bash -e "$STATE/validate.sh" > "$STATE/out" 2>&1 || result=$?
+}
+validate NONE
+[ "$result" -eq 0 ] || fail "validate: exit $result with every setting (h)"
+for v in PROJECT_ID REGION WIF_PROVIDER WIF_SERVICE_ACCOUNT; do
+  validate "$v"
+  [ "$result" -ne 0 ] || fail "validate: exit 0 with $v empty (h)"
+  grep -q "Missing setting: $v" "$STATE/out" || fail "validate: no 'Missing setting: $v' message (h)"
+done
+echo "PASS: TEST-55 AC-55 settings check fails on each empty setting"
