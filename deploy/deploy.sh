@@ -17,8 +17,7 @@ set -euo pipefail
 #   1 enable APIs     2 Artifact Registry  3 Cloud SQL instance  4 database
 #   5 runtime SA+IAM  6 DB user + secret   7 admin password      8 demo password
 #   (secret access)   9 build image        10 migrate+seed job   11 Cloud Run service
-#   After this, routine releases are done by GitHub Actions (deploy.yml ->
-#   deploy/release.sh), which only UPDATES these resources.
+# After this, routine releases are done by GitHub Actions (deploy.yml, the course portal workflow), which only UPDATES these resources.
 #
 # ⭐ IMPORTANT
 #   - Idempotent: existing resources/secrets are reused, never overwritten

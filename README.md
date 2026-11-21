@@ -39,7 +39,7 @@ DRY_RUN=0 bash deploy/deploy.sh --demo  # on an up-to-date main, gcloud signed i
 bash deploy/tests/test_deploy_stub.sh   # TEST-54, offline test of the script (no network)
 bash deploy/tests/test_release_stub.sh  # TEST-55, offline test of release.sh and smoke_test.py (fake gcloud, localhost stub)
 ```
-Later releases run `.github/workflows/deploy.yml` on every push to `main`: CI, build and push the image tagged with the commit SHA, `deploy/release.sh` (migration job, then the service by digest), `python3 deploy/smoke_test.py <URL>` (read-only).
+Later releases run `.github/workflows/deploy.yml` (the course portal's workflow) on every push to `main`: build and push the image tagged with the commit SHA, the migration job with `MIGRATE_COMMAND`, then `gcloud run deploy`. Check a deploy with `python3 deploy/smoke_test.py <URL>` (read-only). Environment `demo` variables: `GCP_PROJECT_ID`, `GCP_REGION`, `WIF_PROVIDER`, `WIF_SERVICE_ACCOUNT` (from the portal), `APP_PORT=3000`, `MIGRATE_COMMAND=npm run migrate -w server && npm run seed:demo -w server`. `deploy/release.sh` is the manual release and rollback tool from Cloud Shell.
 Details: `docs/labs/lab-05/deployment.md` (D-25).
 
 ## Tests
