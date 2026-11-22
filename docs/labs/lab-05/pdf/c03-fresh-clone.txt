@@ -1,30 +1,51 @@
+$ git clone --branch v0.1.2-lab5 https://github.com/songt888/event-registration-system.git && cd event-registration-system
 $ git rev-parse HEAD
 04e85902befb951a01efd2e30236b6728352680c
 $ cp .env.example .env
-$ docker compose -p l5c03 -f docker-compose.yml -f c03-noport.yml up --build -d
- Container l5c03-db-1 Created 
- Container l5c03-migrate-1 Creating 
- Container l5c03-migrate-1 Created 
- Container l5c03-app-1 Creating 
- Container l5c03-app-1 Created 
- Container l5c03-db-1 Starting 
- Container l5c03-db-1 Started 
- Container l5c03-db-1 Waiting 
- Container l5c03-db-1 Healthy 
- Container l5c03-migrate-1 Starting 
- Container l5c03-migrate-1 Started 
- Container l5c03-migrate-1 Waiting 
- Container l5c03-migrate-1 Exited 
- Container l5c03-app-1 Starting 
- Container l5c03-app-1 Started 
-$ docker compose -p l5c03 ps -a
+$ docker compose up --build
+(build output shortened: Docker reused cached layers from earlier local builds of the same Dockerfile)
+ Image eventreg:local Building
+ Image eventreg:local Built
+ Container event-registration-system-db-1 Creating
+ Container event-registration-system-db-1 Created
+ Container event-registration-system-migrate-1 Creating
+ Container event-registration-system-migrate-1 Created
+ Container event-registration-system-app-1 Creating
+ Container event-registration-system-app-1 Created
+ Container event-registration-system-db-1 Starting
+ Container event-registration-system-db-1 Started
+ Container event-registration-system-db-1 Waiting
+ Container event-registration-system-db-1 Healthy
+ Container event-registration-system-migrate-1 Starting
+ Container event-registration-system-migrate-1 Started
+ Container event-registration-system-migrate-1 Waiting
+migrate-1  | > migrate
+migrate-1  | > prisma migrate deploy
+migrate-1  | Prisma schema loaded from prisma/schema.prisma
+migrate-1  | Datasource "db": PostgreSQL database "eventreg", schema "public" at "db:5432"
+migrate-1  | 1 migration found in prisma/migrations
+migrate-1  | Applying migration `20261107093337_init`
+migrate-1  | The following migration(s) have been applied:
+migrate-1  | migrations/
+migrate-1  |   └─ 20261107093337_init/
+migrate-1  |     └─ migration.sql
+migrate-1  | All migrations have been successfully applied.
+migrate-1  | > seed:demo
+migrate-1  | > tsx --env-file-if-exists=.env prisma/seed-demo.ts
+migrate-1  | .env not found. Continuing without it.
+migrate-1  | .env not found. Continuing without it.
+migrate-1  | Demo seed done: missing demo data created, nothing deleted or changed.
+ Container event-registration-system-migrate-1 Exited
+ Container event-registration-system-app-1 Starting
+ Container event-registration-system-app-1 Started
+app-1      | API listening on http://localhost:3000
+$ # second terminal
+$ docker compose ps -a
 SERVICE   STATE     STATUS
-app       running   Up Less than a second
-db        running   Up 6 seconds (healthy)
-migrate   exited    Exited (0) Less than a second ago
-$ docker compose -p l5c03 logs migrate | tail
-> seed:demo
-> tsx --env-file-if-exists=.env prisma/seed-demo.ts
+app       running   Up 11 seconds
+db        running   Up 19 seconds (healthy)
+migrate   exited    Exited (0) 12 seconds ago
+$ docker compose logs migrate | tail -4
 
 .env not found. Continuing without it.
 .env not found. Continuing without it.
@@ -39,7 +60,7 @@ $ curl -s http://localhost:3000/api/health
 {"status":"ok"}
 $ # sign in as a synthetic demo account (local placeholder SEED_PASSWORD from .env.example), then read events from the database
 $ curl -s -c jar -H 'Content-Type: application/json' -d '{"email":"participant1@example.com","password":"<SEED_PASSWORD from .env>"}' http://localhost:3000/api/auth/login
-{"user":{"id":"f9fb512c-73db-4bf9-a262-ca7fb26b3acc","name":"Participant One","role":"PARTICIPANT"}}
+{"user":{"id":"7f61bce1-ba59-4c62-a057-e332aa9b13cc","name":"Participant One","role":"PARTICIPANT"}}
 $ curl -s -b jar http://localhost:3000/api/events   (titles of the returned events)
 Intro to Git workshop
 Career talk (small room)
@@ -47,7 +68,20 @@ Robotics club open day
 $ git ls-files | grep -E '(^|/)\.env' ; docker run --rm --entrypoint sh eventreg:local -c 'find / -name .env -not -path "/proc/*" 2>/dev/null; whoami'
 .env.example
 node
-$ docker compose -p l5c03 down -v
- Volume l5c03_pgdata Removing 
- Volume l5c03_pgdata Removed 
- Network l5c03_default Removed 
+$ docker compose down -v
+ Container event-registration-system-app-1 Stopping
+ Container event-registration-system-app-1 Stopped
+ Container event-registration-system-app-1 Removing
+ Container event-registration-system-app-1 Removed
+ Container event-registration-system-migrate-1 Stopping
+ Container event-registration-system-migrate-1 Stopped
+ Container event-registration-system-migrate-1 Removing
+ Container event-registration-system-migrate-1 Removed
+ Container event-registration-system-db-1 Stopping
+ Container event-registration-system-db-1 Stopped
+ Container event-registration-system-db-1 Removing
+ Container event-registration-system-db-1 Removed
+ Network event-registration-system_default Removing
+ Volume event-registration-system_pgdata Removing
+ Volume event-registration-system_pgdata Removed
+ Network event-registration-system_default Removed

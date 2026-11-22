@@ -75,30 +75,31 @@ Figure 3. C-02 (R-06): PR #103 from the temporary branch `lab5/temp-failing-chec
 
 **Image (R-01).** [`Dockerfile`](https://github.com/songt888/event-registration-system/blob/v0.1.2-lab5/Dockerfile) has three stages on Node 24 (D-19): build the React UI, build the Express API with Prisma, then a runtime stage that runs as the non-root user `node` and serves the built UI and the API on port 3000 from one container (D-18). [`.dockerignore`](https://github.com/songt888/event-registration-system/blob/v0.1.2-lab5/.dockerignore) keeps `.env` files (except `.env.example`), `node_modules`, build output, E2E tests, docs and Git data out of the build context. [`docker-compose.yml`](https://github.com/songt888/event-registration-system/blob/v0.1.2-lab5/docker-compose.yml) runs the same image three ways: `db` (PostgreSQL 16 with a volume), `migrate` (`npm run migrate -w server && npm run seed:demo -w server`, the same command as the Cloud Run job) and `app`, which starts only after `migrate` succeeds. Made in [#88](https://github.com/songt888/event-registration-system/issues/88) by B, reviewed by A from a fresh clone in [#97](https://github.com/songt888/event-registration-system/pull/97); the CI job builds the image on every PR.
 
-**Fresh build and the running container with its database (C-03).** A cloned the release tag into an empty folder on 2026-11-21 and ran `cp .env.example .env`, then `docker compose -p l5c03 -f docker-compose.yml -f c03-noport.yml up --build -d`. Listing 1 is the output, shortened to the lines that matter (the full log is linked under it). The local development database was already using port 5432, so a one-line override file `c03-noport.yml`, kept outside the repository, removed the published `db` port (`services: db: ports: !reset []`); the project name `l5c03` kept these containers apart from the development ones; the containers still talk to each other on the compose network, and nothing else changed.
+**Fresh build and the running container with its database (C-03).** B cloned the release tag into an empty folder on 2026-11-22 and ran the README commands exactly: `cp .env.example .env`, then `docker compose up --build`, with no override file and no other flags. Listing 1 is the output, shortened to the lines that matter (the full log is linked under it). A had run the same check on 2026-11-21 with an override file that hid the `db` port, because a local development database held port 5432; we replaced that run with this plain one so that anyone can repeat Listing 1 from the README.
 
-Listing 1. C-03 (R-01, R-02): fresh clone of `v0.1.2-lab5` (`04e8590`), `cp .env.example .env`, `docker compose -p l5c03 -f docker-compose.yml -f c03-noport.yml up --build -d`. Migration and demo seed exit 0; the app answers on :3000; a synthetic account signs in and reads events from PostgreSQL; only `.env.example` is tracked and the image has no `.env` and runs as `node`. Full log: [`c03-fresh-clone.txt`](https://github.com/songt888/event-registration-system/blob/lab5-staging/docs/labs/lab-05/pdf/c03-fresh-clone.txt).
+Listing 1. C-03 (R-01, R-02): fresh clone of `v0.1.2-lab5` (`04e8590`), `cp .env.example .env`, `docker compose up --build`. Migration and demo seed exit 0; the app answers on :3000; a synthetic account signs in and reads events from PostgreSQL; only `.env.example` is tracked and the image has no `.env` and runs as `node`. Full log: [`c03-fresh-clone.txt`](https://github.com/songt888/event-registration-system/blob/lab5-staging/docs/labs/lab-05/pdf/c03-fresh-clone.txt).
 
 ```text
 $ git rev-parse HEAD
 04e85902befb951a01efd2e30236b6728352680c
 $ cp .env.example .env
-$ docker compose -p l5c03 -f docker-compose.yml -f c03-noport.yml up --build -d
- Container l5c03-db-1 Healthy
- Container l5c03-migrate-1 Exited
- Container l5c03-app-1 Started
-$ docker compose -p l5c03 ps -a
+$ docker compose up --build
+ Container event-registration-system-db-1 Healthy
+migrate-1  | All migrations have been successfully applied.
+migrate-1  | Demo seed done: missing demo data created, nothing deleted or changed.
+ Container event-registration-system-migrate-1 Exited
+ Container event-registration-system-app-1 Started
+app-1      | API listening on http://localhost:3000
+$ docker compose ps -a
 SERVICE   STATE     STATUS
-app       running   Up Less than a second
-db        running   Up 6 seconds (healthy)
-migrate   exited    Exited (0) Less than a second ago
-$ docker compose -p l5c03 logs migrate | tail
-Demo seed done: missing demo data created, nothing deleted or changed.
+app       running   Up 11 seconds
+db        running   Up 19 seconds (healthy)
+migrate   exited    Exited (0) 12 seconds ago
 $ curl http://localhost:3000/api/health  ->  200 {"status":"ok"}
 $ curl http://localhost:3000/            ->  200
 $ curl http://localhost:3000/api/me      ->  401 (no session)
 $ curl -c jar -d '{"email":"participant1@example.com","password":"<SEED_PASSWORD from .env>"}' .../api/auth/login
-{"user":{"id":"f9fb512c-...","name":"Participant One","role":"PARTICIPANT"}}
+{"user":{"id":"7f61bce1-...","name":"Participant One","role":"PARTICIPANT"}}
 $ curl -b jar http://localhost:3000/api/events   (titles)
 Intro to Git workshop
 Career talk (small room)
@@ -107,7 +108,7 @@ $ git ls-files | grep -E '(^|/)\.env'
 .env.example
 $ docker run --rm --entrypoint sh eventreg:local -c 'find / -name .env ...; whoami'
 node
-$ docker compose -p l5c03 down -v
+$ docker compose down -v
 ```
 
 **Configuration from the environment, no secret committed (R-02, R-12).** Every setting is read from environment variables: [`.env.example`](https://github.com/songt888/event-registration-system/blob/v0.1.2-lab5/.env.example) lists them with local placeholders only (`SEED_PASSWORD=change-me`, the local `app:app` database), `.env` and `server/.env` are gitignored, and `.dockerignore` keeps them out of the image. The table in [`deployment.md` section 2](https://github.com/songt888/event-registration-system/blob/v0.1.2-lab5/docs/labs/lab-05/deployment.md#2-environment-variables) gives each variable's purpose, whether it is secret, and its local and cloud source. On Cloud Run, `DATABASE_URL` and `SEED_PASSWORD` come only from the portal's Secret Manager secrets `s47a6b53b-database-url` and `s47a6b53b-demo-password` (`--update-secrets`); the other settings are set with `--update-env-vars` (`NODE_ENV=production`, `COOKIE_SECURE=true`, `SESSION_TTL_MINUTES=60`, `TZ=Asia/Bangkok`). The GitHub environment `demo` holds only non-secret variables (project, region, WIF provider and service account, `APP_PORT`, `MIGRATE_COMMAND`) and 0 secrets; the pipeline signs in through Workload Identity Federation with no key file. GitHub secret scanning push protection is on for the repository.
@@ -122,4 +123,4 @@ $ docker compose -p l5c03 down -v
 
 ## AI use
 
-Claude Code (Claude Opus) helped draft Parts 0 to 2, ran the fresh-clone C-03 check and captured Figures 1 and 2 for A; A checked every link and figure. `<B: AI use for Parts 3 and 4>`
+Claude Code (Claude Opus) helped draft Parts 0 to 2, captured Figures 1 and 2 for A, and ran the first fresh-clone C-03 check (replaced by B's plain re-run); A checked every link and figure. `<B: AI use for Parts 3 and 4>`
