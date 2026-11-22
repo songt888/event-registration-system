@@ -122,7 +122,7 @@ $ docker compose down -v
 
 **First deploy ([#90](https://github.com/songt888/event-registration-system/issues/90), C-04).** A ran [`deploy/deploy.sh`](https://github.com/songt888/event-registration-system/blob/v0.1.2-lab5/deploy/deploy.sh) (PR [#100](https://github.com/songt888/event-registration-system/pull/100), TEST-54) in Cloud Shell on `main` `04e8590`. Cloud Shell's `docker push` failed three times with `connect: connection refused`, and `set -e` stopped the script before any cloud change. Workaround: Deploy run [44897414447](https://github.com/songt888/event-registration-system/actions/runs/44897414447) pushed the image, then `DRY_RUN=0 bash deploy/deploy.sh --demo` used it by digest. Migration and demo seed ran as job execution `s47a6b53b-migrate-gxtfx`, and revision `s47a6b53b-00003-gwh` took 100% of traffic. Read-only smoke check: `/api/health` 200, `/` 200, `/api/me` 401, `/api/events` 401.
 
-**C-04 on the public URL** https://s47a6b53b-4d7hbszvwq-as.a.run.app (synthetic demo accounts; captures from [#90](https://github.com/songt888/event-registration-system/issues/90)):
+**C-04 on the public URL** https://s47a6b53b-4d7hbszvwq-as.a.run.app (synthetic demo accounts; Figures 4 to 6 from [#90](https://github.com/songt888/event-registration-system/issues/90), Figure 7 recaptured without the mouse pointer):
 
 ![Figure 4](figures/fig-c04-organizer-events.jpg)
 
@@ -138,7 +138,7 @@ Figure 6. C-04: Participant One's My registrations: Intro to Git workshop and Ca
 
 ![Figure 7](figures/fig-c04-duplicate-rejected.jpg)
 
-Figure 7. C-04, business rule on the cloud: a second registration for the same event is refused with "You are already registered for this event." and the count stays at 29 of 30 places left.
+Figure 7. C-04, business rule on the cloud: Participant One clicks Register again on Intro to Git workshop; the second registration is refused with "You are already registered for this event." and the count stays at 29 of 30 places left. Public URL, captured 2026-11-22 15:35 on revision `s47a6b53b-00005-5l7`.
 
 **Persistence after redeploy and restart (C-05, R-04;** [#93](https://github.com/songt888/event-registration-system/issues/93), PR [#115](https://github.com/songt888/event-registration-system/pull/115), [`l5-08-persistence.md`](https://github.com/songt888/event-registration-system/blob/lab5-staging/docs/labs/lab-05/l5-08-persistence.md)**).** Participant One's two registrations were checked before and after a redeploy, and again after Cloud Run started a new container. Times are +07 on 2026-11-22.
 
