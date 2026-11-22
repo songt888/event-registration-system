@@ -1,6 +1,6 @@
 # Lab 5 deployment guide
 
-Version 0.1 (#87): stack, configuration and commands. The GCP resources, release procedure, cost control and rollback are filled in by #90, #92 and #95, and the final version is written in #94. Decisions are in `docs/decisions.md` (D-17 to D-24).
+Version 0.2 (#94): stack, configuration, commands, the course cloud resources and the first deploy (#87, #90, #94), cost control (#95). The release procedure, how to see the running commit and rollback (sections 6 and 7) come from #92. Decisions are in `docs/decisions.md` (D-17 to D-25).
 
 ## 1. Stack and changes from the reference
 
@@ -49,12 +49,30 @@ No value below is real. Secrets live only in Secret Manager (cloud) or the gitig
 | Deploy script test | `bash deploy/tests/test_deploy_stub.sh` (TEST-54, fake `gcloud`, `docker` and `git`; no network) |
 | Release script test | `bash deploy/tests/test_release_stub.sh` (TEST-55: `release.sh`, `smoke_test.py` against a localhost stub, and the `deploy.yml` settings check; fake `gcloud`, no network) |
 
-## 4. To be completed
+## 4. Course cloud resources and the first deploy (#90, D-25)
 
-- Image (#88, done): the runtime stage copies the server workspace `node_modules` including `prisma` and `tsx` (devDependencies), because the migration job runs `prisma migrate deploy` and `npm run seed:demo` from the same image. The cost is image size (about 580 MB); a pruned image is out of scope.
-- GCP project, region `asia-southeast1`, Cloud Run service, Cloud SQL instance, Artifact Registry repository, secret names (#90).
-- Release procedure, image tag = full commit SHA, how to find the running commit (#92): done, section 6.
-- Rollback by redeploying an earlier image SHA (#92): done, section 7.
+The course portal created every resource; we create none and only update the migration job and the service. Names carry the team prefix `s47a6b53b`.
+
+| Resource | Name |
+|---|---|
+| Project, region | `cpe-se-course-2026`, `asia-southeast1` (shared by all teams) |
+| Cloud Run service | `s47a6b53b`, public URL https://s47a6b53b-4d7hbszvwq-as.a.run.app |
+| Cloud Run job (migrate and seed) | `s47a6b53b-migrate` |
+| Cloud SQL | `s47a6b53b-pg` (PostgreSQL), database and user `s47a6b53b` |
+| Artifact Registry | `asia-southeast1-docker.pkg.dev/cpe-se-course-2026/s47a6b53b/s47a6b53b:<full commit SHA>` |
+| Secret Manager | `s47a6b53b-database-url` (`DATABASE_URL`), `s47a6b53b-demo-password` (`SEED_PASSWORD`, demo seed only) |
+| Service accounts | runtime `s47a6b53b-runner`; pipeline `s47a6b53b-deployer` through Workload Identity Federation (no key file) |
+| GitHub environment `demo` | variables `GCP_PROJECT_ID`, `GCP_REGION`, `WIF_PROVIDER`, `WIF_SERVICE_ACCOUNT` (from the portal), `APP_PORT=3000`, `MIGRATE_COMMAND=npm run migrate -w server && npm run seed:demo -w server`; no secrets |
+
+First deploy (2026-11-21, `main` `04e8590`):
+1. `bash deploy/deploy.sh --demo` in Cloud Shell (dry run) and the plan read.
+2. `DRY_RUN=0 bash deploy/deploy.sh --demo`: the build worked, but `docker push` from Cloud Shell to `asia-southeast1-docker.pkg.dev` failed three times with `connect: connection refused` (a Cloud Shell network problem, not a permission one). `set -e` stopped the script before it changed anything.
+3. Workaround: the pipeline `Deploy to Google Cloud` (run 44897414447, `MIGRATE_COMMAND` not yet set) built and pushed the same image tag. Then in Cloud Shell, `docker() { echo skip; }; export -f docker` made `docker` a no-op for that shell only, and `DRY_RUN=0 bash deploy/deploy.sh --demo` ran unchanged from step 9 on: it resolved the pushed image's digest, ran the job (`s47a6b53b-migrate-gxtfx`: migrate and demo seed) with `SEED_PASSWORD`, and updated the service (revision `s47a6b53b-00003-gwh`). `unset -f docker` afterwards.
+4. `MIGRATE_COMMAND` was then set in `demo`, and run 44898663334 migrated (`s47a6b53b-migrate-6lbkt`) and deployed revision `s47a6b53b-00004-44n`. The job keeps `SEED_PASSWORD`, because the pipeline's `gcloud run jobs update` changes only the command and arguments.
+
+Image note (#88): the runtime stage copies the server workspace `node_modules` including `prisma` and `tsx` (devDependencies), because the migration job runs `prisma migrate deploy` and `npm run seed:demo` from the same image. The cost is image size (about 580 MB); a pruned image is out of scope.
+
+The release procedure and how to find the running commit are in section 6, rollback in section 7 (#92).
 
 ## 5. Cost control (#95)
 
