@@ -1,0 +1,53 @@
+$ git rev-parse HEAD
+04e85902befb951a01efd2e30236b6728352680c
+$ cp .env.example .env
+$ docker compose -p l5c03 -f docker-compose.yml -f c03-noport.yml up --build -d
+ Container l5c03-db-1 Created 
+ Container l5c03-migrate-1 Creating 
+ Container l5c03-migrate-1 Created 
+ Container l5c03-app-1 Creating 
+ Container l5c03-app-1 Created 
+ Container l5c03-db-1 Starting 
+ Container l5c03-db-1 Started 
+ Container l5c03-db-1 Waiting 
+ Container l5c03-db-1 Healthy 
+ Container l5c03-migrate-1 Starting 
+ Container l5c03-migrate-1 Started 
+ Container l5c03-migrate-1 Waiting 
+ Container l5c03-migrate-1 Exited 
+ Container l5c03-app-1 Starting 
+ Container l5c03-app-1 Started 
+$ docker compose -p l5c03 ps -a
+SERVICE   STATE     STATUS
+app       running   Up Less than a second
+db        running   Up 6 seconds (healthy)
+migrate   exited    Exited (0) Less than a second ago
+$ docker compose -p l5c03 logs migrate | tail
+> seed:demo
+> tsx --env-file-if-exists=.env prisma/seed-demo.ts
+
+.env not found. Continuing without it.
+.env not found. Continuing without it.
+Demo seed done: missing demo data created, nothing deleted or changed.
+$ curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/api/health
+200
+$ curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/
+200
+$ curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/api/me
+401
+$ curl -s http://localhost:3000/api/health
+{"status":"ok"}
+$ # sign in as a synthetic demo account (local placeholder SEED_PASSWORD from .env.example), then read events from the database
+$ curl -s -c jar -H 'Content-Type: application/json' -d '{"email":"participant1@example.com","password":"<SEED_PASSWORD from .env>"}' http://localhost:3000/api/auth/login
+{"user":{"id":"f9fb512c-73db-4bf9-a262-ca7fb26b3acc","name":"Participant One","role":"PARTICIPANT"}}
+$ curl -s -b jar http://localhost:3000/api/events   (titles of the returned events)
+Intro to Git workshop
+Career talk (small room)
+Robotics club open day
+$ git ls-files | grep -E '(^|/)\.env' ; docker run --rm --entrypoint sh eventreg:local -c 'find / -name .env -not -path "/proc/*" 2>/dev/null; whoami'
+.env.example
+node
+$ docker compose -p l5c03 down -v
+ Volume l5c03_pgdata Removing 
+ Volume l5c03_pgdata Removed 
+ Network l5c03_default Removed 
