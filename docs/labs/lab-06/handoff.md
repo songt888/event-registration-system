@@ -1,7 +1,7 @@
 # Lab 6 — UAT handoff to the partner team (Part A, L6-01 #120)
 
 From the Product Team EN-009_P3: Kirakit Kingkaew (67070503460, A) and Nattakit Prasertsak (67070503413, B).
-To the UAT Team: _partner team name and members, filled in after L6-02 (#121)_.
+To the UAT Team: team EN-033 "Est" (theme: E-Commerce or Ordering System): Dechayut Panyawutvorakul and Garunyapas Danpitakkul. We are in turn their UAT Team.
 
 ## 1. What you are testing
 
@@ -63,4 +63,7 @@ Open a GitHub Issue in our repository (https://github.com/songt888/event-registr
 
 ## 7. Contacts and sessions
 
-_Filled in after L6-02 (#121): contact names, the agreed channel, and the times for the first run, the correction window and the retest._
+- Channel: Discord, for scheduling, deploy notices and questions. Each finding also becomes a GitHub Issue in the product team's repository (section 6), so it has an Issue ID and a recorded triage decision; if a finding arrives only on Discord, the product team opens the Issue and links the message.
+- The demo password is sent by Discord direct message only, never in a shared channel.
+- Rounds: the UAT team runs every case and sends all findings at once. The product team fixes, deploys, and tells the UAT team the new revision before it goes live. The UAT team retests the failed and related cases on the new revision. Repeat until accepted, or until the cut-off, after which the decision is recorded as it stands (Not Accepted if a critical or major defect is still open).
+- Dates: _first run, findings due, last fix deploy and final decision: to be agreed on Discord (#121)._
