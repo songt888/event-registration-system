@@ -68,18 +68,18 @@ The teammate reviews with a specific check, approves and merges. Authors never a
 
 ## 4. Our UAT cases (draft for L6-01)
 
-Roles and accounts are named by label only. Each case creates its own data (D-28), so the cases are independent and can run in any order. Detailed numbered steps and exact expected screen text go in `uat-cases.md`.
+Roles and accounts are named by label only. UAT-01, UAT-02 and UAT-05 create unique events (D-28). UAT-03 uses a registered event from UAT-01 or UAT-02, and UAT-04 uses the same tester’s UAT-01 event. Detailed numbered steps and exact expected screen text go in `uat-cases.md`.
 
 | Case | Category | Sprint 1 refs | Role and account | Outline and key expected result |
 |---|---|---|---|---|
 | UAT-01 | Normal journey | F-01 to F-04; AC-01, AC-06, AC-25, AC-10, AC-12, AC-24 | Organizer One, then Participant 3 | Organizer creates a future event with capacity 3 and publishes it. Participant sees it in Events with 3 places, registers, and sees 2 places left and an ACTIVE registration |
 | UAT-02 | Business rule and boundary | F-02, F-04; AC-07, AC-29, AC-13, AC-14 | Organizer One, Participants 3 and 4 | Capacity 0 and a past start are rejected. Event with capacity 1: Participant 3 registers; a second try is rejected as already registered; Participant 4 is rejected as full; places stay 0 |
-| UAT-03 | Forbidden role and ownership | F-04, F-06; AC-16, AC-20, AC-21, AC-08 | Organizer Two, Participant 3 | Organizer Two opens Organizer One's registration list and is refused, with no names shown. A participant cannot open organizer pages or create an event. An organizer cannot register. Then Organizer One checks that nothing changed |
-| UAT-04 | State, history and persistence | F-01, F-05, F-06; AC-04, AC-17, AC-19 | Participant 3, Organizer One | After UAT-01 data exists (or a fresh event): sign out, sign in again; My registrations still lists the registration. The organizer's list shows exactly the participant's name and email. After sign-out, a protected page goes to login |
-| UAT-05 | Draft visibility | F-02, F-03, F-04; AC-10, AC-27, AC-32 | Organizer One, Participant 3 | A DRAFT event does not appear for a participant, and its direct URL shows not found |
-| UAT-06 | Sign-in errors | F-01; AC-02, AC-03 | none, then Participant 3 | Wrong password and unknown email show the same message; signed-out visit to My registrations goes to login |
+| UAT-03 | Forbidden role and ownership | F-02, F-04, F-06; BR-05; AC-08, AC-20, AC-21, AC-33, AC-34 | Organizer Two, Participant 3 | Organizer Two opens Organizer One's registration list and is refused, with no names shown. A participant cannot open organizer pages or create an event. The event page shows no Register button for an organizer. Then Organizer One checks that nothing changed |
+| UAT-04 | State, history and persistence | F-01, F-05, F-06; AC-04, AC-17, AC-19, AC-24 | Participant 3, Organizer One | After the same tester completes UAT-01: sign out, sign in again; My registrations still lists the registration. The organizer's list shows exactly the participant's name and email. After sign-out, a protected page goes to login |
+| UAT-05 | Draft visibility | F-02, F-03; AC-10, AC-31, AC-32 | Organizer One, Participant 3 | A DRAFT event does not appear for a participant, and its direct URL shows not found |
+| UAT-06 | Sign-in errors | F-01; AC-02, AC-03, AC-24 | none, then Participant 3 | Wrong password and unknown email show the same message; signed-out visit to My registrations goes to login |
 
-UAT-04 reruns on a fresh event if the partner runs cases in a different order. Concurrency (AC-15, AC-37) stays covered by automated tests only, and the handoff says so.
+UAT-04 uses the saved UAT-01 event. Re-run UAT-01 first if the fixture is missing. Concurrency (AC-15, AC-37) stays covered by automated tests only, and the handoff says so.
 
 ## 5. TDD for corrections
 
