@@ -38,14 +38,14 @@ Nothing to set up. The production database already holds the demo accounts and t
 |---|---|---|
 | Intro to Git workshop | Organizer One | published |
 | Career talk (small room) | Organizer One | published, 2 places |
-| Hackathon planning (draft) | Organizer One | draft (visible to Organizer One only) |
+| Hackathon planning (draft) | Organizer One | published (title includes “draft”), 49 of 50 places left during the 24 Nov 2026 dry-run |
 | Robotics club open day | Organizer Two | published |
 
-Please **do not register for these events**. Sprint 1 has no cancellation, so a registration is permanent and would change the demo data. Every case creates its own event, titled `UAT-<your initials>-<case number>-<HHMM>`.
+Please **do not register for these events**. Sprint 1 has no cancellation, so a registration is permanent and would change the demo data. UAT-01, UAT-02 and UAT-05 create their own events, titled `UAT-<your initials>-<case number>-<HHMM>`.
 
 ## 4. Order, independence and cleanup
 
-- Cases are independent and can run in any order, except two that reuse earlier data: **UAT-04 needs UAT-01** by the same tester, and **UAT-03 needs an event with a registration** (from UAT-01 or UAT-02). Suggested order: UAT-06, UAT-01, UAT-04, UAT-02, UAT-03, UAT-05.
+- Keep the exact title and URL of any event reused by a later case. Start each case signed out, using Logout in the bottom taskbar as needed. Two cases have fixture dependencies: **UAT-04 needs UAT-01** by the same tester, and **UAT-03 needs an event with a registration** (from UAT-01 or UAT-02). Suggested order: UAT-06, UAT-01, UAT-04, UAT-02, UAT-03, UAT-05.
 - Each case can be rerun: use a new `<HHMM>` so the title is unique.
 - Cleanup: none needed, and none is possible in Sprint 1 (no delete or cancel). Leave the `UAT-…` events in place; we never reset the production database (D-20, D-28).
 - Expected time: about 30 to 40 minutes for all six cases.
@@ -54,7 +54,7 @@ Please **do not register for these events**. Sprint 1 has no cancellation, so a 
 
 - The app has a decorative retro "desktop" look. On the first visit a short start-up screen plays over the sign-in page; wait for it to finish. Each page sits in a window with three round buttons at its top left (close, minimize, maximize). If you close or minimize a window by accident, click the folder icon or the taskbar button to reopen it. These buttons are decoration and not part of the tested scope.
 - Dates are shown and entered in your browser's local time.
-- Sound effects can be turned off with the **Sound on** button in the header.
+- Sound effects can be turned off with the **Sound on** button in the bottom taskbar.
 - Record times in local time (UTC+7) together with the revision you tested.
 
 ## 6. How to report a finding
