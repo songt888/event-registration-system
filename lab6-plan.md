@@ -1,4 +1,4 @@
-# CPE 334 Lab 6 — Plan (Independent UAT and Defect Management, Sprint 1)
+# CPE 334 Lab 6 Plan: Independent UAT and Defect Management, Sprint 1
 
 Team: A = songt888 (Kirakit Kingkaew), B = stickkersz (Nattakit Prasertsak). Same repo, same app, same rules as `AGENTS.md`.
 Deliverable: one PDF on LEB2, `lab6_sec<section>_EN-009_P3.pdf`. Due **Sunday 29 Nov 2026, 23:59** (moved from 22 Nov; the handout still says 22 Nov).
@@ -49,12 +49,13 @@ The teammate reviews with a specific check, approves and merges. Authors never a
 | L6-00 (#118) | Lab 6 contract: this plan, D-26 to D-29, `AGENTS.md` Lab 6 rules, CI on PRs into `lab6-staging`; create `lab6-staging`; add it to the ruleset | A | B | merged; CI ran on the PR; ruleset covers `lab6-staging` |
 | L6-01 (#120) | Part A: `docs/labs/lab-06/uat-cases.md` (section 4) and `handoff.md` (version, URL, scope, account labels and roles, setup, cleanup, case order) | A | B dry-runs every case on the live URL and reports anything unclear | B can follow each case without asking |
 | L6-02 (#121) | Partner arrangement: agree on a team, session times (initial run, fix, retest), the channel for findings; send the handoff; send the password privately | A | B | both team names and four student names recorded; handoff sent (date) |
-| L6-03 (#122) | Part B: run every partner case on their recorded release; `docs/labs/lab-06/uat-execution.md` with actual results and evidence IDs | A runs half, B runs half | each checks the other's records | every case PASS/FAIL/BLOCKED with screenshot; nothing copied from expected |
-| L6-04 (#123) | Part C outgoing: one report per real failure in the partner's app, sent through the agreed channel; record their reply | B | A | report table with severity reasons and the partner's outcome |
-| L6-05 (#124) | Part C received: `docs/labs/lab-06/triage.md`, every finding about our app (or "none received") with class, reason tied to an AC, severity, owner, status | A | B | every finding has a disposition; no failing AC relabelled as an enhancement |
+| L6-03 (#122) | Part B: run every partner case on their recorded release; `docs/labs/lab-06/uat-execution.md` with actual results and evidence IDs | A runs half, B runs half | each checks the other's records | every case PASS/FAIL/BLOCKED with screenshot; nothing copied from expected; rejected operations show the rejection and that protected state was not changed or disclosed (3.2) |
+| L6-04 (#123) | Part C outgoing: one report per real failure in the partner's app, sent through the agreed channel; record their reply | B | A | each report has Issue ID, product owner/team, reporter, tested version, linked case/AC, preconditions/data, reproduction steps, expected, actual, severity explained by user impact, evidence, and states defect vs feature request (3.3); the partner's outcome recorded |
+| L6-05 (#124) | Part C received: `docs/labs/lab-06/triage.md`, every finding about our app (or "none received") with class, reason tied to an AC, severity, owner, status | A | B | every finding has a disposition; each finding reproduced and clarified before dismissal; duplicates linked to the original Issue (3.3); no failing AC relabelled as an enhancement |
 | L6-06 (#125) | Release `lab6-staging` → `main`, tag `v0.1.3-lab6`, push-triggered Deploy run, smoke check, revision recorded; tell the partner before deploying | A opens the release PR | B approves and merges | run link; running revision = release commit; smoke output |
-| L6-07 (#126) | Part D: send the partner the corrected version and failed cases; partner retests and records one decision (Accepted / Accepted with minor limitations / Not Accepted) | A coordinates | B checks the record | partner's record with tester names, version, date |
-| L6-08 (#127) | Lab 6 PDF with contents table (Parts A to D, pages, evidence IDs), version table, contribution table, AI use, limitations | A: Parts A, B; B: Parts C, D | cross | PDF named as above; no secret |
+| L6-07 (#126) | Part D: send the partner the corrected version and failed cases; partner retests and records one decision (Accepted / Accepted with minor limitations / Not Accepted) | A coordinates | B checks the record | partner's record with tester names, version, date; affected UAT cases re-run, not only the defect (3.4) |
+| L6-07b (#129) | UAT Team: retest the partner's corrected release and record our acceptance decision for their app (handout section 2 UAT Team row, 3.4) | A and B | cross | our decision (Accepted / Accepted with minor limitations / Not Accepted) recorded with our tester names, their version, date and evidence |
+| L6-08 (#127) | Lab 6 PDF with contents table (Parts A to D, pages, evidence IDs), version table, contribution table, AI use, limitations | A: Parts A, B; B: Parts C, D | cross | PDF named as above; cover has both students and IDs, theme, Sprint 1 scope, repo URL, tested tag/commit, deployed URL/version, final UAT decision, UAT tester names (section 4); manual tests labelled manual (4.2); no secret |
 | L6-09+ | One Issue per accepted defect: RED test commit, fix commit (GREEN), full `npm test`, PR into `lab6-staging` | B | A | RED and GREEN output with commands, counts and commit hashes |
 | L6-X | Only if no real defect: ask the TA for a controlled defect exercise; run the same chain on an isolated branch, never deployed over the accepted release | B | A | TA request kept as evidence; RED/GREEN on the exercise branch |
 
@@ -62,8 +63,8 @@ The teammate reviews with a specific check, approves and merges. Authors never a
 
 | Member | Author of | Reviews or checks |
 |---|---|---|
-| A (songt888) | L6-00, L6-01, L6-02, L6-05, L6-06 release PR, L6-07 coordination, PDF Parts A and B; runs half the partner cases | L6-04, every fix PR, PDF Parts C and D |
-| B (stickkersz) | L6-04, L6-09+ fixes (or L6-X), PDF Parts C and D; runs half the partner cases | L6-00, dry-run of L6-01, L6-05, approves and merges the release PR |
+| A (songt888) | L6-00, L6-01, L6-02, L6-05, L6-06 release PR, L6-07 coordination, PDF Parts A and B; runs half the partner cases and half of the L6-07b retest | L6-04, every fix PR, PDF Parts C and D |
+| B (stickkersz) | L6-04, L6-09+ fixes (or L6-X), PDF Parts C and D; runs half the partner cases and half of the L6-07b retest | L6-00, dry-run of L6-01, L6-05, approves and merges the release PR |
 
 ## 4. Our UAT cases (draft for L6-01)
 
@@ -113,7 +114,7 @@ Each screenshot carries the evidence ID, action, expected and actual result, tim
 | Tue 24 – Wed 25 Nov | L6-00 merged; L6-02 find the partner and agree on sessions; L6-01 cases written, B dry-runs them, handoff sent |
 | Wed 25 – Thu 26 | both teams run each other's cases (L6-03); outgoing reports (L6-04) |
 | Thu 26 – Fri 27 | triage (L6-05); fixes (L6-09+) or ask the TA for the controlled exercise (L6-X) **by Thursday** |
-| Fri 27 – Sat 28 | release and deploy (L6-06); partner retest and decision (L6-07) |
+| Fri 27 – Sat 28 | release and deploy (L6-06); partner retest and decision (L6-07); our retest of their fixes and our decision (L6-07b) |
 | Sat 28 – Sun 29 | PDF (L6-08), Definition of Done check, submit |
 
 Critical path: partner found, handoff sent, partner runs our cases, fix and release, partner retest. If the partner is unavailable or the app cannot be reached, notify the instructor or TA at once and keep the message as evidence.
