@@ -1,4 +1,4 @@
-# Lab 6 — Sprint 1 UAT cases (Part A, L6-01 #120)
+# Lab 6: Sprint 1 UAT cases (Part A, L6-01 #120)
 
 Product: Event Registration and Attendance System (CPE 334 Theme 3), team EN-009_P3.
 Release under test, URL, accounts and cleanup: see [`handoff.md`](handoff.md). Scope: the Sprint 1 contract only (F-01 to F-06), D-27.

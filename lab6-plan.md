@@ -77,7 +77,7 @@ Roles and accounts are named by label only. UAT-01, UAT-02 and UAT-05 create uni
 | UAT-03 | Forbidden role and ownership | F-02, F-04, F-06; BR-05; AC-08, AC-20, AC-21, AC-33, AC-34 | Organizer Two, Participant 3 | Organizer Two opens Organizer One's registration list and is refused, with no names shown. A participant cannot open organizer pages or create an event. The event page shows no Register button for an organizer. Then Organizer One checks that nothing changed |
 | UAT-04 | State, history and persistence | F-01, F-05, F-06; AC-04, AC-17, AC-19, AC-24 | Participant 3, Organizer One | After the same tester completes UAT-01: sign out, sign in again; My registrations still lists the registration. The organizer's list shows exactly the participant's name and email. After sign-out, a protected page goes to login |
 | UAT-05 | Draft visibility | F-02, F-03; AC-10, AC-31, AC-32 | Organizer One, Participant 3 | A DRAFT event does not appear for a participant, and its direct URL shows not found |
-| UAT-06 | Sign-in errors | F-01; AC-02, AC-03 | none, then Participant 3 | Wrong password and unknown email show the same message; signed-out visit to My registrations goes to login |
+| UAT-06 | Sign-in errors | F-01; AC-02, AC-03, AC-24 | none, then Participant 3 | Wrong password and unknown email show the same message; signed-out visit to My registrations goes to login |
 
 UAT-04 uses the saved UAT-01 event. Re-run UAT-01 first if the fixture is missing. Concurrency (AC-15, AC-37) stays covered by automated tests only, and the handoff says so.
 

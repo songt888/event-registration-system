@@ -1,4 +1,4 @@
-# Lab 6 — UAT handoff to the partner team (Part A, L6-01 #120)
+# Lab 6: UAT handoff to the partner team (Part A, L6-01 #120)
 
 From the Product Team EN-009_P3: Kirakit Kingkaew (67070503460, A) and Nattakit Prasertsak (67070503413, B).
 To the UAT Team: team EN-033 "Est" (theme: E-Commerce or Ordering System): Dechayut Panyawutvorakul and Garunyapas Danpitakkul. We are in turn their UAT Team.
