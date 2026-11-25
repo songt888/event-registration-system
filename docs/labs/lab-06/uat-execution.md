@@ -16,7 +16,7 @@ We are the **UAT Team** for team **Est** (EN-033), product "Campus Café Pre-ord
 
 **Method.** Est's handoff asks for manual Chrome or Edge testing with a separate private window per account. Record actual behavior, local time (UTC+7) and screenshot IDs (`E-B<case>-<n>`). For rejected operations, record the rejection and check that the protected data stayed unchanged and was not shown.
 
-A's UAT-01, UAT-03 and UAT-05 observations below come from Codex Computer Use on the live site, with explicit sign-out between accounts in a shared browser tab. They are preliminary. A's manual run in separate private windows, screenshots and B's cross-check remain pending.
+A assigned UAT-01, UAT-03 and UAT-05 to Codex Computer Use and owns the resulting case records. Computer Use performed the browser actions on the live site, signing out between accounts in a shared tab. Outcomes below refer to this AI-executed run. The run differs from Est's requested separate private windows. Screenshots and teammate cross-check of the supplied cases remain pending.
 
 B ran UAT-02, UAT-04 and UAT-06 partly by hand in Chrome and partly with Claude Code using agent-browser (headless Chromium, one browser session per account). The recorded actual results, times and screenshots below come from the agent-browser run. Those screenshots are page-only, so each row gives the URL and local time.
 
@@ -71,12 +71,12 @@ Fill in one block per case. Result is PASS, FAIL or BLOCKED (with the reason; BL
 
 | Field | Value |
 |---|---|
-| Tester / date and time | Kirakit Kingkaew, EN-009_P3 (case owner); Codex Computer Use / 2026-11-25, 20:30 (order time shown by the app) |
+| Tester / date and time | Kirakit Kingkaew, EN-009_P3 (case owner); executed by Codex Computer Use on A's instruction / 2026-11-25, 20:30 (order time shown by the app) |
 | Version | `b71cdb2` |
 | Inputs | CUSTOMER-A, OPERATOR; Latte ×2, Americano ×1 |
 | Order number | #3 |
 | Actual result (per step) | 1: CUSTOMER-A landed on `/menu` with the customer header.<br>2–3: Added Latte ×2 and Americano ×1. Cart showed two lines and ฿185.00 total.<br>4: `/orders/3` displayed `Order #3 placed!`, `PLACED` and the waiting message. Unit prices were ฿65.00 and ฿55.00, total ฿185.00.<br>5: OPERATOR saw #3 in the New orders queue with the same items and total.<br>6: The queue displayed `Order #3 accepted.` and removed the card. The transient `Accepting…` label was not captured.<br>7: CUSTOMER-A reopened #3 and saw `ACCEPTED`, the accepted message and the unchanged ฿185.00 total. |
-| Result | Preliminary workflow matched the observations above. Formal result pending manual run and screenshots. |
+| Result | Core order flow passed in the AI-executed run. Full-case verdict pending because the transient `Accepting…` state was not captured. |
 | Evidence | Screenshots pending: E-B01-1 (order placed page), E-B01-2 (operator accepts), E-B01-3 (customer sees ACCEPTED) |
 | Checked by | B pending |
 
@@ -84,11 +84,11 @@ Fill in one block per case. Result is PASS, FAIL or BLOCKED (with the reason; BL
 
 | Field | Value |
 |---|---|
-| Tester / date and time | Kirakit Kingkaew, EN-009_P3 (case owner); Codex Computer Use / 2026-11-25 (exact test time not recorded) |
+| Tester / date and time | Kirakit Kingkaew, EN-009_P3 (case owner); executed by Codex Computer Use on A's instruction / 2026-11-25 (exact test time not recorded) |
 | Version | `b71cdb2` |
 | Inputs | CUSTOMER-A, CUSTOMER-B, OPERATOR; order #3 from UAT-01; `/orders/99999` |
 | Actual result (per step) | 1: CUSTOMER-A was redirected from `/operator/orders` to `/menu` with the access warning. No queue was shown.<br>2–3: CUSTOMER-B saw `Order not found.` for both #3 and #99999. No order lines or total from #3 were shown.<br>4: Opening `/menu` while signed out redirected to `/login`.<br>5: OPERATOR was redirected from `/menu` to `/operator/orders` with the access warning. No customer menu was shown.<br>6: CUSTOMER-A reopened #3 and saw the same `ACCEPTED` status and ฿185.00 total. |
-| Result | Preliminary access checks matched the observations above. Formal result pending manual run and screenshots. |
+| Result | PASS for the observed AI-executed access checks. Screenshots and teammate review remain pending. |
 | Evidence | Screenshots pending: E-B03-1 (customer on `/operator/orders` refused), E-B03-2 (CUSTOMER-B on `/orders/3`: no Alice data), E-B03-4 (OPERATOR on `/menu` refused), E-B03-3 (order #3 unchanged afterwards) |
 | Checked by | B pending |
 
@@ -96,11 +96,11 @@ Fill in one block per case. Result is PASS, FAIL or BLOCKED (with the reason; BL
 
 | Field | Value |
 |---|---|
-| Tester / date and time | Kirakit Kingkaew, EN-009_P3 (case owner); Codex Computer Use / 2026-11-25 (exact test time not recorded) |
+| Tester / date and time | Kirakit Kingkaew, EN-009_P3 (case owner); executed by Codex Computer Use on A's instruction / 2026-11-25 (exact test time not recorded) |
 | Version | `b71cdb2` |
 | Inputs | CUSTOMER-A; wrong password `wrong-password-1` |
 | Actual result (per step) | 1: Wrong password showed `Incorrect email or password.` and cleared the password input. The subsequent login succeeded without re-entering the email.<br>2: Correct password opened `/menu`.<br>3: Log out returned to `/login`.<br>4: In the follow-up run after viewing order #4, Back and reload stayed on `/login` without showing order details. A separate direct visit to `/orders` while signed out also returned to `/login`. |
-| Result | Preliminary sign-in and logout checks matched the observations above. Formal result pending manual run and screenshots. |
+| Result | PASS for the observed AI-executed sign-in and logout checks. Screenshots and teammate review remain pending. |
 | Evidence | Screenshots pending: E-B05-1 (wrong-password message), E-B05-2 (after logout, Back and `/orders` end on `/login`) |
 | Checked by | B pending |
 
@@ -147,9 +147,9 @@ Fill in one block per case. Result is PASS, FAIL or BLOCKED (with the reason; BL
 
 | Case | Tester | Result | Finding (sheet row / Issue) |
 |---|---|---|---|
-| UAT-01 | A | Preliminary observations recorded. Formal result pending. | Exploratory: EX-01, EX-04, EX-05, EX-06 |
-| UAT-03 | A | Preliminary observations recorded. Formal result pending. | Exploratory: EX-02 |
-| UAT-05 | A | Preliminary observations recorded. Formal result pending. | Exploratory: EX-02, EX-03, EX-07 |
+| UAT-01 | A | Core flow passed (AI-executed); full-case verdict pending. | Exploratory: EX-01, EX-04, EX-05, EX-06 |
+| UAT-03 | A | PASS (AI-executed); evidence review pending. | Exploratory: EX-02 |
+| UAT-05 | A | PASS (AI-executed); evidence review pending. | Exploratory: EX-02, EX-03, EX-07 |
 | UAT-02 | B | PASS | none (side note: EX-13) |
 | UAT-04 | B | PASS | none |
 | UAT-06 | B | PASS | none |
