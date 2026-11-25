@@ -16,7 +16,7 @@ We are the **UAT Team** for team **Est** (EN-033), product "Campus Café Pre-ord
 
 **Method.** Est's handoff asks for manual Chrome or Edge testing with a separate private window per account. Record actual behavior, local time (UTC+7) and screenshot IDs (`E-B<case>-<n>`). For rejected operations, record the rejection and check that the protected data stayed unchanged and was not shown.
 
-A assigned UAT-01, UAT-03 and UAT-05 to Codex Computer Use and owns the resulting case records. Computer Use performed the browser actions on the live site, signing out between accounts in a shared tab. Outcomes below refer to this AI-executed run. The run differs from Est's requested separate private windows. Screenshots and teammate cross-check of the supplied cases remain pending.
+A ran UAT-01, UAT-03 and UAT-05 by hand on 2026-11-25 22:23 to 22:33 in the built-in browser pane of the Claude desktop app, one tab, signing out between accounts. A signed in and pressed every control; Claude Code only took the screenshots when A asked and noted the URL and time, so each row gives them (the images are page-only, 1280 × 800 viewport scaled to 800 px). An earlier run of the same cases by Codex Computer Use on A's instruction is kept only where a step was not repeated by hand, and is labelled as such.
 
 B ran UAT-02, UAT-04 and UAT-06 partly by hand in Chrome and partly with Claude Code using agent-browser (headless Chromium, one browser session per account). The recorded actual results, times and screenshots below come from the agent-browser run. Those screenshots are page-only, so each row gives the URL and local time.
 
@@ -80,38 +80,38 @@ Fill in one block per case. Result is PASS, FAIL or BLOCKED (with the reason; BL
 
 | Field | Value |
 |---|---|
-| Tester / date and time | Kirakit Kingkaew, EN-009_P3 (case owner); executed by Codex Computer Use on A's instruction / 2026-11-25, 20:30 (order time shown by the app) |
+| Tester / date and time | Kirakit Kingkaew, EN-009_P3, manual / 2026-11-25, 22:23 to 22:27 |
 | Version | `b71cdb2` |
 | Inputs | CUSTOMER-A, OPERATOR; Latte ×2, Americano ×1 |
-| Order number | #3 |
-| Actual result (per step) | 1: CUSTOMER-A landed on `/menu` with the customer header.<br>2–3: Added Latte ×2 and Americano ×1. Cart showed two lines and ฿185.00 total.<br>4: `/orders/3` displayed `Order #3 placed!`, `PLACED` and the waiting message. Unit prices were ฿65.00 and ฿55.00, total ฿185.00.<br>5: OPERATOR saw #3 in the New orders queue with the same items and total.<br>6: The queue displayed `Order #3 accepted.` and removed the card. The transient `Accepting…` label was not captured.<br>7: CUSTOMER-A reopened #3 and saw `ACCEPTED`, the accepted message and the unchanged ฿185.00 total. |
-| Result | Core order flow passed in the AI-executed run. Full-case verdict pending because the transient `Accepting…` state was not captured. |
-| Evidence | Screenshots pending: E-B01-1 (order placed page), E-B01-2 (operator accepts), E-B01-3 (customer sees ACCEPTED) |
-| Checked by | B pending |
+| Order number | #11 |
+| Actual result (per step) | 1–3: Signed in as CUSTOMER-A, added Latte twice and Americano once, pressed **Place order →**.<br>4: 22:23:30, `/orders/11`: `Order #11 placed!`, Latte ฿65.00 × 2 = ฿130.00, Americano ฿55.00 × 1 = ฿55.00, Total ฿185.00, `PLACED`, `Waiting for the café to accept your order.`<br>5: 22:24:31, OPERATOR on `/operator/orders`: `New orders 5`; row #11 Alice, Latte ×2, Americano ×1, ฿185.00, **Accept order**.<br>6: 22:24:56: `Order #11 accepted.`, `New orders 4`, #11 no longer in the queue. The transient `Accepting…` label was not captured.<br>7: 22:27:33, CUSTOMER-A on `/orders/11`: `ACCEPTED`, `Accepted — being prepared soon.`, Total ฿185.00, timeline Placed 22:23, Accepted 22:24. |
+| Result | PASS. `Accepting…` shows only while the request is in flight; the step's outcome was observed. |
+| Evidence | [E-B01-1](evidence/l6-03/E-B01-1-order-11-placed.jpg) order placed, [E-B01-2a](evidence/l6-03/E-B01-2a-queue-shows-11.jpg) queue before accept, [E-B01-2](evidence/l6-03/E-B01-2-order-11-accepted.jpg) accepted, [E-B01-3](evidence/l6-03/E-B01-3-order-11-accepted-customer.jpg) customer sees ACCEPTED |
+| Checked by | B |
 
 ### UAT-03 Wrong role and another customer's order
 
 | Field | Value |
 |---|---|
-| Tester / date and time | Kirakit Kingkaew, EN-009_P3 (case owner); executed by Codex Computer Use on A's instruction / 2026-11-25 (exact test time not recorded) |
+| Tester / date and time | Kirakit Kingkaew, EN-009_P3, manual / 2026-11-25, 22:25 to 22:31 (steps 4 and 3 from the earlier AI-executed run, see below) |
 | Version | `b71cdb2` |
-| Inputs | CUSTOMER-A, CUSTOMER-B, OPERATOR; order #3 from UAT-01; `/orders/99999` |
-| Actual result (per step) | 1: CUSTOMER-A was redirected from `/operator/orders` to `/menu` with the access warning. No queue was shown.<br>2–3: CUSTOMER-B saw `Order not found.` for both #3 and #99999. No order lines or total from #3 were shown.<br>4: Opening `/menu` while signed out redirected to `/login`.<br>5: OPERATOR was redirected from `/menu` to `/operator/orders` with the access warning. No customer menu was shown.<br>6: CUSTOMER-A reopened #3 and saw the same `ACCEPTED` status and ฿185.00 total. |
-| Result | PASS for the observed AI-executed access checks. Screenshots and teammate review remain pending. |
-| Evidence | Screenshots pending: E-B03-1 (customer on `/operator/orders` refused), E-B03-2 (CUSTOMER-B on `/orders/3`: no Alice data), E-B03-4 (OPERATOR on `/menu` refused), E-B03-3 (order #3 unchanged afterwards) |
-| Checked by | B pending |
+| Inputs | CUSTOMER-A, CUSTOMER-B, OPERATOR; order #11 from UAT-01 |
+| Actual result (per step) | 1: 22:28:19, CUSTOMER-A typed `/operator/orders`: landed on `/menu` with `You don't have access to that page.`; the menu was shown, no queue.<br>2: 22:29:34, CUSTOMER-B typed `/orders/11`: `Order not found.` and `Back to my orders`; no lines, total or name of Alice; Bob's list said `No orders yet.`<br>3: `/orders/99999` was not re-run manually. Earlier AI-executed run (Codex Computer Use on A's instruction, 2026-11-25): `Order not found.` for #99999.<br>4: Signed-out `/menu` was not re-run manually. Earlier AI-executed run: redirected to `/login`.<br>5: 22:25:42, OPERATOR typed `/menu`: landed on `/operator/orders` with `You don't have access to that page.`; the queue was shown, no menu.<br>6: 22:30:59, CUSTOMER-A on `/orders/11`: still `ACCEPTED`, ฿185.00, Accepted 22:24, the same as in UAT-01. |
+| Result | PASS |
+| Evidence | [E-B03-1](evidence/l6-03/E-B03-1-customer-queue-refused.jpg) customer refused, [E-B03-2](evidence/l6-03/E-B03-2-bob-order-11-not-found.jpg) CUSTOMER-B sees no Alice data, [E-B03-4](evidence/l6-03/E-B03-4-operator-menu-refused.jpg) operator refused, [E-B03-3](evidence/l6-03/E-B03-3-order-11-unchanged.jpg) order #11 unchanged |
+| Checked by | B |
 
 ### UAT-05 Wrong password and log out
 
 | Field | Value |
 |---|---|
-| Tester / date and time | Kirakit Kingkaew, EN-009_P3 (case owner); executed by Codex Computer Use on A's instruction / 2026-11-25 (exact test time not recorded) |
+| Tester / date and time | Kirakit Kingkaew, EN-009_P3, manual / 2026-11-25, 22:31 to 22:33 |
 | Version | `b71cdb2` |
 | Inputs | CUSTOMER-A; wrong password `wrong-password-1` |
-| Actual result (per step) | 1: Wrong password showed `Incorrect email or password.` and cleared the password input. The subsequent login succeeded without re-entering the email.<br>2: Correct password opened `/menu`.<br>3: Log out returned to `/login`.<br>4: In the follow-up run after viewing order #4, Back and reload stayed on `/login` without showing order details. A separate direct visit to `/orders` while signed out also returned to `/login`. |
-| Result | PASS for the observed AI-executed sign-in and logout checks. Screenshots and teammate review remain pending. |
-| Evidence | Screenshots pending: E-B05-1 (wrong-password message), E-B05-2 (after logout, Back and `/orders` end on `/login`) |
-| Checked by | B pending |
+| Actual result (per step) | 1: 22:31:52: `Incorrect email or password.`; the password field was empty; the email field still held `alice@cafe.test`.<br>2: The correct password opened the app as Alice.<br>3: **Log out** returned to `/login`.<br>4: 22:32:36, after **Back** and reload: still `/login` with an empty Sign in form; no menu or order data. Typing `/orders` while signed out was not re-run manually; the earlier AI-executed run returned to `/login`. |
+| Result | PASS |
+| Evidence | [E-B05-1](evidence/l6-03/E-B05-1-wrong-password.jpg) wrong-password message, [E-B05-2](evidence/l6-03/E-B05-2-after-logout-back-reload.jpg) after logout, Back and reload |
+| Checked by | B |
 
 ### UAT-02 Quantity limit and sold-out item
 
@@ -156,9 +156,9 @@ Fill in one block per case. Result is PASS, FAIL or BLOCKED (with the reason; BL
 
 | Case | Tester | Result | Finding (sheet row / Issue) |
 |---|---|---|---|
-| UAT-01 | A | Core flow passed (AI-executed); full-case verdict pending. | Exploratory: EX-01, EX-04, EX-05, EX-06 |
-| UAT-03 | A | PASS (AI-executed); evidence review pending. | Exploratory: EX-02 |
-| UAT-05 | A | PASS (AI-executed); evidence review pending. | Exploratory: EX-02, EX-03, EX-07 |
+| UAT-01 | A | PASS (manual) | Exploratory: EX-01, EX-04, EX-05, EX-06 |
+| UAT-03 | A | PASS (manual; steps 3 and 4 from the AI-executed run) | Exploratory: EX-02 |
+| UAT-05 | A | PASS (manual) | Exploratory: EX-02, EX-03, EX-07 |
 | UAT-02 | B | PASS | none (side note: EX-13) |
 | UAT-04 | B | PASS | none |
 | UAT-06 | B | PASS | none |
