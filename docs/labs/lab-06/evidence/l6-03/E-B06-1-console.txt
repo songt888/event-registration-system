@@ -1,0 +1,5 @@
+UAT-06, CUSTOMER-A, 2026-11-25 21:13:55 (UTC+7), b71cdb2, LATTE_ID=1, page /menu console
+step1 body {items:[{menuItemId:1,quantity:1,unitPrice:1}]}
+ -> 400 {"error":{"code":"VALIDATION_ERROR","message":"Invalid request.","details":[{"code":"unrecognized_keys","keys":["unitPrice"],"path":["items",0],"message":"Unrecognized key: \"unitPrice\""}]}}
+step2 body {total:1,items:[{menuItemId:1,quantity:1}]}
+ -> 400 {"error":{"code":"VALIDATION_ERROR","message":"Invalid request.","details":[{"code":"unrecognized_keys","keys":["total"],"path":[],"message":"Unrecognized key: \"total\""}]}}

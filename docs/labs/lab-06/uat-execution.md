@@ -82,39 +82,39 @@ Fill in one block per case. Result is PASS, FAIL or BLOCKED (with the reason; BL
 
 | Field | Value |
 |---|---|
-| Tester / date and time | Nattakit Prasertsak, EN-009_P3 / |
+| Tester / date and time | Nattakit Prasertsak, EN-009_P3 (case owner); Claude Code agent-browser / 2026-11-25, 21:11:17 to 21:12:06 |
 | Version | `b71cdb2` |
 | Inputs | CUSTOMER-A; Thai Milk Tea ×10, try ×11; Croissant |
-| K before / order number | K = ; # |
-| Actual result (per step) | 1–2: <br>3: <br>4: <br>5: <br>6: |
-| Result | |
-| Evidence | E-B02-1 (stepper stops at 10), E-B02-2 (total ฿500.00), E-B02-3 (Croissant sold out, add disabled), E-B02-4 (My orders count K + 1) |
+| K before / order number | K = 3 (#4, #3, #2); #5 |
+| Actual result (per step) | 1–2: Added Thai Milk Tea, raised it with the stepper to 10. At 10 the **More** button was disabled; typing 11 in the box left 10; the menu **+** on Thai Milk Tea stayed enabled but the quantity stayed 10. Estimated total ฿500.00.<br>3: Placed at 21:11:53; `/orders/5` showed `Order #5 placed!`, Thai Milk Tea ฿50.00 × 10, total ฿500.00, `PLACED`.<br>4: Croissant greyed with a `Sold out` badge.<br>5: **Add Croissant** was disabled; the click did not reach it and the cart stayed empty.<br>6: My orders listed 4 orders = K + 1 (#5, #4, #3, #2). Lines: #5 Thai Milk Tea ×10; #4 Latte ×1, Americano ×1; #3 Latte ×2, Americano ×1; #2 Thai Milk Tea ×1, Basil Chicken Rice ×2. None has Croissant. |
+| Result | PASS |
+| Evidence | E-B02-0 (K before), E-B02-1 (stepper stops at 10), E-B02-2 (total ฿500.00, `/orders/5`), E-B02-3 (Croissant sold out, add disabled), E-B02-4 (My orders count K + 1), in `evidence/l6-03/` |
 | Checked by | A |
 
 ### UAT-04 Persistence and double accept
 
 | Field | Value |
 |---|---|
-| Tester / date and time | Nattakit Prasertsak, EN-009_P3 / |
+| Tester / date and time | Nattakit Prasertsak, EN-009_P3 (case owner); Claude Code agent-browser / 2026-11-25, 21:12:20 to 21:13:36 |
 | Version | `b71cdb2` |
-| Inputs | CUSTOMER-A new order Thai Milk Tea ×1; OPERATOR in two windows |
-| Order number | #P = |
-| Actual result (per step) | 2: <br>4: <br>5: <br>6: |
-| Result | |
-| Evidence | E-B04-1 (order listed after a new session), E-B04-2 (second accept refused), E-B04-3 (customer sees ACCEPTED, ฿50.00) |
+| Inputs | CUSTOMER-A new order Thai Milk Tea ×1; OPERATOR in two browser sessions |
+| Order number | #P = 6 (placed 21:12:20, ฿50.00, `PLACED`) |
+| Actual result (per step) | 1: Logged out, closed the browser, opened a new browser and logged in again as CUSTOMER-A.<br>2: My orders row `#6 21:12 · 1 item PLACED ฿50.00`; `/orders/6` showed Thai Milk Tea ฿50.00 × 1, total ฿50.00.<br>3: Both operator sessions listed #1 (Smoke Test), #5 and #6.<br>4: Window 1 pressed **Accept order** on #6 at 21:13:28: `Order #6 accepted.` and the card was gone.<br>5: Window 2 (not reloaded, still showing #6) pressed **Accept order**: `Order #6: Already accepted by another staff member.`; the list reloaded and showed only #1 and #5.<br>6: CUSTOMER-A opened `/orders/6`: `ACCEPTED`, total ฿50.00, hint `Accepted — being prepared soon.`, timeline `Accepted 21:13`. |
+| Result | PASS |
+| Evidence | E-B04-1 (order listed after a new session), E-B04-2a (window 1 accepted), E-B04-2 (second accept refused), E-B04-3 (customer sees ACCEPTED, ฿50.00), in `evidence/l6-03/` |
 | Checked by | A |
 
 ### UAT-06 Tampered price or total (API, optional)
 
 | Field | Value |
 |---|---|
-| Tester / date and time | Nattakit Prasertsak, EN-009_P3 / |
+| Tester / date and time | Nattakit Prasertsak, EN-009_P3 (case owner); Claude Code agent-browser / 2026-11-25, 21:13:46 to 21:14:03 |
 | Version | `b71cdb2` |
-| Inputs | CUSTOMER-A; `LATTE_ID` from `/api/menu`; bodies with `unitPrice: 1` and with `total: 1` |
-| K before | K = |
-| Actual result (per step) | 1: <br>2: <br>3: |
-| Result | |
-| Evidence | E-B06-1 (console: both responses), E-B06-2 (My orders still K) |
+| Inputs | CUSTOMER-A; `LATTE_ID` = 1 from `/api/menu`; bodies with `unitPrice: 1` and with `total: 1` |
+| K before | K = 5 |
+| Actual result (per step) | 1: `unitPrice: 1` body: status 400, `error.code` `VALIDATION_ERROR`, details `Unrecognized key: "unitPrice"` at `items[0]`.<br>2: `total: 1` body: status 400, `error.code` `VALIDATION_ERROR`, details `Unrecognized key: "total"`.<br>3: My orders still listed 5 orders = K. |
+| Result | PASS |
+| Evidence | E-B06-0 (K before), E-B06-1 (console output of both responses, text file), E-B06-2 (My orders still K), in `evidence/l6-03/` |
 | Checked by | A |
 
 ## Summary
@@ -124,9 +124,9 @@ Fill in one block per case. Result is PASS, FAIL or BLOCKED (with the reason; BL
 | UAT-01 | A | Preliminary observations recorded. Formal result pending. | Exploratory: EX-01, EX-04, EX-05, EX-06 |
 | UAT-03 | A | Preliminary observations recorded. Formal result pending. | Exploratory: EX-02 |
 | UAT-05 | A | Preliminary observations recorded. Formal result pending. | Exploratory: EX-02, EX-03, EX-07 |
-| UAT-02 | B | | |
-| UAT-04 | B | | |
-| UAT-06 | B | | |
+| UAT-02 | B | PASS | none (side note: EX-13) |
+| UAT-04 | B | PASS | none |
+| UAT-06 | B | PASS | none |
 
 ## Exploratory findings for cross-check
 
@@ -143,6 +143,33 @@ Codex Computer Use reproduced these seven behaviors on the deployed demo site. S
 | EX-07 | UAT-05 | Submit with an empty or malformed email. Correct it and press Tab. The original error remains and the input still has `aria-invalid="true"`. | Clear or update the stale error after correction. This is a UX finding. The specification does not say when to clear validation errors. |
 
 EX-03 and EX-05 were checked through browser accessibility information and page structure. Screen-reader playback was not tested. See Est's [Sprint 1 UI specification](https://github.com/vienggd/Food-order/blob/lab6/docs/sprint_1/ui/ui-spec.md) for the expected mobile header and Cart badge behavior.
+
+**B's cross-check of EX-01 to EX-07** (Claude Code agent-browser, 2026-11-25, 21:54:49 to 21:55:47, CUSTOMER-A and OPERATOR, no orders placed): all seven reproduced.
+
+| ID | B's actual result | Evidence |
+|---|---|---|
+| EX-01 | At 320 px, **Cart** tab opened `/menu#cart`; one Tab moved focus to the `My orders` link, outside the cart. | X-EX01 |
+| EX-02 | CUSTOMER-A opened `/operator/orders`, landed on `/menu` with the warning, pressed **Log out**: `/login` still showed `You don't have access to that page.` Same family as EX-09 below. | X-EX02 |
+| EX-03 | Empty Sign in: both inputs `aria-invalid="true"`, no `aria-describedby`; the two `.field-error` messages have no role and no live region. | X-EX03 |
+| EX-04 | Latte added twice: 1 cart line, tab reads `Cart (2)`. ui-spec line 62: "Cart ... with the number of cart lines". The desktop sidebar count does the same (`Menu 10` for one line of 10 in E-B02-1). | X-EX04 |
+| EX-05 | At 1440 px the queue header row has `aria-hidden="true"`; the queue is a `UL`; no `table` or `role=table` on the page. | X-EX05 |
+| EX-06 | Phone top bar text: `Hey, Alice / CUSTOMER / Log out`; no brand. ui-spec line 62 lists the brand in the phone top bar. | (text check) |
+| EX-07 | `alice@` submitted: `Enter a valid email.`, `aria-invalid="true"`; corrected to `alice@cafe.test` and pressed Tab: the same error and `aria-invalid="true"` stayed. | X-EX07 |
+
+**B's exploratory findings** (Claude Code agent-browser and a review of Est's public source at `b71cdb2`, 2026-11-25, 21:07 to 21:22). Sent to Est as a PDF report with IDs F1 to F6; the F ID is kept for their triage.
+
+| ID | Report ID | Steps and actual result | Expected | Proposed severity |
+|---|---|---|---|---|
+| EX-08 | F1 | As CUSTOMER-A, `GET /api/orders/0x2`, `2e0`, `2.0`, `+2`, `0b10`, `0o2`, `%202` each gave 200 with order #2 (`abc` gave 400). As OPERATOR, accept `0x2` and `2e0` on accepted #2 gave 409, `abc` gave 400. Cause: `server/src/ids.ts:5` `z.coerce.number()`. | AC-F03-08 and AC-F04-08: a malformed id gives 400 `VALIDATION_ERROR`. | minor |
+| EX-09 | F5 | As CUSTOMER-A, open `/operator/orders` (warning on `/menu`), then add Latte and place order #9: `/orders/9` shows `You don't have access to that page.` next to `Order #9 placed!`. Report this together with EX-02 as one Issue. | The warning is for one redirect only. | minor |
+| EX-10 | F2 | 375 × 812 with any item in the cart, scrolled to the bottom: the fixed cart bar (y 676 to 728) covers Basil Chicken Rice's name, price and **+** (y 657 to 701); only a 19 px strip of **+** is tappable. | Every available item can be seen and added (AC-F02-06, F-03 add). | major |
+| EX-11 | F3 | Place #8: `Order #8 placed!` stays after a page reload, and after OPERATOR accepts #8 and the customer presses **Refresh status** it shows above `ACCEPTED`. | The success message is not shown again on reload or above a later status. | minor |
+| EX-12 | F4 | Desktop, same screen: after **Refresh status** the detail shows #8 `ACCEPTED`, the list still shows #8 `PLACED`. | One status per order on one screen. | minor |
+| EX-13 | F6 | Sign in with `a..b@cafe.test` (passes the page's email check) or a 201-character password: server 400, page shows `Something went wrong. Please try again.` | ui-spec error table: a 400 shows `error.message` in the error box. | minor |
+
+Side note (not a finding): on the menu, **+** for an item already at 10 stays enabled and does nothing; AC-F03-12 only requires the quantity not to pass 10.
+
+Evidence for this section: `evidence/l6-03/` (X-EX01 to X-EX07) and `evidence/l6-03-explore/` (F1 to F6 screenshots).
 
 ## Reporting a failure (feeds L6-04 #123)
 
