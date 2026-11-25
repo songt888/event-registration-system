@@ -18,7 +18,7 @@ We are the **UAT Team** for team **Est** (EN-033), product "Campus Café Pre-ord
 
 A's UAT-01, UAT-03 and UAT-05 observations below come from Codex Computer Use on the live site, with explicit sign-out between accounts in a shared browser tab. They are preliminary. A's manual run in separate private windows, screenshots and B's cross-check remain pending.
 
-B reported running UAT-02, UAT-04 and UAT-06 both manually in Chrome and with Claude Code using agent-browser (headless Chromium, one browser session per account). The agent-browser screenshots are page-only, so B will include URL and local time in the result rows.
+B ran UAT-02, UAT-04 and UAT-06 partly by hand in Chrome and partly with Claude Code using agent-browser (headless Chromium, one browser session per account). The recorded actual results, times and screenshots below come from the agent-browser run. Those screenshots are page-only, so each row gives the URL and local time.
 
 ## Who runs what
 
