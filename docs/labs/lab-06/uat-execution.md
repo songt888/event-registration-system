@@ -123,7 +123,7 @@ Fill in one block per case. Result is PASS, FAIL or BLOCKED (with the reason; BL
 | K before / order number | K = 3 (#4, #3, #2); #5 |
 | Actual result (per step) | 1–2: Added Thai Milk Tea, raised it with the stepper to 10. At 10 the **More** button was disabled; typing 11 in the box left 10; the menu **+** on Thai Milk Tea stayed enabled but the quantity stayed 10. Estimated total ฿500.00.<br>3: Placed at 21:11:53; `/orders/5` showed `Order #5 placed!`, Thai Milk Tea ฿50.00 × 10, total ฿500.00, `PLACED`.<br>4: Croissant greyed with a `Sold out` badge.<br>5: **Add Croissant** was disabled; the click did not reach it and the cart stayed empty.<br>6: My orders listed 4 orders = K + 1 (#5, #4, #3, #2). Lines: #5 Thai Milk Tea ×10; #4 Latte ×1, Americano ×1; #3 Latte ×2, Americano ×1; #2 Thai Milk Tea ×1, Basil Chicken Rice ×2. None has Croissant. |
 | Result | PASS |
-| Evidence | E-B02-0 (K before), E-B02-1 (stepper stops at 10), E-B02-2 (total ฿500.00, `/orders/5`), E-B02-3 (Croissant sold out, add disabled), E-B02-4 (My orders count K + 1), in `evidence/l6-03/` |
+| Evidence | [E-B02-0](evidence/l6-03/E-B02-0-k-before.png) K before, [E-B02-1](evidence/l6-03/E-B02-1-stepper-stops-at-10.png) stepper stops at 10, [E-B02-2](evidence/l6-03/E-B02-2-order-500.png) order #5, ฿500.00, [E-B02-3](evidence/l6-03/E-B02-3-croissant-sold-out.png) Croissant sold out, add disabled, [E-B02-4](evidence/l6-03/E-B02-4-orders-k-plus-1.png) My orders count K + 1 |
 | Checked by | A |
 
 ### UAT-04 Persistence and double accept
@@ -136,7 +136,7 @@ Fill in one block per case. Result is PASS, FAIL or BLOCKED (with the reason; BL
 | Order number | #P = 6 (placed 21:12:20, ฿50.00, `PLACED`) |
 | Actual result (per step) | 1: Logged out, closed the browser, opened a new browser and logged in again as CUSTOMER-A.<br>2: My orders row `#6 21:12 · 1 item PLACED ฿50.00`; `/orders/6` showed Thai Milk Tea ฿50.00 × 1, total ฿50.00.<br>3: Both operator sessions listed #1 (Smoke Test), #5 and #6.<br>4: Window 1 pressed **Accept order** on #6 at 21:13:28: `Order #6 accepted.` and the card was gone.<br>5: Window 2 (not reloaded, still showing #6) pressed **Accept order**: `Order #6: Already accepted by another staff member.`; the list reloaded and showed only #1 and #5.<br>6: CUSTOMER-A opened `/orders/6`: `ACCEPTED`, total ฿50.00, hint `Accepted — being prepared soon.`, timeline `Accepted 21:13`. |
 | Result | PASS |
-| Evidence | E-B04-1 (order listed after a new session), E-B04-2a (window 1 accepted), E-B04-2 (second accept refused), E-B04-3 (customer sees ACCEPTED, ฿50.00), in `evidence/l6-03/` |
+| Evidence | [E-B04-1](evidence/l6-03/E-B04-1-listed-after-new-session.png) order listed after a new session, [E-B04-2a](evidence/l6-03/E-B04-2a-window1-accepted.png) window 1 accepted, [E-B04-2](evidence/l6-03/E-B04-2-second-accept-refused.png) second accept refused, [E-B04-3](evidence/l6-03/E-B04-3-customer-sees-accepted.png) customer sees ACCEPTED, ฿50.00 |
 | Checked by | A |
 
 ### UAT-06 Tampered price or total (API, optional)
@@ -149,7 +149,7 @@ Fill in one block per case. Result is PASS, FAIL or BLOCKED (with the reason; BL
 | K before | K = 5 |
 | Actual result (per step) | 1: `unitPrice: 1` body: status 400, `error.code` `VALIDATION_ERROR`, details `Unrecognized key: "unitPrice"` at `items[0]`.<br>2: `total: 1` body: status 400, `error.code` `VALIDATION_ERROR`, details `Unrecognized key: "total"`.<br>3: My orders still listed 5 orders = K. |
 | Result | PASS |
-| Evidence | E-B06-0 (K before), E-B06-1 (console output of both responses, text file), E-B06-2 (My orders still K), in `evidence/l6-03/` |
+| Evidence | [E-B06-0](evidence/l6-03/E-B06-0-k-before.png) K before, [E-B06-1](evidence/l6-03/E-B06-1-console.txt) console output of both responses (text), [E-B06-2](evidence/l6-03/E-B06-2-orders-still-k.png) My orders still K |
 | Checked by | A |
 
 ## Summary
@@ -159,7 +159,7 @@ Fill in one block per case. Result is PASS, FAIL or BLOCKED (with the reason; BL
 | UAT-01 | A | PASS (manual) | Exploratory: EX-01, EX-04, EX-05, EX-06 |
 | UAT-03 | A | PASS (manual; steps 3 and 4 from the AI-executed run) | Exploratory: EX-02 |
 | UAT-05 | A | PASS (manual) | Exploratory: EX-02, EX-03, EX-07 |
-| UAT-02 | B | PASS | none (side note: EX-13) |
+| UAT-02 | B | PASS | none |
 | UAT-04 | B | PASS | none |
 | UAT-06 | B | PASS | none |
 
