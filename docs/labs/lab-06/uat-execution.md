@@ -61,7 +61,16 @@ UAT-06 is optional and checks two inputs under `AC-F03-05`. The browser redirect
 | COV-03 | `AC-F03-12`, `AC-F03-13` and the empty-cart UI | At phone width, check the Menu, Cart, My orders tab order. Add one item, try the quantity boundaries 1 and 10, then remove the final line. Expect the quantity to stay in range and Place order to be disabled when the cart is empty. |
 | COV-04 | `AC-F04-01`, `AC-F04-02`, `AC-F04-11` | Ask Est for an isolated fixture with two PLACED orders from different demo customers and one ACCEPTED order. Expect the queue count to be two and only the PLACED orders to show, oldest first. Accept only the fixture orders and check the empty state. |
 
-These are proposed coverage additions. Findings from earlier exploratory runs are recorded separately, even where they overlap with a proposed case.
+These cases were proposed from the coverage review. The checks below record overlap with earlier Computer Use sessions on Est's deployed demo site. They do not claim a new run of the whole proposed case or a manual student run.
+
+| Case | Observed in earlier Computer Use sessions | Still pending |
+|---|---|---|
+| COV-01 | An unknown demo email and a known email with a wrong password both showed `Incorrect email or password.` Blank and malformed emails showed the field-specific validation messages. | Student verification and share with Est. |
+| COV-02 | The six visible menu items matched Est's handoff prices. Croissant showed `Sold out` and its Add button was disabled. | Connection-loss and Reload menu recovery on an isolated browser session. |
+| COV-03 | Phone navigation showed Menu, Cart, My orders in order. The quantity checks stayed within 1–10 and removing the last line disabled Place order. These observations came from separate checks. | A single end-to-end manual run and share with Est. |
+| COV-04 | The live queue showed existing orders oldest first. In a separate check, A's test order #7 left the queue after acceptance and appeared as ACCEPTED in My orders. | The isolated two-customer fixture, exclusion of its pre-existing ACCEPTED order and the empty-queue check. Coordinate the fixture with Est. |
+
+COV-01 to COV-04 have not been sent to Est. The findings below remain the record of defects and observations from exploratory testing.
 
 ## Results
 
