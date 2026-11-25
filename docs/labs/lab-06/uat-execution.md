@@ -120,3 +120,54 @@ Fill in one block per case. Result is PASS, FAIL or BLOCKED (with the reason; BL
 | UAT-02 | B | | |
 | UAT-04 | B | | |
 | UAT-06 | B | | |
+
+## Reporting a failure (feeds L6-04 #123)
+
+Est's handoff lets us open the Issue ourselves on their public repo: "You may open it yourselves instead (label `lab6`); then put the link in the sheet."
+
+1. The tester sends the failing case, step, actual result, time and screenshot to A (or B).
+2. We write the Issue from the template below and both of us read it before it is posted.
+3. Post it at https://github.com/vienggd/Food-order/issues. We are not collaborators there, so GitHub drops labels we set; the body asks Est to add `lab6`.
+4. Put the Issue link in Est's shared sheet and the summary table above, add a row to the outgoing table below, and tell Est on Discord.
+5. Record Est's triage answer (defect, duplicate, not a defect, enhancement) and reason in the outgoing table when it arrives.
+
+Never put a password, token or personal email in an Issue or screenshot.
+
+### Issue template
+
+```markdown
+Title: UAT finding: <short summary> (UAT-0X step N)
+
+**Reporter:** <name>, UAT Team EN-009_P3 (testing team Est's Sprint 1 release)
+**Product team:** Est (EN-033)
+**Tested version:** commit `b71cdb2`, https://food-order-d4jdyxqbca-as.a.run.app
+**Tested at:** <YYYY-MM-DD HH:MM> (UTC+7)
+**Case / requirement:** UAT-0X step N; <AC / FR / BR from their uat-cases.md>
+**Defect or feature request:** defect against specified behavior (<contract file and AC>) | feature request
+
+**Preconditions and data**
+- Account: <CUSTOMER-A / CUSTOMER-B / OPERATOR> (label only)
+- Data: <order number, items, K>
+
+**Steps to reproduce**
+1. …
+2. …
+
+**Expected** (from <uat-cases.md / contract>)
+…
+
+**Actual**
+…
+
+**Severity:** <critical / major / minor>, because <user impact: who is affected and what they cannot do or what wrong data they get>
+
+**Evidence:** <screenshot, evidence ID E-B0X-n>
+
+Please add the label `lab6` (we cannot set labels on your repo) and reply with your triage decision.
+```
+
+## Outgoing reports (L6-04 #123)
+
+| Our ID | Est Issue | Case and step | Summary | Severity | Reporter | Sent (date, channel) | Est's decision and reason |
+|---|---|---|---|---|---|---|---|
+| | | | _none yet_ | | | | |
