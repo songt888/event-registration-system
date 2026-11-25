@@ -16,6 +16,8 @@ We are the **UAT Team** for team **Est** (EN-033), product "Campus Café Pre-ord
 
 **Method.** Manual tests in Chrome, one private window per account, as their handoff asks. Each tester writes what they actually saw, never the expected text. Every outcome has a screenshot with an evidence ID (`E-B<case>-<n>`). For rejected operations we show the rejection and that the protected data did not change or leak. Times are local (UTC+7).
 
+UAT-02, UAT-04 and UAT-06 (B) were run by Claude Code using agent-browser (headless Chromium, one browser session per account) on B's instruction; screenshots are page-only, so URL and time are written in each row. A's cases (UAT-01, UAT-03, UAT-05) are manual.
+
 ## Who runs what
 
 Their cases share accounts and depend on earlier orders (UAT-03 uses UAT-01's order; UAT-02 and UAT-06 count CUSTOMER-A's orders). So **A and B do not run at the same time**: A runs first, then B, and B notes `K` right before UAT-02 and UAT-06.
