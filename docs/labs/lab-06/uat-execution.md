@@ -37,6 +37,32 @@ This order differs from Est's handoff (UAT-01 → 06). It is safe: no case needs
 
 Their four required categories are covered: normal (UAT-01), business rule/boundary (UAT-02), forbidden role/ownership (UAT-03), state/persistence (UAT-04).
 
+## Coverage review of Est's supplied cases
+
+We compared Est's [UAT-01 to UAT-06](https://github.com/vienggd/Food-order/blob/e1057b7cdddb6d2c120d83d61d22a3868d2c24d6/docs/labs/lab-06/uat-cases.md) with the Sprint 1 acceptance criteria. The six cases address the four required categories. The table checks what the supplied cases are designed to cover. It does not record execution results or give coverage credit for the exploratory findings below.
+
+Direct means a supplied case explicitly checks the acceptance behavior. Partial means the case checks only part of the criterion, typically the browser behavior without demonstrating the specified API, database or concurrency behavior. In each row, the numeric suffixes use that feature's AC prefix, for example 13 in F-01 means `AC-F01-13`.
+
+| Feature | Supplied cases | Direct ACs | Partial ACs | ACs not explicitly exercised |
+|---|---|---|---|---|
+| [F-01 Login and logout](https://github.com/vienggd/Food-order/blob/e1057b7cdddb6d2c120d83d61d22a3868d2c24d6/docs/sprint_1/sprints/sprint-1/F-01-auth.md) | UAT-01, 03, 05 | 13, 14 | 01, 02, 09, 10, 12 | 03–08, 11 |
+| [F-02 Menu](https://github.com/vienggd/Food-order/blob/e1057b7cdddb6d2c120d83d61d22a3868d2c24d6/docs/sprint_1/sprints/sprint-1/F-02-menu.md) | UAT-01, 02, 03 | None in full | 01–04, 06 | 05, 07 |
+| [F-03 Orders](https://github.com/vienggd/Food-order/blob/e1057b7cdddb6d2c120d83d61d22a3868d2c24d6/docs/sprint_1/sprints/sprint-1/F-03-orders.md) | UAT-01 to 06 | 10 | 01, 02, 04, 05, 07–09, 12 | 03, 06, 11, 13 |
+| [F-04 Operator queue and accept](https://github.com/vienggd/Food-order/blob/e1057b7cdddb6d2c120d83d61d22a3868d2c24d6/docs/sprint_1/sprints/sprint-1/F-04-accept.md) | UAT-01, 03, 04 | 12, 13 | 01, 04, 05, 09, 11 | 02, 03, 06–08, 10 |
+
+UAT-06 is optional and checks two inputs under `AC-F03-05`. The browser redirects in UAT-03 and UAT-05 do not establish the API status codes. UAT-04's two-window acceptance check does not cover the parallel-load requirement in `AC-F04-07`.
+
+### Additional cases proposed for Est
+
+| Case | Coverage gap | Steps and expected behavior |
+|---|---|---|
+| COV-01 | `AC-F01-03`, `AC-F01-04` and the Sign in error states | Compare an unknown demo email to a known demo email with a wrong password. Expect the same generic error. Then submit with a blank or malformed email and check the field-specific validation text. This browser check does not verify the API response. |
+| COV-02 | `AC-F02-06`, `AC-F02-07` | Compare every seeded menu item's name, price and availability to Est's fixture. Check that sold-out items cannot be added. On an isolated browser test, interrupt the connection, open Menu, restore the connection and use Reload menu. Expect the error state and then the restored menu. |
+| COV-03 | `AC-F03-12`, `AC-F03-13` and the empty-cart UI | At phone width, check the Menu, Cart, My orders tab order. Add one item, try the quantity boundaries 1 and 10, then remove the final line. Expect the quantity to stay in range and Place order to be disabled when the cart is empty. |
+| COV-04 | `AC-F04-01`, `AC-F04-02`, `AC-F04-11` | Ask Est for an isolated fixture with two PLACED orders from different demo customers and one ACCEPTED order. Expect the queue count to be two and only the PLACED orders to show, oldest first. Accept only the fixture orders and check the empty state. |
+
+These are proposed coverage additions. Findings from earlier exploratory runs are recorded separately, even where they overlap with a proposed case.
+
 ## Results
 
 Fill in one block per case. Result is PASS, FAIL or BLOCKED (with the reason; BLOCKED is not a pass). Every FAIL becomes a row in their shared sheet and an outgoing report (L6-04 #123).
@@ -130,7 +156,7 @@ Fill in one block per case. Result is PASS, FAIL or BLOCKED (with the reason; BL
 
 ## Exploratory findings for cross-check
 
-Codex Computer Use reproduced these seven behaviors on the deployed demo site. Severity is proposed as minor. Screenshots and A/B cross-check are outstanding. These entries are candidates for Est's triage and are separate from the supplied cases' formal outcomes.
+Codex Computer Use reproduced these seven behaviors on the deployed demo site. Severity is proposed as minor. B's cross-check and available screenshots are listed below. These entries are candidates for Est's triage and are separate from the supplied cases' formal outcomes.
 
 | ID | Case | Steps and actual result | Expected or suggested behavior |
 |---|---|---|---|
@@ -148,13 +174,13 @@ EX-03 and EX-05 were checked through browser accessibility information and page 
 
 | ID | B's actual result | Evidence |
 |---|---|---|
-| EX-01 | At 320 px, **Cart** tab opened `/menu#cart`; one Tab moved focus to the `My orders` link, outside the cart. | X-EX01 |
-| EX-02 | CUSTOMER-A opened `/operator/orders`, landed on `/menu` with the warning, pressed **Log out**: `/login` still showed `You don't have access to that page.` Same family as EX-09 below. | X-EX02 |
-| EX-03 | Empty Sign in: both inputs `aria-invalid="true"`, no `aria-describedby`; the two `.field-error` messages have no role and no live region. | X-EX03 |
-| EX-04 | Latte added twice: 1 cart line, tab reads `Cart (2)`. ui-spec line 62: "Cart ... with the number of cart lines". The desktop sidebar count does the same (`Menu 10` for one line of 10 in E-B02-1). | X-EX04 |
-| EX-05 | At 1440 px the queue header row has `aria-hidden="true"`; the queue is a `UL`; no `table` or `role=table` on the page. | X-EX05 |
+| EX-01 | At 320 px, **Cart** tab opened `/menu#cart`; one Tab moved focus to the `My orders` link, outside the cart. | [X-EX01](evidence/l6-03/X-EX01-cart-focus.png) |
+| EX-02 | CUSTOMER-A opened `/operator/orders`, landed on `/menu` with the warning, pressed **Log out**: `/login` still showed `You don't have access to that page.` Same family as EX-09 below. | [X-EX02](evidence/l6-03/X-EX02-warning-on-login.png) |
+| EX-03 | Empty Sign in: both inputs `aria-invalid="true"`, no `aria-describedby`; the two `.field-error` messages have no role and no live region. | [X-EX03](evidence/l6-03/X-EX03-empty-login.png) |
+| EX-04 | Latte added twice: 1 cart line, tab reads `Cart (2)`. ui-spec line 62: "Cart ... with the number of cart lines". The desktop sidebar count does the same (`Menu 10` for one line of 10 in E-B02-1). | [X-EX04](evidence/l6-03/X-EX04-cart-badge.png) |
+| EX-05 | At 1440 px the queue header row has `aria-hidden="true"`; the queue is a `UL`; no `table` or `role=table` on the page. | [X-EX05](evidence/l6-03/X-EX05-queue-headers.png) |
 | EX-06 | Phone top bar text: `Hey, Alice / CUSTOMER / Log out`; no brand. ui-spec line 62 lists the brand in the phone top bar. | (text check) |
-| EX-07 | `alice@` submitted: `Enter a valid email.`, `aria-invalid="true"`; corrected to `alice@cafe.test` and pressed Tab: the same error and `aria-invalid="true"` stayed. | X-EX07 |
+| EX-07 | `alice@` submitted: `Enter a valid email.`, `aria-invalid="true"`; corrected to `alice@cafe.test` and pressed Tab: the same error and `aria-invalid="true"` stayed. | [X-EX07](evidence/l6-03/X-EX07-stale-error.png) |
 
 **B's exploratory findings** (Claude Code agent-browser and a review of Est's public source at `b71cdb2`, 2026-11-25, 21:07 to 21:22). Sent to Est as a PDF report with IDs F1 to F6; the F ID is kept for their triage.
 
@@ -169,7 +195,16 @@ EX-03 and EX-05 were checked through browser accessibility information and page 
 
 Side note (not a finding): on the menu, **+** for an item already at 10 stays enabled and does nothing; AC-F03-12 only requires the quantity not to pass 10.
 
-Evidence for this section: `evidence/l6-03/` (X-EX01 to X-EX07) and `evidence/l6-03-explore/` (F1 to F6 screenshots).
+**Screenshot index for B's F1–F6 report**
+
+| Report / exploratory finding | GitHub evidence | What the image shows |
+|---|---|---|
+| F1 / EX-08 | No screenshot in this PR | See B's recorded observations above. |
+| F2 / EX-10 | [x06-phone-bottom-scrolled.png](evidence/l6-03-explore/x06-phone-bottom-scrolled.png), [x04-phone-menu-with-cart.png](evidence/l6-03-explore/x04-phone-menu-with-cart.png) | The cart bar overlaps the final menu item. The x04 image also supports the cart-count observation in EX-04. |
+| F3 / EX-11 | [x07-placed-banner-with-accepted.png](evidence/l6-03-explore/x07-placed-banner-with-accepted.png) | The placement banner remains visible next to the ACCEPTED detail. The image does not show the reload sequence. |
+| F4 / EX-12 | [Same x07 screenshot](evidence/l6-03-explore/x07-placed-banner-with-accepted.png) | The left row for order #8 shows PLACED while the right detail for #8 shows ACCEPTED. The image is shared with F3 and there is no dedicated F4 image. |
+| F5 / EX-09 | [x09-stale-access-notice.png](evidence/l6-03-explore/x09-stale-access-notice.png) | The earlier access warning appears on the newly placed order's detail screen. |
+| F6 / EX-13 | [x02-long-password.png](evidence/l6-03-explore/x02-long-password.png) | The Sign in screen shows the generic error after B's long-password test. The image shows the UI message only. |
 
 ## Reporting a failure (feeds L6-04 #123)
 
