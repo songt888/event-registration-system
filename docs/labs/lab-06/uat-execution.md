@@ -264,4 +264,10 @@ Please add the label `lab6` (we cannot set labels on your repo) and reply with y
 
 | Our ID | Est Issue | Case and step | Summary | Severity | Reporter | Sent (date, channel) | Est's decision and reason |
 |---|---|---|---|---|---|---|---|
-| | | | _none yet_ | | | | |
+| EX-08 (F1) | [Food-order#121](https://github.com/vienggd/Food-order/issues/121) | exploratory around UAT-03 (API) | Malformed order id such as `0x2` or `2e0` is accepted instead of 400 | minor | Nattakit Prasertsak | 2026-11-25 23:58, GitHub Issue | _waiting_ |
+| EX-02 + EX-09 (F5) | [Food-order#122](https://github.com/vienggd/Food-order/issues/122) | UAT-03 step 1, UAT-05 | Access warning stays after logout and on the next order page | minor | Kirakit Kingkaew, Nattakit Prasertsak | 2026-11-25 23:58, GitHub Issue | _waiting_ |
+| EX-10 (F2) | [Food-order#123](https://github.com/vienggd/Food-order/issues/123) | UAT-01 at 375 × 812 | On a phone, the cart bar covers the last menu item | major | Nattakit Prasertsak | 2026-11-25 23:58, GitHub Issue | _waiting_ |
+| EX-11 (F3) | [Food-order#124](https://github.com/vienggd/Food-order/issues/124) | UAT-01 steps 4 and 7 | "Order #N placed!" stays after reload and above ACCEPTED | minor | Nattakit Prasertsak | 2026-11-25 23:59, GitHub Issue | _waiting_ |
+| EX-12 (F4) | [Food-order#125](https://github.com/vienggd/Food-order/issues/125) | UAT-01 step 7, UAT-04 step 6 | List shows PLACED while the detail shows ACCEPTED | minor | Nattakit Prasertsak | 2026-11-25 23:59, GitHub Issue | _waiting_ |
+| EX-13 (F6) | [Food-order#126](https://github.com/vienggd/Food-order/issues/126) | UAT-05 | Some invalid sign-ins show a generic error instead of the server message | minor | Nattakit Prasertsak | 2026-11-25 23:59, GitHub Issue | _waiting_ |
+| EX-01, 03, 04, 05, 06, 07 | [Food-order#127](https://github.com/vienggd/Food-order/issues/127) | UAT-01, UAT-05 | Accessibility and spec gaps (one checklist Issue); EX-07 reported as an enhancement | minor | Kirakit Kingkaew (Codex Computer Use), cross-checked by Nattakit Prasertsak | 2026-11-25 23:59, GitHub Issue | _waiting_ |
