@@ -11,6 +11,7 @@ We are the **UAT Team** for team **Est** (EN-033), product "Campus Café Pre-ord
 | Their handoff and cases | `vienggd/Food-order` branch `lab6`, `docs/labs/lab-06/handoff.md` and `uat-cases.md` (read at commit `e1057b7`) |
 | Their contract | `docs/sprint_1/sprints/sprint-1/F-01..F-04` in their repo |
 | Accounts used | CUSTOMER-A, CUSTOMER-B, OPERATOR (labels only; the password came privately and is never written here) |
+| Where FAILs go | Est's shared sheet (Est gives the link on Discord; link: _to add_) plus an Issue on `vienggd/Food-order` (see "Reporting a failure") |
 | Pre-check | `GET /api/ready` returned 200 `{"status":"ready","db":"connected"}` on 2026-11-25 (A, before testing) |
 
 **Method.** Manual tests in Chrome, one private window per account, as their handoff asks. Each tester writes what they actually saw, never the expected text. Every outcome has a screenshot with an evidence ID (`E-B<case>-<n>`). For rejected operations we show the rejection and that the protected data did not change or leak. Times are local (UTC+7).
@@ -18,6 +19,8 @@ We are the **UAT Team** for team **Est** (EN-033), product "Campus Café Pre-ord
 ## Who runs what
 
 Their cases share accounts and depend on earlier orders (UAT-03 uses UAT-01's order; UAT-02 and UAT-06 count CUSTOMER-A's orders). So **A and B do not run at the same time**: A runs first, then B, and B notes `K` right before UAT-02 and UAT-06.
+
+This order differs from Est's handoff (UAT-01 → 06). It is safe: no case needs data from a later case, and UAT-03 and UAT-04 still run after the cases they depend on (UAT-01, and UAT-04's own new order).
 
 | Order | Case | Category | Tester | Checker |
 |---|---|---|---|---|
@@ -38,7 +41,7 @@ Fill in one block per case. Result is PASS, FAIL or BLOCKED (with the reason; BL
 
 | Field | Value |
 |---|---|
-| Tester / date and time | A / |
+| Tester / date and time | Kirakit Kingkaew, EN-009_P3 / |
 | Version | `b71cdb2` |
 | Inputs | CUSTOMER-A, OPERATOR; Latte ×2, Americano ×1 |
 | Order number | # |
@@ -51,19 +54,19 @@ Fill in one block per case. Result is PASS, FAIL or BLOCKED (with the reason; BL
 
 | Field | Value |
 |---|---|
-| Tester / date and time | A / |
+| Tester / date and time | Kirakit Kingkaew, EN-009_P3 / |
 | Version | `b71cdb2` |
 | Inputs | CUSTOMER-A, CUSTOMER-B, OPERATOR; order #A from UAT-01; `/orders/99999` |
 | Actual result (per step) | 1: <br>2: <br>3: <br>4: <br>5: <br>6: |
 | Result | |
-| Evidence | E-B03-1 (customer on `/operator/orders` refused), E-B03-2 (CUSTOMER-B on `/orders/A`: no Alice data), E-B03-3 (order #A unchanged afterwards) |
+| Evidence | E-B03-1 (customer on `/operator/orders` refused), E-B03-2 (CUSTOMER-B on `/orders/A`: no Alice data), E-B03-4 (OPERATOR on `/menu` refused), E-B03-3 (order #A unchanged afterwards) |
 | Checked by | B |
 
 ### UAT-05 Wrong password and log out
 
 | Field | Value |
 |---|---|
-| Tester / date and time | A / |
+| Tester / date and time | Kirakit Kingkaew, EN-009_P3 / |
 | Version | `b71cdb2` |
 | Inputs | CUSTOMER-A; wrong password `wrong-password-1` |
 | Actual result (per step) | 1: <br>2: <br>3: <br>4: |
@@ -75,7 +78,7 @@ Fill in one block per case. Result is PASS, FAIL or BLOCKED (with the reason; BL
 
 | Field | Value |
 |---|---|
-| Tester / date and time | B / |
+| Tester / date and time | Nattakit Prasertsak, EN-009_P3 / |
 | Version | `b71cdb2` |
 | Inputs | CUSTOMER-A; Thai Milk Tea ×10, try ×11; Croissant |
 | K before / order number | K = ; # |
@@ -88,7 +91,7 @@ Fill in one block per case. Result is PASS, FAIL or BLOCKED (with the reason; BL
 
 | Field | Value |
 |---|---|
-| Tester / date and time | B / |
+| Tester / date and time | Nattakit Prasertsak, EN-009_P3 / |
 | Version | `b71cdb2` |
 | Inputs | CUSTOMER-A new order Thai Milk Tea ×1; OPERATOR in two windows |
 | Order number | #P = |
@@ -101,7 +104,7 @@ Fill in one block per case. Result is PASS, FAIL or BLOCKED (with the reason; BL
 
 | Field | Value |
 |---|---|
-| Tester / date and time | B / |
+| Tester / date and time | Nattakit Prasertsak, EN-009_P3 / |
 | Version | `b71cdb2` |
 | Inputs | CUSTOMER-A; `LATTE_ID` from `/api/menu`; bodies with `unitPrice: 1` and with `total: 1` |
 | K before | K = |
