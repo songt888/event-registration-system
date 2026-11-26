@@ -1,0 +1,119 @@
+Command: npm run test:e2e -- e2e/keep-input.spec.ts
+Tested commit: 6563e70 (RED test on the unfixed client; the RED commit itself)
+Run: 2026-11-26 21:26 (UTC+7), Node v24.19.0, Version 1.65.0
+
+
+> test:e2e
+> playwright test e2e/keep-input.spec.ts
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "eventreg_e2e", schema "public" at "localhost:5432"
+
+Applying migration `20261107093337_init`
+
+Database reset successful
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20261107093337_init/
+    └─ migration.sql
+
+Running generate... (Use --skip-generate to skip the generators)
+[2K[1A[2K[GRunning generate... - Prisma Client
+[2K[1A[2K[G✔ Generated Prisma Client (v5.22.0) to ./../node_modules/@prisma/client in 29ms
+
+┌─────────────────────────────────────────────────────────┐
+│  Update available 5.22.0 -> 8.0.0-rc.36                 │
+│                                                         │
+│  This is a major update - please follow the guide at    │
+│  https://pris.ly/d/major-version-upgrade                │
+│                                                         │
+│  Run the following to update                            │
+│    npm i --save-dev prisma@latest                       │
+│    npm i @prisma/client@latest                          │
+└─────────────────────────────────────────────────────────┘
+
+> seed
+> tsx --env-file-if-exists=.env prisma/seed.ts
+
+Seed done: 2 organizers, 4 participants, 4 events, 1 registration.
+
+Running 2 tests using 1 worker
+
+  ✘  1 [chromium] › e2e/keep-input.spec.ts:4:1 › TEST-70 AC-70 Sign in keeps the typed password after a 400 and clears it after a 401 (L6-18) (6.4s)
+  ✘  2 [chromium] › e2e/keep-input.spec.ts:19:1 › TEST-70 AC-70 an empty Capacity says required and sends no request (L6-18) (7.0s)
+
+
+  1) [chromium] › e2e/keep-input.spec.ts:4:1 › TEST-70 AC-70 Sign in keeps the typed password after a 400 and clears it after a 401 (L6-18) 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByLabel('Password')
+    Expected: "keep-my-typed-pw"
+    Received: ""
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveValue" getByLabel('Password') with timeout 5000ms
+      - waiting for getByLabel('Password')
+        14 × locator resolved to <input value="" required="" id="password" type="password" autocomplete="current-password"/>
+           - unexpected value ""
+
+
+       8 |   await page.getByRole('button', { name: 'Sign in' }).click();
+       9 |   await expect(page.getByRole('alert').getByText('Invalid email', { exact: true })).toBeVisible();
+    > 10 |   await expect(page.getByLabel('Password')).toHaveValue('keep-my-typed-pw');
+         |                                             ^
+      11 |
+      12 |   await page.getByLabel('Email').fill('participant1@example.com');
+      13 |   await page.getByLabel('Password').fill('wrong-password-for-test');
+        at <repo>/e2e/keep-input.spec.ts:10:45
+
+    Error Context: test-results/keep-input-TEST-70-AC-70-S-c30ec-lears-it-after-a-401-L6-18--chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/keep-input-TEST-70-AC-70-S-c30ec-lears-it-after-a-401-L6-18--chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/keep-input-TEST-70-AC-70-S-c30ec-lears-it-after-a-401-L6-18--chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › e2e/keep-input.spec.ts:19:1 › TEST-70 AC-70 an empty Capacity says required and sends no request (L6-18) 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('alert').getByText('Capacity is required.', { exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('alert').getByText('Capacity is required.', { exact: true }) with timeout 5000ms
+      - waiting for getByRole('alert').getByText('Capacity is required.', { exact: true })
+
+
+      38 |   await page.getByRole('button', { name: 'Save draft' }).click();
+      39 |
+    > 40 |   await expect(page.getByRole('alert').getByText('Capacity is required.', { exact: true })).toBeVisible();
+         |                                                                                             ^
+      41 |   await expect(page).toHaveURL(/\/organizer\/events\/new$/);
+      42 |   expect(posts, 'POST /api/events requests').toEqual([]);
+      43 | });
+        at <repo>/e2e/keep-input.spec.ts:40:93
+
+    Error Context: test-results/keep-input-TEST-70-AC-70-a-b44ed-and-sends-no-request-L6-18--chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/keep-input-TEST-70-AC-70-a-b44ed-and-sends-no-request-L6-18--chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/keep-input-TEST-70-AC-70-a-b44ed-and-sends-no-request-L6-18--chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [chromium] › e2e/keep-input.spec.ts:4:1 › TEST-70 AC-70 Sign in keeps the typed password after a 400 and clears it after a 401 (L6-18) 
+    [chromium] › e2e/keep-input.spec.ts:19:1 › TEST-70 AC-70 an empty Capacity says required and sends no request (L6-18) 
