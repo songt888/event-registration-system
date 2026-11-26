@@ -54,9 +54,11 @@ export function MyEventsPage() {
   return (
     <main>
       <h1>My events</h1>
-      <Link to="/organizer/events/new" className="button">
-        Create event
-      </Link>
+      {!error && (
+        <Link to="/organizer/events/new" className="button">
+          Create event
+        </Link>
+      )}
       {saved && <p role="status">Draft "{saved}" saved.</p>}
       {publishError && <p role="alert">{publishError}</p>}
       {error ? (
