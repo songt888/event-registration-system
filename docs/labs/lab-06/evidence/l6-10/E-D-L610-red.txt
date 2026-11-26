@@ -1,4 +1,4 @@
-Note: the test run here is byte-identical to e2e/reload-after-409.spec.ts in the RED commit 10abc27 (git diff 0cb4d67 10abc27 adds only that file and this output).
+Note: this run was made just before the RED commit 10abc27, which adds only e2e/reload-after-409.spec.ts and this output on top of 0cb4d67; the test file in 10abc27 is the one that was run.
 Command: npm run test:e2e -- e2e/reload-after-409.spec.ts | Commit: 0cb4d6788a7cb7a7f5fed7c96c80ebcc943e715a (unfixed base plus uncommitted regression test) | UTC: 2026-11-26T11:19:42Z | Node: v24.19.0 | Playwright: 1.65.0
 
 > test:e2e
