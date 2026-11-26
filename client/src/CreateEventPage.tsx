@@ -48,17 +48,25 @@ export function CreateEventPage() {
     <main>
       <h1>Create event</h1>
       <form onSubmit={onSubmit} noValidate>
-        {FIELDS.map(({ name, label, type }) => (
-          <div key={name}>
-            <label htmlFor={name}>{label}</label>
-            {type === 'textarea' ? (
-              <textarea id={name} value={form[name]} onChange={(e) => setForm({ ...form, [name]: e.target.value })} />
-            ) : (
-              <input id={name} type={type} value={form[name]} onChange={(e) => setForm({ ...form, [name]: e.target.value })} />
-            )}
-            {fieldErrors[name] && <p role="alert">{fieldErrors[name]}</p>}
-          </div>
-        ))}
+        {FIELDS.map(({ name, label, type }) => {
+          const fieldError = fieldErrors[name];
+          const errorId = `${name}-error`;
+          const errorAttributes = {
+            'aria-invalid': fieldError ? true : undefined,
+            'aria-describedby': fieldError ? errorId : undefined,
+          };
+          return (
+            <div key={name}>
+              <label htmlFor={name}>{label}</label>
+              {type === 'textarea' ? (
+                <textarea id={name} value={form[name]} onChange={(e) => setForm({ ...form, [name]: e.target.value })} {...errorAttributes} />
+              ) : (
+                <input id={name} type={type} value={form[name]} onChange={(e) => setForm({ ...form, [name]: e.target.value })} {...errorAttributes} />
+              )}
+              {fieldError && <p id={errorId} role="alert">{fieldError}</p>}
+            </div>
+          );
+        })}
         {error && <p role="alert">{error}</p>}
         <button type="submit" disabled={submitting}>
           {submitting ? 'Saving...' : 'Save draft'}
