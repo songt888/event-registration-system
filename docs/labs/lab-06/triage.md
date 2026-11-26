@@ -23,9 +23,9 @@ Product: Event Registration and Attendance System, team EN-009_P3. Findings from
 | [#145](https://github.com/songt888/event-registration-system/issues/145) | Form errors not tied to their fields with ARIA attributes | minor | Enhancement | minor | A | fix in [L6-12 #159](https://github.com/songt888/event-registration-system/issues/159) (AC-64/TEST-64), released in `v0.1.3-lab6` |
 | [#146](https://github.com/songt888/event-registration-system/issues/146) | "Draft … saved." stays after the event is published | minor | Enhancement | minor | A | fix in [L6-11 #158](https://github.com/songt888/event-registration-system/issues/158) (AC-63/TEST-63), released in `v0.1.3-lab6` |
 | [#141](https://github.com/songt888/event-registration-system/issues/141) | Very long title, location or description breaks the layout | major | **Accepted defect** | minor | B | fix in [L6-13 #161](https://github.com/songt888/event-registration-system/issues/161) (AC-65/TEST-65, PR #162), released in `v0.1.3-lab6` |
-| [#144](https://github.com/songt888/event-registration-system/issues/144) | Description line breaks are lost on the event page | minor | Enhancement | minor | B | optional in L6-06; otherwise Sprint 3 |
-| [#147](https://github.com/songt888/event-registration-system/issues/147) | At 320 px the Restore button sticks out about 81 px | minor | Enhancement | minor | B | optional in L6-06; otherwise Sprint 3 |
-| [#148](https://github.com/songt888/event-registration-system/issues/148) | Window buttons on the Not found page have no page name | minor | Enhancement | minor | B | Sprint 3 accessibility hardening (F-13) |
+| [#144](https://github.com/songt888/event-registration-system/issues/144) | Description line breaks are lost on the event page | minor | Enhancement | minor | B | fix in [L6-14 #163](https://github.com/songt888/event-registration-system/issues/163) (AC-66/TEST-66, PR #166), released in `v0.1.3-lab6` |
+| [#147](https://github.com/songt888/event-registration-system/issues/147) | At 320 px the Restore button sticks out about 81 px | minor | Enhancement | minor | B | fix in [L6-15 #164](https://github.com/songt888/event-registration-system/issues/164) (AC-67/TEST-67, PR #166), released in `v0.1.3-lab6` |
+| [#148](https://github.com/songt888/event-registration-system/issues/148) | Window buttons on the Not found page have no page name | minor | Enhancement | minor | B | fix in [L6-16 #165](https://github.com/songt888/event-registration-system/issues/165) (AC-68/TEST-68, PR #166), released in `v0.1.3-lab6` |
 
 ## A's findings
 
@@ -83,6 +83,7 @@ Run 1 (16:03–16:05) is not used as a result: before the after-click capture th
 - **Current behavior:** the API stores and returns the description with its line breaks; `EventsPage.tsx` line 102 renders it as `<p>{e.description}</p>`, and HTML collapses the breaks into spaces. The text itself is complete.
 - **Reason for the class:** no AC is broken and no data is lost. Keeping the author's line breaks is a fair improvement (`white-space: pre-line` on that paragraph).
 - **Reproduced** by B on 2026-11-26 17:04 (UTC+7), same local run ([log](evidence/l6-05/E-C-B-repro-log.txt)): the API returns `"line one\nline two\nline three"`; the detail paragraph has `white-space: normal` and shows `line one line two line three` on one line ([E-C144-1](evidence/l6-05/E-C144-1-detail-one-line.png)).
+- **Decision:** the class stays enhancement, but the team fixes it now: new AC-66/TEST-66 in `f-03-browse-events.md`, L6-14 #163 (PR #166), released in `v0.1.3-lab6`.
 
 ### #147 At 320 px the Restore button sticks out about 81 px: enhancement, minor
 
@@ -90,6 +91,7 @@ Run 1 (16:03–16:05) is not used as a result: before the after-click capture th
 - **Cause:** below 640 px `header nav` does not wrap (`flex-wrap: nowrap`, `styles.css` line 473) and the minimized task button (`.task-min`) carries the full window title, so at 320 px it runs past the right edge.
 - **Reason for the class:** Est reports the visible part is still clickable, so Restore still works by mouse and keyboard; no contract line is broken. Keeping the button inside the viewport (truncate the title with an ellipsis) is a fair improvement.
 - **Reproduced** by B on 2026-11-26 17:04 (UTC+7), same local run ([log](evidence/l6-05/E-C-B-repro-log.txt)): at 320 px after Minimize, `Restore window: My registrations` spans x 251 to 399, 79 px past the right edge (Est measured about 81). Focusing it and pressing Enter restores the window ([E-C147-1](evidence/l6-05/E-C147-1-restore-320.png)).
+- **Decision:** the class stays enhancement, but the team fixes it now: new AC-67/TEST-67 in `f-01-auth.md` (Window shell row), L6-15 #164 (PR #166), released in `v0.1.3-lab6`.
 
 ### #148 Window buttons on the Not found page have no page name: enhancement, minor
 
@@ -97,7 +99,7 @@ Run 1 (16:03–16:05) is not used as a result: before the after-click capture th
 - **Cause:** the window title comes from the page's `h1` (`Layout.tsx` lines 35–38). The catch-all route in `App.tsx` line 28 renders `<p>Not found</p>` with no `h1`, so the title is never set: it stays empty on a first load (Est's "Restore window:") and keeps the previous page's name after navigation.
 - **Reason for the class:** the buttons have a name and work; only the page part of the name is missing, and no AC covers it. Giving the Not found page an `h1` would fix both cases.
 - **Reproduced** by B on 2026-11-26 17:04 (UTC+7), same local run ([log](evidence/l6-05/E-C-B-repro-log.txt)): opening `/no-such-page` first and pressing Minimize gives `Restore window: ` with no name ([E-C148-1](evidence/l6-05/E-C148-1-first-load-minimized.png)); opening it after Events gives `Restore window: Events`, the previous page's name ([E-C148-2](evidence/l6-05/E-C148-2-after-events-minimized.png)).
-- **Plan:** Sprint 3 accessibility hardening (F-13), or with #147 if L6-06 has room.
+- **Decision:** the class stays enhancement, but the team fixes it now: new AC-68/TEST-68 in `f-01-auth.md` (Window shell row), L6-16 #165 (PR #166), released in `v0.1.3-lab6`.
 
 ## Second batch: #151 to #155
 
@@ -108,8 +110,8 @@ Opened by Est (vienggd) on 2026-11-26 16:50–16:52 (UTC+7) against the same rel
 | [#152](https://github.com/songt888/event-registration-system/issues/152) | Create event and Publish stay on the page after the session ends | minor | **Duplicate of #142** | minor | A | fixed by L6-09 (PR #167, AC-56), released in `v0.1.3-lab6` |
 | [#153](https://github.com/songt888/event-registration-system/issues/153) | Event registrations shows "Not found" or 403 to a participant, depending on which request answers first | minor | **Accepted defect** | minor | A | fix in [L6-17 #172](https://github.com/songt888/event-registration-system/issues/172) (AC-69/TEST-69), released in `v0.1.3-lab6` |
 | [#155](https://github.com/songt888/event-registration-system/issues/155) | Password cleared after a 400 on Sign in; blank Capacity says "greater than or equal to 1" | minor | Enhancement | minor | A | fix in [L6-18 #173](https://github.com/songt888/event-registration-system/issues/173) (AC-70/TEST-70), released in `v0.1.3-lab6` |
-| [#151](https://github.com/songt888/event-registration-system/issues/151) | Taskbar covers Save draft at 320 px; Logout wraps at 768–812 px | major / minor | _B: pending_ | | B | |
-| [#154](https://github.com/songt888/event-registration-system/issues/154) | My events shows Create event to a participant above the 403 message | minor | _B: pending_ | | B | |
+| [#151](https://github.com/songt888/event-registration-system/issues/151) | Taskbar covers Save draft at 320 px; Logout wraps at 768–812 px | major / minor | Enhancement | minor | B | Sprint 3 (taskbar layout with the planned UI work) |
+| [#154](https://github.com/songt888/event-registration-system/issues/154) | My events shows Create event to a participant above the 403 message | minor | Enhancement | minor | B | fix in [L6-19 #175](https://github.com/songt888/event-registration-system/issues/175) (AC-71/TEST-71), released in `v0.1.3-lab6` |
 
 ### #152 Create event and Publish stay on the page after the session ends: duplicate of #142
 
@@ -129,6 +131,21 @@ Opened by Est (vienggd) on 2026-11-26 16:50–16:52 (UTC+7) against the same rel
 - **Contract:** `f-01-auth.md` section 5 Validation/error: "retain email, keep the password out of logs"; it does not require keeping the password. `f-02-publish-event.md` line 22: capacity must be an integer 1..10000; the blank field is sent as `0` and refused with 400 `VALIDATION_ERROR`, nothing is stored. No wording is set.
 - **Reason for the class:** both behaviors meet the Sprint 1 contract; both are fair usability improvements.
 - **Decision:** the class stays enhancement, but the team fixes it now: new AC-70/TEST-70 in `f-02-publish-event.md` (pointer in `f-01-auth.md`), L6-18 #173, released in `v0.1.3-lab6`.
+
+### #151 Taskbar covers Save draft at 320 px; Logout wraps at 768 to 812 px: enhancement, minor
+
+- **Reproduced in part** by B on 2026-11-26 about 17:50 (UTC+7), automated (Playwright, Chrome), on `04e8590` run locally with the seeded database ([script](evidence/l6-05/E-C-B-repro2-151-155.cjs)). At 320 x 568 the taskbar wraps to 3 rows, 109 px tall; scrolled to the bottom, Save draft spans y 438 to 477 and its bottom 18 px are under the taskbar (top 459), but its centre (y 457) is above it and the button works ([E-C151-1](evidence/l6-05/E-C151-1-320-save-draft-covered.png)). With the seeded list, `/organizer/events` at 320 px ends at y 270, so nothing is covered there. At 768 x 1024 the taskbar is 2 rows, 94 px, with Logout on the second row ([E-C151-2](evidence/l6-05/E-C151-2-768-taskbar-two-rows.png)). **Not reproduced at 812 x 375**: one row, 51 px ([E-C151-3](evidence/l6-05/E-C151-3-812x375-one-row.png)).
+- **Contract:** no Sprint 1 contract, AC or NFR sets screen sizes; D-15 asks that everything is usable, and Save draft and Logout stay usable at every width checked.
+- **Related to #147, not a duplicate:** same taskbar, different cause (#147 is the minimized task button running off the right edge; #151 is the wrapped taskbar being taller than the 5rem bottom padding of `#root`, `styles.css` line 73, and the compact header applying only below 640 px).
+- **Severity minor** (Est proposed major at 320 px): the task can be completed; only part of a button is covered.
+- **Decision:** Sprint 3, with the planned UI work, because a fix changes the taskbar layout at three widths. Fix idea: bottom padding from the taskbar's real height, and the compact header up to about 900 px.
+
+### #154 My events shows Create event to a participant above the 403 message: enhancement, minor
+
+- **Reproduced** by B on 2026-11-26 about 17:50 (UTC+7), same local run: Participant 3 opens `/organizer/events` and sees the Create event link above "You do not have access to this." ([E-C154-1](evidence/l6-05/E-C154-1-participant-create-event.png)).
+- **Contract:** system SDS 3.1 "A participant who types an organizer URL sees the API's 403 message; the route guard in the UI is only for convenience". The 403 message is shown, as Est's own UAT-03 step 6 expects; no contract line asks to hide Create event, and the server refuses a participant's create (UAT-03 step 7).
+- **Cause:** `MyEventsPage.tsx` renders the Create event link outside the `error ? ... : ...` branch.
+- **Decision:** the class stays enhancement, but the team fixes it now: new AC-71/TEST-71 in `f-02-publish-event.md`, L6-19 #175, released in `v0.1.3-lab6`.
 
 ## Replies to Est
 
