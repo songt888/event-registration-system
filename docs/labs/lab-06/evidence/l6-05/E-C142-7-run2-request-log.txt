@@ -1,0 +1,18 @@
+E-C142-7  #142 run 2, tab A request and route log (manual run by A; logger added by Claude Code via the browser console, read-only)
+Release: v0.1.2-lab5 / 04e8590 / s47a6b53b-00005-5l7. Account: Participant 3. Times UTC (UTC+7 = +7 h).
+
+09:07:19  A signed in in tab A (/events, "Participant 3 (Participant)")
+09:07:22  tab B opened at /events, same session
+09:07:28  logger started in tab A (records path changes and fetch status)
+09:07:54  A pressed Logout in tab B -> tab B /login. Tab A still shows "Participant 3 (Participant)" (E-C142-5)
+09:08:11.805  A clicked "My registrations" once in tab A -> path /my/registrations
+09:08:11.842  GET /api/registrations/mine -> 401
+09:08:11.847  path /events (bounced through /login in under 5 ms; /login never stayed)
+09:08:11.899 to 09:08:24.228  GET /api/events -> 401, repeated 198 times (about 16 per second for 12.3 s)
+09:08:25 to 09:08:30  no further requests
+09:08:18  screenshot: empty window area, taskbar still "Participant 3 (Participant)", no alert (E-C142-6)
+The logger survived the whole run, so the tab was not reloaded.
+
+Run 1 (09:03:51 to 09:05:49) is not used as a result: the browser recorded a reload/back/address-bar action on tab A before the
+after-click capture, so E-C142-4 (/login) does not show the click alone. E-C142-1 to E-C142-3 from run 1 are kept: they show the
+stale display after logout and GET /api/me = 401 from tab A at 09:04:56.
