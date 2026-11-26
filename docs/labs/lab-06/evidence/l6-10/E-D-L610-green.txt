@@ -1,0 +1,46 @@
+Command: npm run test:e2e -- e2e/reload-after-409.spec.ts | Commit: 440b03b9217d0ee034364744286c9680f9595c67 (same test and fix content run before committing) | UTC: 2026-11-26T11:20:26Z | Node: v24.19.0 | Playwright: 1.65.0
+
+> test:e2e
+> playwright test e2e/reload-after-409.spec.ts
+
+[WebServer] (node:96557) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96558) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96581) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "eventreg_e2e", schema "public" at "localhost:5432"
+
+Applying migration `20261107093337_init`
+
+Database reset successful
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20261107093337_init/
+    └─ migration.sql
+
+Running generate... (Use --skip-generate to skip the generators)
+Running generate... - Prisma Client
+✔ Generated Prisma Client (v5.22.0) to ./../node_modules/@prisma/client in 28ms
+
+
+> seed
+> tsx --env-file-if-exists=.env prisma/seed.ts
+
+Seed done: 2 organizers, 4 participants, 4 events, 1 registration.
+[WebServer] (node:96628) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:96660) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › e2e/reload-after-409.spec.ts:3:1 › TEST-62 AC-62 refreshes places after a refused registration (L6-10) (1.6s)
+
+  1 passed (4.5s)
+
+AI use: Codex wrote the test and fix on A's instruction.

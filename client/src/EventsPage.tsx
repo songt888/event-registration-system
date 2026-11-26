@@ -83,8 +83,12 @@ export function EventDetailPage() {
       setTimeout(() => setBurning(false), 1500);
       reload();
     } catch (err) {
-      if ((err as ApiError).status === 401) setLostSession(true);
-      else setResult({ ok: false, text: registerError(err as ApiError) });
+      const error = err as ApiError;
+      if (error.status === 401) setLostSession(true);
+      else {
+        setResult({ ok: false, text: registerError(error) });
+        if (error.status === 409) reload();
+      }
     } finally {
       setPending(false);
     }
