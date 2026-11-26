@@ -1,3 +1,4 @@
+Note: this run was made just before the RED commit 1f0dd0c, which adds only e2e/aria-errors.spec.ts and this output on top of 0cb4d67; the test file in 1f0dd0c is the one that was run.
 Command: npm run test:e2e -- e2e/aria-errors.spec.ts | Commit: 0cb4d6788a7cb7a7f5fed7c96c80ebcc943e715a (unfixed base plus uncommitted regression tests) | UTC: 2026-11-26T11:24:24Z | Node: v24.19.0 | Playwright: 1.65.0
 
 > test:e2e
