@@ -1,0 +1,40 @@
+E7-B2: BR-10 GREEN
+Command: npm test -w server -- src/registrations.conflict.int.test.ts
+Tested tree: 6fc9c5318b7037f1e9493b7b8ea424de890afd3c (run before commit with the identical service patch)
+Node 24.19.0; Vitest 3.2.7
+Expected: TEST-57 through TEST-60 all pass.
+ ✓ |integration| src/registrations.conflict.int.test.ts (4 tests) 215ms
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+
+git diff 502d2a6 6fc9c53 -- server/src/registrations.service.ts
+diff --git a/server/src/registrations.service.ts b/server/src/registrations.service.ts
+index df69330..8c0510f 100644
+--- a/server/src/registrations.service.ts
++++ b/server/src/registrations.service.ts
+@@ -41,6 +41,26 @@ export async function registerForEvent(participantId: string, eventId: string, n
+
+         const where = { eventId, status: 'ACTIVE' as const };
+         if (await tx.registration.findFirst({ where: { ...where, participantId } })) throw alreadyRegistered();
++
++        // BR-10: serialize one participant's registration attempts across different events.
++        await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${participantId}::uuid FOR UPDATE`;
++        const conflictWindowMs = 120 * 60 * 1000;
++        const startMs = event.startsAt.getTime();
++        const conflict = await tx.registration.findFirst({
++          where: {
++            participantId,
++            status: 'ACTIVE',
++            eventId: { not: eventId },
++            event: {
++              startsAt: { gt: new Date(startMs - conflictWindowMs), lt: new Date(startMs + conflictWindowMs) },
++            },
++          },
++          select: { id: true },
++        });
++        if (conflict) {
++          throw new AppError(409, 'TIME_CONFLICT', 'You are already registered for another event that starts within 2 hours of this one.');
++        }
++
+         const active = await tx.registration.count({ where });
+         if (active >= event.capacity) throw full();

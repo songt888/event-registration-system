@@ -41,6 +41,26 @@ export async function registerForEvent(participantId: string, eventId: string, n
 
         const where = { eventId, status: 'ACTIVE' as const };
         if (await tx.registration.findFirst({ where: { ...where, participantId } })) throw alreadyRegistered();
+
+        // BR-10: serialize one participant's registration attempts across different events.
+        await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${participantId}::uuid FOR UPDATE`;
+        const conflictWindowMs = 120 * 60 * 1000;
+        const startMs = event.startsAt.getTime();
+        const conflict = await tx.registration.findFirst({
+          where: {
+            participantId,
+            status: 'ACTIVE',
+            eventId: { not: eventId },
+            event: {
+              startsAt: { gt: new Date(startMs - conflictWindowMs), lt: new Date(startMs + conflictWindowMs) },
+            },
+          },
+          select: { id: true },
+        });
+        if (conflict) {
+          throw new AppError(409, 'TIME_CONFLICT', 'You are already registered for another event that starts within 2 hours of this one.');
+        }
+
         const active = await tx.registration.count({ where });
         if (active >= event.capacity) throw full();
 

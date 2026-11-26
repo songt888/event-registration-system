@@ -1,0 +1,31 @@
+E7-B3: BR-10 regression
+Tested commit: 4d51c764938b98f95e0379f089331f65b3970499
+Node 24.19.0, Vitest 3.2.7, Playwright 1.65.0
+The full API suite checks previous registration behavior, permissions and capacity. E2E checks the new user-facing alert, unchanged places, and existing flows including TEST-62 and TEST-65.
+TEST-59(e) passed as part of TEST-59. The RED output stopped at assertion (c) and therefore does not show a RED result for (e).
+Initial E2E at 5a2197b: 19 passed, 1 failed, 0 skipped. TEST-61 omitted the required fixture description and got HTTP 400 during setup. 4d51c76 supplies it without changing assertions.
+
+Command: npm test
+ Test Files  15 passed (15)
+      Tests  73 passed (73)
+Result: 73 passed, 0 failed, 0 skipped.
+
+Command (each round): npm test -w server -- src/registrations.conflict.int.test.ts -t "TEST-60"
+Round 1
+      Tests  1 passed | 3 skipped (4)
+Round 2
+      Tests  1 passed | 3 skipped (4)
+Round 3
+      Tests  1 passed | 3 skipped (4)
+Round 4
+      Tests  1 passed | 3 skipped (4)
+Round 5
+      Tests  1 passed | 3 skipped (4)
+Each round: 0 failures, 3 cases excluded by the filter.
+
+Command: npm run test:e2e
+  ✓  10 [chromium] › e2e/long-text.spec.ts:28:1 › TEST-65 AC-65 maximum-length text without spaces keeps Publish on screen and no page scrolls sideways (L6-13) (6.1s)
+  ✓  12 [chromium] › e2e/reload-after-409.spec.ts:3:1 › TEST-62 AC-62 refreshes places after a refused registration (L6-10) (1.8s)
+  ✓  17 [chromium] › e2e/time-conflict.spec.ts:12:1 › TEST-61 AC-61 shows the time-conflict alert without changing places (3.2s)
+  20 passed (1.1m)
+Result: 20 passed, 0 failed, 0 skipped.
