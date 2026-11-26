@@ -1,0 +1,37 @@
+Command: npm run test:e2e -- e2e/taskbar-overlap.spec.ts
+Tested commit: ddf85e4 (green fix)
+Run: 2026-11-26 21:22 (UTC+7), Node v24.19.0, Version 1.65.0
+
+
+> test:e2e
+> playwright test e2e/taskbar-overlap.spec.ts
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "eventreg_e2e", schema "public" at "localhost:5432"
+
+Applying migration `20261107093337_init`
+
+Database reset successful
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20261107093337_init/
+    └─ migration.sql
+
+Running generate... (Use --skip-generate to skip the generators)
+[2K[1A[2K[GRunning generate... - Prisma Client
+[2K[1A[2K[G✔ Generated Prisma Client (v5.22.0) to ./../node_modules/@prisma/client in 25ms
+
+
+> seed
+> tsx --env-file-if-exists=.env prisma/seed.ts
+
+Seed done: 2 organizers, 4 participants, 4 events, 1 registration.
+
+Running 1 test using 1 worker
+
+  ✓  1 [chromium] › e2e/taskbar-overlap.spec.ts:10:1 › TEST-72 AC-72 the taskbar never covers the page, and from 641 px it keeps Logout on one row (L6-20) (11.3s)
+
+  1 passed (14.2s)
