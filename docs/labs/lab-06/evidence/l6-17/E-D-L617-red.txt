@@ -1,0 +1,74 @@
+Command: npm run test:e2e -- e2e/registrations-403.spec.ts
+Tested commit: 3e7a23a (RED test on the unfixed client; the RED commit itself)
+Run: 2026-11-26 21:25 (UTC+7), Node v24.19.0, Version 1.65.0
+
+
+> test:e2e
+> playwright test e2e/registrations-403.spec.ts
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "eventreg_e2e", schema "public" at "localhost:5432"
+
+Applying migration `20261107093337_init`
+
+Database reset successful
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20261107093337_init/
+    └─ migration.sql
+
+Running generate... (Use --skip-generate to skip the generators)
+[2K[1A[2K[GRunning generate... - Prisma Client
+[2K[1A[2K[G✔ Generated Prisma Client (v5.22.0) to ./../node_modules/@prisma/client in 22ms
+
+
+> seed
+> tsx --env-file-if-exists=.env prisma/seed.ts
+
+Seed done: 2 organizers, 4 participants, 4 events, 1 registration.
+
+Running 1 test using 1 worker
+
+  ✘  1 [chromium] › e2e/registrations-403.spec.ts:12:1 › TEST-69 AC-69 a participant sees the 403 message on Event registrations for every event ID (L6-17) (8.0s)
+
+
+  1) [chromium] › e2e/registrations-403.spec.ts:12:1 › TEST-69 AC-69 a participant sees the 403 message on Event registrations for every event ID (L6-17) 
+
+    Error: event 00000000-0000-4000-8000-000000000000
+
+    expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('alert')
+    Expected: "You do not have access to this"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - event 00000000-0000-4000-8000-000000000000 getByRole('alert') with timeout 5000ms
+      - waiting for getByRole('alert')
+
+
+      36 |     await page.goto(`/organizer/events/${id}/registrations`);
+      37 |     await expect(page.getByText('Loading...')).toHaveCount(0);
+    > 38 |     await expect(page.getByRole('alert'), `event ${id}`).toHaveText('You do not have access to this');
+         |                                                          ^
+      39 |     await expect(page.getByText('Not found', { exact: true })).toHaveCount(0);
+      40 |     await expect(page.getByRole('table')).toHaveCount(0);
+      41 |   }
+        at <repo>/e2e/registrations-403.spec.ts:38:58
+
+    Error Context: test-results/registrations-403-TEST-69--b1443-s-for-every-event-ID-L6-17--chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/registrations-403-TEST-69--b1443-s-for-every-event-ID-L6-17--chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/registrations-403-TEST-69--b1443-s-for-every-event-ID-L6-17--chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › e2e/registrations-403.spec.ts:12:1 › TEST-69 AC-69 a participant sees the 403 message on Event registrations for every event ID (L6-17) 
