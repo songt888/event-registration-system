@@ -68,6 +68,7 @@ These journeys supplement service/API/DB checks; they do not replace negative au
 | AC-22 / TEST-22 | Organizer creates/publishes; participant registers and sees it in My registrations; owner sees registrant. | F-01 through F-06; FR-01, FR-04, FR-06, FR-07, FR-08, FR-15; persisted UI journey | A, sub-task 9.1 (#37) | pass (E2E 5 of 5) |
 | AC-23 / TEST-23 | Full-event UI rejection; My registrations unchanged. | F-03, F-04, F-05; FR-06, FR-07, BR-02 | B, sub-task 9.2 (#38) | pass (E2E 5 of 5) |
 | AC-24 / TEST-24 | Login shows name/role; logout then protected navigation returns to login. | F-01; FR-01, FR-02, FR-03 UI identity only | A, sub-task 9.1 (#37) | pass (E2E 5 of 5) |
+| AC-65 / TEST-65 | Maximum-length text without spaces wraps: Publish in My events stays on screen at 1280 px; My events (1280 and 375 px), the event page and the Events list do not scroll sideways. | F-02, F-03; FR-04, FR-05 UI; Lab 6 defect #141 | B, L6-13 (#161) | not run yet |
 
 ## 6. Coverage gaps and planned closure
 
