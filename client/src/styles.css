@@ -458,7 +458,7 @@ main.logon { max-width: 30rem; margin-top: 14vh; }
 @keyframes boot-bar { to { background-size: 100% 100%; } }
 @keyframes boot-out { to { opacity: 0; visibility: hidden; } }
 
-/* below 1024 px the taskbar keeps one row (#151): the clock is decoration, and its buttons use the compact padding */
+/* 641 to 1023 px (#151): the clock is decoration and the buttons use the compact padding, so the taskbar keeps one row from 768 px */
 @media (max-width: 1023px) {
   .clock { display: none; }
   header button { padding: 0.2rem 0.75rem; }
