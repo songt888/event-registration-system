@@ -61,13 +61,31 @@ export function LoginPage() {
       <form onSubmit={onSubmit} noValidate>
         <div>
           <label htmlFor="email">Email</label>
-          <input id="email" type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          {fieldErrors.email && <p role="alert">{fieldErrors.email}</p>}
+          <input
+            id="email"
+            type="email"
+            autoComplete="username"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            aria-invalid={fieldErrors.email ? true : undefined}
+            aria-describedby={fieldErrors.email ? 'email-error' : undefined}
+          />
+          {fieldErrors.email && <p id="email-error" role="alert">{fieldErrors.email}</p>}
         </div>
         <div>
           <label htmlFor="password">Password</label>
-          <input id="password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-          {fieldErrors.password && <p role="alert">{fieldErrors.password}</p>}
+          <input
+            id="password"
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            aria-invalid={fieldErrors.password ? true : undefined}
+            aria-describedby={fieldErrors.password ? 'password-error' : undefined}
+          />
+          {fieldErrors.password && <p id="password-error" role="alert">{fieldErrors.password}</p>}
         </div>
         {error && <p role="alert">{error}</p>}
         <button type="submit" disabled={submitting}>
