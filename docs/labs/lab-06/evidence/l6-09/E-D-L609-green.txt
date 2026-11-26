@@ -1,0 +1,30 @@
+$ npx playwright test e2e/stale-session.spec.ts
+# d7184bf, 2026-11-26 11:16 UTC, Node v24.19.0
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "eventreg_e2e", schema "public" at "localhost:5432"
+
+Applying migration `20261107093337_init`
+
+Database reset successful
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20261107093337_init/
+    └─ migration.sql
+
+Running generate... (Use --skip-generate to skip the generators)
+[2K[1A[2K[GRunning generate... - Prisma Client
+[2K[1A[2K[G✔ Generated Prisma Client (v5.22.0) to ./../node_modules/@prisma/client in 21ms
+
+
+> seed
+> tsx --env-file-if-exists=.env prisma/seed.ts
+
+Seed done: 2 organizers, 4 participants, 4 events, 1 registration.
+
+Running 1 test using 1 worker
+
+[1/1] [chromium] › e2e/stale-session.spec.ts:4:1 › TEST-56 AC-56 after logout in another tab, protected navigation shows Sign in and stops the refused requests (L6-09)
+  1 passed (7.6s)
