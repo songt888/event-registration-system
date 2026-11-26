@@ -12,12 +12,15 @@ export function EventRegistrationsPage() {
   const [error, setError] = useState<ApiError | null>(null);
 
   useEffect(() => {
-    Promise.all([api<EventPayload>(`/events/${id}`), api<{ registrations: Row[] }>(`/events/${id}/registrations`)])
-      .then(([e, r]) => {
-        setEvent(e);
-        setRows(r.registrations);
-      })
-      .catch((err) => setError(err as ApiError));
+    // AC-69: wait for both answers; the registrations request decides access, so its error wins over the event's 404.
+    Promise.allSettled([api<EventPayload>(`/events/${id}`), api<{ registrations: Row[] }>(`/events/${id}/registrations`)]).then(
+      ([e, r]) => {
+        if (r.status === 'rejected') return setError(r.reason as ApiError);
+        if (e.status === 'rejected') return setError(e.reason as ApiError);
+        setEvent(e.value);
+        setRows(r.value.registrations);
+      },
+    );
   }, [id]);
 
   if (error?.status === 401) return <Navigate to="/login" replace />;
