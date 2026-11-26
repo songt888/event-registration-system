@@ -1,0 +1,91 @@
+Command: npm run test:e2e -- e2e/saved-message.spec.ts | Commit: 0cb4d6788a7cb7a7f5fed7c96c80ebcc943e715a (unfixed base plus uncommitted regression test) | UTC: 2026-11-26T11:22:03Z | Node: v24.19.0 | Playwright: 1.65.0
+
+> test:e2e
+> playwright test e2e/saved-message.spec.ts
+
+[WebServer] (node:97924) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97925) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:97957) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "eventreg_e2e", schema "public" at "localhost:5432"
+
+Applying migration `20261107093337_init`
+
+Database reset successful
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20261107093337_init/
+    └─ migration.sql
+
+Running generate... (Use --skip-generate to skip the generators)
+Running generate... - Prisma Client
+✔ Generated Prisma Client (v5.22.0) to ./../node_modules/@prisma/client in 31ms
+
+┌─────────────────────────────────────────────────────────┐
+│  Update available 5.22.0 -> 8.0.0-rc.36                 │
+│                                                         │
+│  This is a major update - please follow the guide at    │
+│  https://pris.ly/d/major-version-upgrade                │
+│                                                         │
+│  Run the following to update                            │
+│    npm i --save-dev prisma@latest                       │
+│    npm i @prisma/client@latest                          │
+└─────────────────────────────────────────────────────────┘
+
+> seed
+> tsx --env-file-if-exists=.env prisma/seed.ts
+
+Seed done: 2 organizers, 4 participants, 4 events, 1 registration.
+[WebServer] (node:97990) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:98020) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › e2e/saved-message.spec.ts:3:1 › TEST-63 AC-63 clears the draft confirmation after publishing (L6-11) (6.7s)
+
+
+  1) [chromium] › e2e/saved-message.spec.ts:3:1 › TEST-63 AC-63 clears the draft confirmation after publishing (L6-11)
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByText('Draft "E2E draft confirmation event" saved.', { exact: true })
+    Expected: 0
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByText('Draft "E2E draft confirmation event" saved.', { exact: true }) with timeout 5000ms
+      - waiting for getByText('Draft "E2E draft confirmation event" saved.', { exact: true })
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      25 |   await event.getByRole('button', { name: 'Publish', exact: true }).click();
+      26 |   await expect(event.getByText('PUBLISHED', { exact: true })).toBeVisible();
+    > 27 |   await expect(saved).toHaveCount(0);
+         |                       ^
+      28 |
+      29 |   await page.reload();
+      30 |   await expect(event.getByText('PUBLISHED', { exact: true })).toBeVisible();
+        at e2e/saved-message.spec.ts:27:23
+
+    Error Context: test-results/saved-message-TEST-63-AC-6-f6185-ion-after-publishing-L6-11--chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/saved-message-TEST-63-AC-6-f6185-ion-after-publishing-L6-11--chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/saved-message-TEST-63-AC-6-f6185-ion-after-publishing-L6-11--chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › e2e/saved-message.spec.ts:3:1 › TEST-63 AC-63 clears the draft confirmation after publishing (L6-11)
