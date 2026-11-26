@@ -99,6 +99,37 @@ Run 1 (16:03–16:05) is not used as a result: before the after-click capture th
 - **Reproduced** by B on 2026-11-26 17:04 (UTC+7), same local run ([log](evidence/l6-05/E-C-B-repro-log.txt)): opening `/no-such-page` first and pressing Minimize gives `Restore window: ` with no name ([E-C148-1](evidence/l6-05/E-C148-1-first-load-minimized.png)); opening it after Events gives `Restore window: Events`, the previous page's name ([E-C148-2](evidence/l6-05/E-C148-2-after-events-minimized.png)).
 - **Plan:** Sprint 3 accessibility hardening (F-13), or with #147 if L6-06 has room.
 
+## Second batch: #151 to #155
+
+Opened by Est (vienggd) on 2026-11-26 16:50–16:52 (UTC+7) against the same release (`v0.1.2-lab5`, `04e8590`, `s47a6b53b-00005-5l7`), from a Playwright and source review on 2026-11-26 15:55–16:15 (UTC+7). Owners: A (songt888) #152, #153, #155; B (stickkersz) #151, #154.
+
+| Issue | Finding | Est's severity | Class | Our severity | Owner | Fix status |
+|---|---|---|---|---|---|---|
+| [#152](https://github.com/songt888/event-registration-system/issues/152) | Create event and Publish stay on the page after the session ends | minor | **Duplicate of #142** | minor | A | fixed by L6-09 (PR #167, AC-56), released in `v0.1.3-lab6` |
+| [#153](https://github.com/songt888/event-registration-system/issues/153) | Event registrations shows "Not found" or 403 to a participant, depending on which request answers first | minor | **Accepted defect** | minor | A | fix in [L6-17 #172](https://github.com/songt888/event-registration-system/issues/172) (AC-69/TEST-69), released in `v0.1.3-lab6` |
+| [#155](https://github.com/songt888/event-registration-system/issues/155) | Password cleared after a 400 on Sign in; blank Capacity says "greater than or equal to 1" | minor | Enhancement | minor | A | fix in [L6-18 #173](https://github.com/songt888/event-registration-system/issues/173) (AC-70/TEST-70), released in `v0.1.3-lab6` |
+| [#151](https://github.com/songt888/event-registration-system/issues/151) | Taskbar covers Save draft at 320 px; Logout wraps at 768–812 px | major / minor | _B: pending_ | | B | |
+| [#154](https://github.com/songt888/event-registration-system/issues/154) | My events shows Create event to a participant above the 403 message | minor | _B: pending_ | | B | |
+
+### #152 Create event and Publish stay on the page after the session ends: duplicate of #142
+
+- **Reproduced** locally on `04e8590` by Claude Code on A's instruction, 2026-11-26, with a throwaway Playwright script (not committed): organizer1 in two tabs, Logout in tab B, then in tab A Save draft stays on `/organizer/events/new` and Publish stays on `/organizer/events`, each with only the inline "Please sign in." message.
+- **Cause:** the same as #142: nothing in the client cleared the signed-in user on a 401, so pages that do not redirect themselves keep their content.
+- **Fixed by** L6-09 (PR #167, AC-56: any 401 from the API clears the signed-in user): the same script on `lab6-staging` `4bf235b` opens the Sign in page for both actions. Est's retest of `v0.1.3-lab6` includes these steps.
+
+### #153 Event registrations shows a different error for the same URL: accepted defect, minor
+
+- **Contract:** `f-05-f-06-registrations.md` section 3 and system SDS 5.1: a participant gets 403 for every event ID on this route (AC-21, which the API passes). Section 6 maps 403 to "You do not have access to this" and 404 to "Not found".
+- **Cause:** `EventRegistrationsPage.tsx` sends `GET /api/events/:id` and `GET /api/events/:id/registrations` together with `Promise.all` and shows the first error. For an unknown or DRAFT ID the event request gives 404, so the page shows "Not found" whenever that answer comes first.
+- **Reason for the class:** one URL must give one answer; the page's answer depends on timing. The existence point in the report adds nothing new: `GET /api/events/:id` already answers 404 for a missing or DRAFT event and 200 for a PUBLISHED one to any signed-in user (F-03).
+- **Fix plan (L6-17 #172):** new AC-69/TEST-69 in the F-06 contract; the test delays the registrations response so the event answer always comes first (deterministic RED).
+
+### #155 Password cleared after a 400; blank Capacity message: enhancement, minor
+
+- **Contract:** `f-01-auth.md` section 5 Validation/error: "retain email, keep the password out of logs"; it does not require keeping the password. `f-02-publish-event.md` line 22: capacity must be an integer 1..10000; the blank field is sent as `0` and refused with 400 `VALIDATION_ERROR`, nothing is stored. No wording is set.
+- **Reason for the class:** both behaviors meet the Sprint 1 contract; both are fair usability improvements.
+- **Decision:** the class stays enhancement, but the team fixes it now: new AC-70/TEST-70 in `f-02-publish-event.md` (pointer in `f-01-auth.md`), L6-18 #173, released in `v0.1.3-lab6`.
+
 ## Replies to Est
 
 Each Issue gets a comment with the class, the reason with the contract line, the severity and the fix plan, linked to this file. Est is told on Discord before the L6-06 deploy.
