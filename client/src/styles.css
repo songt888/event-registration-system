@@ -70,7 +70,7 @@ body {
 .desktop3d { z-index: 0; }
 .sparkles { z-index: 50; }
 
-#root { position: relative; z-index: 1; padding-bottom: 5rem; }
+#root { position: relative; z-index: 1; padding-bottom: max(5rem, calc(var(--taskbar-h, 0px) + 0.75rem)); }
 
 p { margin: 0 0 0.6rem; }
 
@@ -458,6 +458,12 @@ main.logon { max-width: 30rem; margin-top: 14vh; }
 @keyframes boot-bar { to { background-size: 100% 100%; } }
 @keyframes boot-out { to { opacity: 0; visibility: hidden; } }
 
+/* below 1024 px the taskbar keeps one row (#151): the clock is decoration, and its buttons use the compact padding */
+@media (max-width: 1023px) {
+  .clock { display: none; }
+  header button { padding: 0.2rem 0.75rem; }
+}
+
 /* ---------- small screens ---------- */
 @media (max-width: 640px) {
   :root { font-size: 15px; }
@@ -467,7 +473,6 @@ main.logon { max-width: 30rem; margin-top: 14vh; }
   .props .disc { width: 8rem; height: 8rem; }
   table { display: block; overflow-x: auto; }
   th, td { white-space: nowrap; }
-  .clock { display: none; }
   /* two compact rows: tasks on top, who you are + sound + logout below, nothing off-screen */
   header { gap: 0.35rem 0.5rem; padding: 0.35rem 0.5rem; }
   header nav { flex: 1 0 100%; flex-wrap: nowrap; gap: 0.3rem; }
