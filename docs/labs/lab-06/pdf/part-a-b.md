@@ -86,9 +86,11 @@ Their cases share accounts and depend on earlier orders, so A and B never ran at
 | UAT-01 Place an order, staff accepts it | Normal journey | A | **manual**: A signed in and pressed every control in the built-in browser pane of the Claude desktop app; Claude Code took screenshots and noted times on request | B |
 | UAT-03 Wrong role and another customer's order | Forbidden / ownership | A | **manual**; steps 3 and 4 from an earlier AI-executed run (Codex Computer Use, A's instruction), labelled | B |
 | UAT-05 Wrong password and log out | Normal / state | A | **manual**; the signed-out `/orders` check from the earlier AI-executed run, labelled | B |
-| UAT-02 Quantity limit and sold-out item | Rule boundary | B | AI-executed: Claude Code agent-browser (headless Chromium) on B's instruction; B also ran parts by hand in Chrome | A |
+| UAT-02 Quantity limit and sold-out item | Rule boundary | B | AI-executed: Claude Code agent-browser (headless Chromium) on B's instruction | A |
 | UAT-04 Persistence and double accept | State / persistence | B | AI-executed (agent-browser), one browser session per account | A |
 | UAT-06 Tampered price or total (API, optional) | Forbidden (API) | B | AI-executed (agent-browser), API calls from the signed-in page | A |
+
+B ran UAT-02, UAT-04 and UAT-06 partly by hand in Chrome and partly with agent-browser; the recorded results, times and screenshots come from the agent-browser run (`uat-execution.md`, method).
 
 ## B.3 Results on `b71cdb2`
 
