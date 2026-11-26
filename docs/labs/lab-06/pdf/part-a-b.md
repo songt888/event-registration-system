@@ -48,7 +48,7 @@ Not in the manual scope, and named in the cases so the UAT Team knows why: concu
 | ID | Evidence | Time / version |
 |---|---|---|
 | E-A1 | `uat-cases.md` and `handoff.md` at `e22c20a` (Appendix A1, A2); review of PR #128 by B (quoted in Appendix A3) | 2026-11-24 22:37 |
-| E-A2 | Handoff exchange on Discord: our handoff link sent to Est, Est's handoff received, password sent by direct message (screenshot with the password not shown) | _A to add: screenshot and time_ |
+| E-A2 | A's Discord direct message to a member of team Est: links to the test URL, `handoff.md` and `uat-cases.md` (pinned at `f5089dc`, the merge of PR #128, same files as `e22c20a`), and the shared password on its own line, covered by a solid black box in the screenshot (`evidence/l6-02/E-A2-discord-handoff.png`) | 2026-11-25 00:24 |
 | E-A3 | B's dry-run of all six cases on the live URL before the handoff: "every step matched except the notes below. no app defects found." (PR #128 review, changes requested, then approved at `e22c20a`) | 2026-11-24 |
 
 ## A.4 How the handoff was used
