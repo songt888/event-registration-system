@@ -1,0 +1,46 @@
+Command: npm run test:e2e -- e2e/saved-message.spec.ts | Commit: d5c2f842cf1298deb4d56c25ae20429b4549f6cb (same test and fix content run before committing) | UTC: 2026-11-26T11:22:36Z | Node: v24.19.0 | Playwright: 1.65.0
+
+> test:e2e
+> playwright test e2e/saved-message.spec.ts
+
+[WebServer] (node:98344) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98345) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:98386) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "eventreg_e2e", schema "public" at "localhost:5432"
+
+Applying migration `20261107093337_init`
+
+Database reset successful
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20261107093337_init/
+    └─ migration.sql
+
+Running generate... (Use --skip-generate to skip the generators)
+Running generate... - Prisma Client
+✔ Generated Prisma Client (v5.22.0) to ./../node_modules/@prisma/client in 32ms
+
+
+> seed
+> tsx --env-file-if-exists=.env prisma/seed.ts
+
+Seed done: 2 organizers, 4 participants, 4 events, 1 registration.
+[WebServer] (node:98422) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:98447) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › e2e/saved-message.spec.ts:3:1 › TEST-63 AC-63 clears the draft confirmation after publishing (L6-11) (1.6s)
+
+  1 passed (4.6s)
+
+AI use: Codex wrote the test and fix on A's instruction.
