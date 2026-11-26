@@ -68,7 +68,7 @@ These journeys supplement service/API/DB checks; they do not replace negative au
 | AC-22 / TEST-22 | Organizer creates/publishes; participant registers and sees it in My registrations; owner sees registrant. | F-01 through F-06; FR-01, FR-04, FR-06, FR-07, FR-08, FR-15; persisted UI journey | A, sub-task 9.1 (#37) | pass (E2E 5 of 5) |
 | AC-23 / TEST-23 | Full-event UI rejection; My registrations unchanged. | F-03, F-04, F-05; FR-06, FR-07, BR-02 | B, sub-task 9.2 (#38) | pass (E2E 5 of 5) |
 | AC-24 / TEST-24 | Login shows name/role; logout then protected navigation returns to login. | F-01; FR-01, FR-02, FR-03 UI identity only | A, sub-task 9.1 (#37) | pass (E2E 5 of 5) |
-| AC-56 / TEST-56 | Logout in a second tab; protected navigation in the first tab shows Sign in and stays, no repeated 401 requests. | F-01; FR-02, FR-03; NFR-01; Lab 6 defect #142 | A, L6-09 (#156) | not run yet |
+| AC-56 / TEST-56 | Logout in a second tab; protected navigation in the first tab shows Sign in and stays, no repeated 401 requests. | F-01; FR-02, FR-03; NFR-01; Lab 6 defect #142 | A, L6-09 (#156) | pass at `d7184bf` (E2E 7 of 7) |
 | AC-62 / TEST-62 | After a refused (409) registration the event page reloads the places text. | F-04; FR-05, FR-06 UI; Lab 6 enhancement #143 | A, L6-10 (#157) | not run yet |
 | AC-63 / TEST-63 | "Draft … saved." is removed after Publish and stays removed on reload. | F-02; FR-04 UI; Lab 6 enhancement #146 | A, L6-11 (#158) | not run yet |
 | AC-64 / TEST-64 | Sign in and Create event field errors set `aria-invalid` and `aria-describedby`. | F-01, F-02; FR-01, FR-04 UI; NFR-09; Lab 6 enhancement #145 | A, L6-12 (#159) | not run yet |
