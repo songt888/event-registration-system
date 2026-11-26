@@ -20,6 +20,19 @@ export function Layout() {
   const [win, setWin] = useState<WinState>('normal');
   const [title, setTitle] = useState('');
   const wmRef = useRef<HTMLDivElement>(null);
+  // #151: the taskbar wraps to more rows on narrow screens, so the page reserves its real height (styles.css #root)
+  const headerRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const root = document.documentElement;
+    const ro = new ResizeObserver(() => root.style.setProperty('--taskbar-h', `${el.offsetHeight}px`));
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      root.style.removeProperty('--taskbar-h');
+    };
+  }, [loading, error, user]);
   useEffect(() => {
     const id = setInterval(() => setTime(new Date()), 30000);
     return () => clearInterval(id);
@@ -68,7 +81,7 @@ export function Layout() {
 
   return (
     <>
-      <header>
+      <header ref={headerRef}>
         <nav>
           <span className="orb" aria-hidden="true" />
           <NavLink to="/events" end>Events</NavLink>{' '}

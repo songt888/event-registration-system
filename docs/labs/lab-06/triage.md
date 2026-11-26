@@ -110,7 +110,7 @@ Opened by Est (vienggd) on 2026-11-26 16:50–16:52 (UTC+7) against the same rel
 | [#152](https://github.com/songt888/event-registration-system/issues/152) | Create event and Publish stay on the page after the session ends | minor | **Duplicate of #142** | minor | A | fixed by L6-09 (PR #167, AC-56), released in `v0.1.3-lab6` |
 | [#153](https://github.com/songt888/event-registration-system/issues/153) | Event registrations shows "Not found" or 403 to a participant, depending on which request answers first | minor | **Accepted defect** | minor | A | fix in [L6-17 #172](https://github.com/songt888/event-registration-system/issues/172) (AC-69/TEST-69), released in `v0.1.3-lab6` |
 | [#155](https://github.com/songt888/event-registration-system/issues/155) | Password cleared after a 400 on Sign in; blank Capacity says "greater than or equal to 1" | minor | Enhancement | minor | A | fix in [L6-18 #173](https://github.com/songt888/event-registration-system/issues/173) (AC-70/TEST-70), released in `v0.1.3-lab6` |
-| [#151](https://github.com/songt888/event-registration-system/issues/151) | Taskbar covers Save draft at 320 px; Logout wraps at 768–812 px | major / minor | Enhancement | minor | B | Sprint 3 (taskbar layout with the planned UI work) |
+| [#151](https://github.com/songt888/event-registration-system/issues/151) | Taskbar covers Save draft at 320 px; Logout wraps at 768–812 px | major / minor | Enhancement | minor | A (was B) | fix in L6-20 (AC-72/TEST-72), released in `v0.1.3-lab6` |
 | [#154](https://github.com/songt888/event-registration-system/issues/154) | My events shows Create event to a participant above the 403 message | minor | Enhancement | minor | B | fix in [L6-19 #175](https://github.com/songt888/event-registration-system/issues/175) (AC-71/TEST-71), released in `v0.1.3-lab6` |
 
 ### #152 Create event and Publish stay on the page after the session ends: duplicate of #142
@@ -139,6 +139,7 @@ Opened by Est (vienggd) on 2026-11-26 16:50–16:52 (UTC+7) against the same rel
 - **Related to #147, not a duplicate:** same taskbar, different cause (#147 is the minimized task button running off the right edge; #151 is the wrapped taskbar being taller than the 5rem bottom padding of `#root`, `styles.css` line 73, and the compact header applying only below 640 px).
 - **Severity minor** (Est proposed major at 320 px): the task can be completed; only part of a button is covered.
 - **Decision:** Sprint 3, with the planned UI work, because a fix changes the taskbar layout at three widths. Fix idea: bottom padding from the taskbar's real height, and the compact header up to about 900 px.
+- **Decision revised (2026-11-26, agreed by B):** the class stays enhancement, but the team fixes it now so the retested release has no covered control: new AC-72/TEST-72 in `f-01-auth.md` (Window shell row), L6-20 #177, owner A, released in `v0.1.3-lab6`.
 
 ### #154 My events shows Create event to a participant above the 403 message: enhancement, minor
 
