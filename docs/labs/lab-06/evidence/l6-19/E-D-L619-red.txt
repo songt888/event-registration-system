@@ -1,0 +1,50 @@
+Command: npm run test:e2e -- e2e/create-event-link.spec.ts
+Tested commit: 9fac803 (red test on the unfixed client; the RED commit itself)
+Run: 2026-11-26 20:53 (UTC+7), Node v24.16.0, Playwright Version 1.65.0
+
+> test:e2e
+> playwright test e2e/create-event-link.spec.ts
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "eventreg_e2e", schema "public" at "localhost:5432"
+Applying migration `20261107093337_init`
+Database reset successful
+The following migration(s) have been applied:
+migrations/
+  └─ 20261107093337_init/
+    └─ migration.sql
+Running generate... (Use --skip-generate to skip the generators)
+[2K[1A[2K[GRunning generate... - Prisma Client
+[2K[1A[2K[G✔ Generated Prisma Client (v5.22.0) to ./../node_modules/@prisma/client in 54ms
+> seed
+> tsx --env-file-if-exists=.env prisma/seed.ts
+Seed done: 2 organizers, 4 participants, 4 events, 1 registration.
+Running 1 test using 1 worker
+  ✘  1 [chromium] › e2e/create-event-link.spec.ts:12:1 › TEST-71 AC-71 a participant on My events sees the 403 message and no Create event link (L6-19) (6.8s)
+  1) [chromium] › e2e/create-event-link.spec.ts:12:1 › TEST-71 AC-71 a participant on My events sees the 403 message and no Create event link (L6-19) 
+    Error: expect(locator).toHaveCount(expected) failed
+    Locator:  getByRole('link', { name: 'Create event' })
+    Expected: 0
+    Received: 1
+    Timeout:  5000ms
+    Call log:
+      - Expect "toHaveCount" getByRole('link', { name: 'Create event' }) with timeout 5000ms
+      - waiting for getByRole('link', { name: 'Create event' })
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+      15 |   await participant.goto('/organizer/events');
+      16 |   await expect(participant.getByRole('alert')).toHaveText('You do not have access to this.');
+    > 17 |   await expect(participant.getByRole('link', { name: 'Create event' })).toHaveCount(0);
+         |                                                                         ^
+      18 |
+      19 |   const organizer = await (await browser.newContext()).newPage();
+      20 |   await signIn(organizer, 'organizer2@example.com');
+        at /Users/tonklax/Documents/CPE/CPE 334 Software Engineering/Project/event-registration-system/e2e/create-event-link.spec.ts:17:73
+    Error Context: test-results/create-event-link-TEST-71--e1c56-no-Create-event-link-L6-19--chromium/error-context.md
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/create-event-link-TEST-71--e1c56-no-Create-event-link-L6-19--chromium/trace.zip
+    Usage:
+        npx playwright show-trace test-results/create-event-link-TEST-71--e1c56-no-Create-event-link-L6-19--chromium/trace.zip
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+  1 failed
+    [chromium] › e2e/create-event-link.spec.ts:12:1 › TEST-71 AC-71 a participant on My events sees the 403 message and no Create event link (L6-19) 
