@@ -83,8 +83,12 @@ export function EventDetailPage() {
       setTimeout(() => setBurning(false), 1500);
       reload();
     } catch (err) {
-      if ((err as ApiError).status === 401) setLostSession(true);
-      else setResult({ ok: false, text: registerError(err as ApiError) });
+      const error = err as ApiError;
+      if (error.status === 401) setLostSession(true);
+      else {
+        setResult({ ok: false, text: registerError(error) });
+        if (error.status === 409) reload();
+      }
     } finally {
       setPending(false);
     }
@@ -99,7 +103,7 @@ export function EventDetailPage() {
       <div className={burning ? 'props burning' : 'props'}>
         <div className="disc" aria-hidden="true" />
         <div>
-          <p>{e.description}</p>
+          <p className="description">{e.description}</p>
           <p className="muted">{e.location}</p>
           <p className="muted">{new Date(e.startsAt).toLocaleString()}</p>
           <Places e={e} />

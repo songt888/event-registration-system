@@ -51,7 +51,7 @@ Identity comes only from the session cookie. The list is the same for every sign
 | Screen | Route | Behavior |
 |---|---|---|
 | Events | `/events` | Loading: "Loading events...". Empty: "No published events yet". Error: the API `error.message` in an alert; 401 redirects to `/login`. Each row shows the title (link to `/events/:id`), the start time in the browser's local time, the location and "N of C places left"; when `remainingPlaces` is 0 the row shows "Full". |
-| Event detail | `/events/:id` | Loading: "Loading event...". Error: 404 shows "Not found"; other errors show the API `error.message`; 401 redirects to `/login`. Shows title, description, location, local start time and "N of C places left" (or "Full"). |
+| Event detail | `/events/:id` | Loading: "Loading event...". Error: 404 shows "Not found"; other errors show the API `error.message`; 401 redirects to `/login`. Shows title, description, location, local start time and "N of C places left" (or "Full"). The description keeps its line breaks (AC-66). |
 
 Shared states follow system SDS 3.2. The UI shows the value from the API; it never computes `remainingPlaces` itself.
 
@@ -99,6 +99,7 @@ Defined by the F-02 contract (#18). Not redefined here.
 | AC-10 | A signed-in user's `GET /api/events` returns 200 with every PUBLISHED event and no DRAFT event. Each item has `remainingPlaces = capacity - ACTIVE registrations` (equal to `capacity` with no registrations, `0` when full). With only DRAFT events stored, the list is empty (200, `{ "events": [] }`). | FR-05, D-07 |
 | AC-11 | When `GET /api/events` returns an empty list, the Events screen shows "No published events yet" and no event rows. | FR-05, NFR-09 |
 | AC-38 | `GET /api/events` without a session cookie, with a cookie whose token matches no session, with the cookie of an expired session (`expiresAt <= now`), or with the cookie of a logged-out session, returns 401 `UNAUTHENTICATED` and the body contains no event data. | NFR-01, FR-05 |
+| AC-66 | On the Event detail screen, a description saved with line breaks is shown with each line on its own line. | FR-05 UI; Lab 6 enhancement #144 (L6-14) |
 
 AC-38 is new: no existing AC covered an unauthenticated request to the event list (AC-03 covers `/api/me`, AC-09 covers `POST /api/events`).
 
@@ -108,6 +109,7 @@ AC-38 is new: no existing AC covered an unauthenticated request to the event lis
 | TEST-10 | AC-10 | API + DB integration (Vitest + Supertest, `DATABASE_URL_TEST`) | Insert directly: organizer O, participants P1 and P2; event E1 PUBLISHED capacity 3 with no registrations; E2 PUBLISHED capacity 2 with ACTIVE registrations for P1 and P2; E3 DRAFT owned by O. Log in as P1. | `GET /api/events`. | 200; exactly E1 and E2 in the list, E3 absent; E1 `remainingPlaces` 3; E2 `remainingPlaces` 0. Also run the list as O: same two events. Second case (fresh database, only E3 DRAFT inserted, log in as P1): `GET /api/events` returns 200 with `{ "events": [] }`. |
 | TEST-11 | AC-11 | E2E UI (Playwright, `DATABASE_URL_E2E`) | Seeded database; log in through the UI as a seeded participant. Replace only the `GET /api/events` response with `{ "events": [] }` (Playwright `page.route`), since the seeded database always has PUBLISHED events. | Open `/events`. | "No published events yet" is visible; no event row is rendered. |
 | TEST-38 | AC-38 | API + DB integration (Vitest + Supertest, `DATABASE_URL_TEST`) | Insert directly: organizer O, participant P1, one PUBLISHED event owned by O, and a `Session` row for P1 with `tokenHash` = SHA-256 of a known token T and `expiresAt` in the past (system SDS 6, D-08). | (a) `GET /api/events` with no cookie. (b) `GET /api/events` with a session cookie holding a random token that has no `Session` row. (c) `GET /api/events` with a session cookie holding T. (d) Log in as P1, log out, then `GET /api/events` with the old cookie. | All four 401 with `error.code` `UNAUTHENTICATED`; the body has no `events` field. |
+| TEST-66 | AC-66 | E2E UI (Playwright, `DATABASE_URL_E2E`), L6-14 #163 | Seeded database; an organizer saves a draft whose description is `line one`, `line two`, `line three` on three lines. | Open the draft's event page. | The description element's rendered text has the three lines separated by line breaks (`innerText` contains `line one\nline two\nline three`) and is three lines tall. Red on `04e8590`, where the three lines render as one. |
 
 Test names start with their IDs, for example `TEST-10 AC-10 lists only PUBLISHED events with remaining places`.
 TEST-11 is UI-only coverage with a mocked API response; evidence must label it so. The real API and database behavior of the list is covered by TEST-10.
@@ -126,3 +128,4 @@ The Sprint 1 Definition of Done (F-01 contract, #17) applies. For F-03 in additi
 |---|---|---|---|---|
 | 1.0 | 2026-11-07 | First F-03 contract (Issue #19) | B (stickkersz) | A (songt888) |
 | 1.1 | 2026-11-08 | D-15 (Issue #73): the Events screen shows each event as a card (CD case) instead of a table row; the fields, the title link to `/events/:id`, the loading, empty and error texts and every AC are unchanged. "Row" in sections 1 and 6 reads as "card" | B (stickkersz) | A (songt888) |
+| 1.2 | 2026-11-26 | Lab 6 UAT: AC-66/TEST-66 (enhancement #144): the event page keeps the description's line breaks. Committed before the RED test (L6-14 #163) | B (stickkersz), with Claude Code | A (songt888) |

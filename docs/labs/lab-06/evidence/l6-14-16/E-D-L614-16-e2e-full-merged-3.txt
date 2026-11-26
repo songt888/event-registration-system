@@ -1,0 +1,33 @@
+Command: npm run test:e2e
+Tested commit: 6cb4db6 (third merge of lab6-staging, after #171, with the L6-14..L6-16 fix)
+Run: 2026-11-26 19:02 (UTC+7), Node v24.16.0, Playwright Version 1.65.0
+
+> test:e2e
+> playwright test
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "eventreg_e2e", schema "public" at "localhost:5432"
+Applying migration `20261107093337_init`
+Database reset successful
+The following migration(s) have been applied:
+migrations/
+  └─ 20261107093337_init/
+    └─ migration.sql
+Running generate... (Use --skip-generate to skip the generators)
+[2K[1A[2K[GRunning generate... - Prisma Client
+[2K[1A[2K[G✔ Generated Prisma Client (v5.22.0) to ./../node_modules/@prisma/client in 32ms
+> seed
+> tsx --env-file-if-exists=.env prisma/seed.ts
+Seed done: 2 organizers, 4 participants, 4 events, 1 registration.
+Running 10 tests using 1 worker
+  ✓   1 [chromium] › e2e/browse.spec.ts:4:1 › TEST-11 AC-11 Events screen shows the empty state for an empty list (1.2s)
+  ✓   2 [chromium] › e2e/full-event.spec.ts:12:1 › TEST-23 AC-23 full event shows the full message and My registrations stays unchanged (4.2s)
+  ✓   3 [chromium] › e2e/golden-journey.spec.ts:19:1 › TEST-22 AC-22 organizer publishes, participant registers and sees it, owner sees the registrant (4.4s)
+  ✓   4 [chromium] › e2e/golden-journey.spec.ts:53:1 › TEST-24 AC-24 header shows name and role for each role; after logout a protected page opens login (2.9s)
+  ✓   5 [chromium] › e2e/long-text.spec.ts:28:1 › TEST-65 AC-65 maximum-length text without spaces keeps Publish on screen and no page scrolls sideways (L6-13) (5.2s)
+  ✓   6 [chromium] › e2e/smoke.spec.ts:5:1 › signed-out visitor is sent to the login form (149ms)
+  ✓   7 [chromium] › e2e/stale-session.spec.ts:4:1 › TEST-56 AC-56 after logout in another tab, protected navigation shows Sign in and stops the refused requests (L6-09) (4.8s)
+  ✓   8 [chromium] › e2e/ui-enhancements.spec.ts:12:1 › TEST-66 AC-66 the event page keeps the description line breaks (L6-14) (1.5s)
+  ✓   9 [chromium] › e2e/ui-enhancements.spec.ts:38:1 › TEST-67 AC-67 at 320 px the minimized window Restore button stays inside the screen (L6-15) (1.8s)
+  ✓  10 [chromium] › e2e/ui-enhancements.spec.ts:55:1 › TEST-68 AC-68 the Not found page names its window (L6-16) (2.8s)
+  10 passed (32.5s)

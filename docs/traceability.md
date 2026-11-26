@@ -68,11 +68,14 @@ These journeys supplement service/API/DB checks; they do not replace negative au
 | AC-22 / TEST-22 | Organizer creates/publishes; participant registers and sees it in My registrations; owner sees registrant. | F-01 through F-06; FR-01, FR-04, FR-06, FR-07, FR-08, FR-15; persisted UI journey | A, sub-task 9.1 (#37) | pass (E2E 5 of 5) |
 | AC-23 / TEST-23 | Full-event UI rejection; My registrations unchanged. | F-03, F-04, F-05; FR-06, FR-07, BR-02 | B, sub-task 9.2 (#38) | pass (E2E 5 of 5) |
 | AC-24 / TEST-24 | Login shows name/role; logout then protected navigation returns to login. | F-01; FR-01, FR-02, FR-03 UI identity only | A, sub-task 9.1 (#37) | pass (E2E 5 of 5) |
-| AC-56 / TEST-56 | Logout in a second tab; protected navigation in the first tab shows Sign in and stays, no repeated 401 requests. | F-01; FR-02, FR-03; NFR-01; Lab 6 defect #142 | A, L6-09 (#156) | not run yet |
-| AC-62 / TEST-62 | After a refused (409) registration the event page reloads the places text. | F-04; FR-05, FR-06 UI; Lab 6 enhancement #143 | A, L6-10 (#157) | not run yet |
+| AC-56 / TEST-56 | Logout in a second tab; protected navigation in the first tab shows Sign in and stays, no repeated 401 requests. | F-01; FR-02, FR-03; NFR-01; Lab 6 defect #142 | A, L6-09 (#156) | pass at `d7184bf` (E2E 7 of 7) |
+| AC-62 / TEST-62 | After a refused (409) registration the event page reloads the places text. | F-04; FR-05, FR-06 UI; Lab 6 enhancement #143 | A, L6-10 (#157) | pass at `440b03b` (E2E 7 of 7) |
 | AC-63 / TEST-63 | "Draft … saved." is removed after Publish and stays removed on reload. | F-02; FR-04 UI; Lab 6 enhancement #146 | A, L6-11 (#158) | pass at `d5c2f84` (E2E 7 of 7) |
-| AC-64 / TEST-64 | Sign in and Create event field errors set `aria-invalid` and `aria-describedby`. | F-01, F-02; FR-01, FR-04 UI; NFR-09; Lab 6 enhancement #145 | A, L6-12 (#159) | not run yet |
-| AC-65 / TEST-65 | Maximum-length text without spaces wraps: Publish in My events stays on screen at 1280 px; My events (1280 and 375 px), the event page and the Events list do not scroll sideways. | F-02, F-03; FR-04, FR-05 UI; Lab 6 defect #141 | B, L6-13 (#161) | pass at `4ca4d1a` (TEST-65; `npm run test:e2e` 6 passed, 0 failed, 0 skipped) |
+| AC-64 / TEST-64 | Sign in and Create event field errors set `aria-invalid` and `aria-describedby`. | F-01, F-02; FR-01, FR-04 UI; NFR-09; Lab 6 enhancement #145 | A, L6-12 (#159) | pass at `912d770` (E2E 8 of 8) |
+| AC-65 / TEST-65 | Maximum-length text without spaces wraps: Publish in My events stays on screen at 1280 px; My events (1280, 1024, 768, 375 px), My registrations (1024, 768 px), the event page and the Events list do not scroll sideways. | F-02, F-03, F-05; FR-04, FR-05, FR-07 UI; Lab 6 defect #141 | B, L6-13 (#161) | pass at `d7b89b0` (TEST-65 revised; `npm run test:e2e` 6 passed, 0 failed, 0 skipped; the first version passed at `4ca4d1a`) |
+| AC-66 / TEST-66 | The event page keeps the description's line breaks. | F-03; FR-05 UI; Lab 6 enhancement #144 | B, L6-14 (#163) | pass at `1b518ed` (TEST-66; `npm run test:e2e` 8 passed, 0 failed, 0 skipped) |
+| AC-67 / TEST-67 | At 320 px the minimized window's Restore button stays inside the screen and keeps its name. | F-01 shell (D-15); Lab 6 enhancement #147 | B, L6-15 (#164) | pass at `1b518ed` (TEST-67; `npm run test:e2e` 8 passed, 0 failed, 0 skipped) |
+| AC-68 / TEST-68 | The Not found page names its window ("Not found"). | F-01 shell (D-15); system SDS 3.2; Lab 6 enhancement #148 | B, L6-16 (#165) | pass at `1b518ed` (TEST-68; `npm run test:e2e` 8 passed, 0 failed, 0 skipped) |
 
 ## 6. Coverage gaps and planned closure
 
