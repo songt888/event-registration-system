@@ -21,7 +21,7 @@ test('TEST-61 AC-61 shows the time-conflict alert without changing places', asyn
   expect(heldEvent).toBeDefined();
   const startsAt = new Date(Date.parse(heldEvent.startsAt) + 60 * 60 * 1000).toISOString();
   const created = await org.request.post('/api/events', {
-    data: { title, location: 'Room 201', startsAt, capacity: 5 },
+    data: { title, description: 'Created for TEST-61.', location: 'Room 201', startsAt, capacity: 5 },
   });
   expect(created.status()).toBe(201);
   const { id } = await created.json();
