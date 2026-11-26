@@ -29,28 +29,30 @@ export function MyRegistrationsPage() {
       ) : list.length === 0 ? (
         <p>You have no registrations yet.</p>
       ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Event</th>
-              <th>Starts</th>
-              <th>Location</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {list.map((r) => (
-              <tr key={r.id}>
-                <td>
-                  <Link to={`/events/${r.event.id}`}>{r.event.title}</Link>
-                </td>
-                <td>{new Date(r.event.startsAt).toLocaleString()}</td>
-                <td>{r.event.location}</td>
-                <td><span className={`led led-${r.status.toLowerCase()}`}>{r.status}</span></td>
+        <div className="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Event</th>
+                <th>Starts</th>
+                <th>Location</th>
+                <th>Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {list.map((r) => (
+                <tr key={r.id}>
+                  <td>
+                    <Link to={`/events/${r.event.id}`}>{r.event.title}</Link>
+                  </td>
+                  <td>{new Date(r.event.startsAt).toLocaleString()}</td>
+                  <td>{r.event.location}</td>
+                  <td><span className={`led led-${r.status.toLowerCase()}`}>{r.status}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </main>
   );

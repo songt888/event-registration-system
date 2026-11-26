@@ -67,41 +67,43 @@ export function MyEventsPage() {
       ) : events.length === 0 ? (
         <p>No events yet</p>
       ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Starts</th>
-              <th>Location</th>
-              <th>Places left</th>
-              <th>Status</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {events.map((e) => (
-              <tr key={e.id}>
-                <td>
-                  <Link to={`/events/${e.id}`}>{e.title}</Link>
-                </td>
-                <td>{new Date(e.startsAt).toLocaleString()}</td>
-                <td>{e.location}</td>
-                <td>
-                  {e.remainingPlaces} of {e.capacity}
-                </td>
-                <td><span className={`led led-${e.status.toLowerCase()}`}>{e.status}</span></td>
-                <td className="actions">
-                  <Link to={`/organizer/events/${e.id}/registrations`}>Registrations</Link>{' '}
-                  {e.status === 'DRAFT' && (
-                    <button onClick={() => publish(e.id)} disabled={publishing === e.id}>
-                      {publishing === e.id ? 'Publishing...' : 'Publish'}
-                    </button>
-                  )}
-                </td>
+        <div className="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Starts</th>
+                <th>Location</th>
+                <th>Places left</th>
+                <th>Status</th>
+                <th />
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {events.map((e) => (
+                <tr key={e.id}>
+                  <td>
+                    <Link to={`/events/${e.id}`}>{e.title}</Link>
+                  </td>
+                  <td>{new Date(e.startsAt).toLocaleString()}</td>
+                  <td>{e.location}</td>
+                  <td>
+                    {e.remainingPlaces} of {e.capacity}
+                  </td>
+                  <td><span className={`led led-${e.status.toLowerCase()}`}>{e.status}</span></td>
+                  <td className="actions">
+                    <Link to={`/organizer/events/${e.id}/registrations`}>Registrations</Link>{' '}
+                    {e.status === 'DRAFT' && (
+                      <button onClick={() => publish(e.id)} disabled={publishing === e.id}>
+                        {publishing === e.id ? 'Publishing...' : 'Publish'}
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </main>
   );
