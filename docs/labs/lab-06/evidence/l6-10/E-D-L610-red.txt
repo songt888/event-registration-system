@@ -1,0 +1,89 @@
+Note: this run was made just before the RED commit 10abc27, which adds only e2e/reload-after-409.spec.ts and this output on top of 0cb4d67; the test file in 10abc27 is the one that was run.
+Command: npm run test:e2e -- e2e/reload-after-409.spec.ts | Commit: 0cb4d6788a7cb7a7f5fed7c96c80ebcc943e715a (unfixed base plus uncommitted regression test) | UTC: 2026-11-26T11:19:42Z | Node: v24.19.0 | Playwright: 1.65.0
+
+> test:e2e
+> playwright test e2e/reload-after-409.spec.ts
+
+[WebServer] (node:96315) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96316) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:96343) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "eventreg_e2e", schema "public" at "localhost:5432"
+
+Applying migration `20261107093337_init`
+
+Database reset successful
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20261107093337_init/
+    └─ migration.sql
+
+Running generate... (Use --skip-generate to skip the generators)
+[2K[1A[2K[GRunning generate... - Prisma Client
+[2K[1A[2K[G✔ Generated Prisma Client (v5.22.0) to ./../node_modules/@prisma/client in 26ms
+
+┌─────────────────────────────────────────────────────────┐
+│  Update available 5.22.0 -> 8.0.0-rc.36                 │
+│                                                         │
+│  This is a major update - please follow the guide at    │
+│  https://pris.ly/d/major-version-upgrade                │
+│                                                         │
+│  Run the following to update                            │
+│    npm i --save-dev prisma@latest                       │
+│    npm i @prisma/client@latest                          │
+└─────────────────────────────────────────────────────────┘
+
+> seed
+> tsx --env-file-if-exists=.env prisma/seed.ts
+
+Seed done: 2 organizers, 4 participants, 4 events, 1 registration.
+[WebServer] (node:96376) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:96406) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › e2e/reload-after-409.spec.ts:3:1 › TEST-62 AC-62 refreshes places after a refused registration (L6-10) (7.2s)
+
+
+  1) [chromium] › e2e/reload-after-409.spec.ts:3:1 › TEST-62 AC-62 refreshes places after a refused registration (L6-10)
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('29 of 30 places left')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('29 of 30 places left') with timeout 5000ms
+      - waiting for getByText('29 of 30 places left')
+
+
+      17 |   await page.getByRole('button', { name: 'Register', exact: true }).click();
+      18 |   await expect(page.getByRole('alert')).toHaveText('You are already registered for this event.');
+    > 19 |   await expect(page.getByText('29 of 30 places left')).toBeVisible();
+         |                                                        ^
+      20 | });
+      21 |
+        at e2e/reload-after-409.spec.ts:19:56
+
+    Error Context: test-results/reload-after-409-TEST-62-A-1c92f-refused-registration-L6-10--chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/reload-after-409-TEST-62-A-1c92f-refused-registration-L6-10--chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/reload-after-409-TEST-62-A-1c92f-refused-registration-L6-10--chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › e2e/reload-after-409.spec.ts:3:1 › TEST-62 AC-62 refreshes places after a refused registration (L6-10)
