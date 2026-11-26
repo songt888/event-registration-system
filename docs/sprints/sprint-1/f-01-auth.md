@@ -52,9 +52,9 @@ Use PostgreSQL persistence and Prisma as specified in the SDS. No schema duplica
 |---|---|
 | Login form | Labelled email and password fields; password masked; submit button; no self-registration/reset links promising unavailable features |
 | Submitting | Disable submit and show a pending indication until completion; do not send twice from a repeated click |
-| Validation/error | Show field validation and readable generic credential/API/network error; retain email, keep the password out of logs; allow retry |
+| Validation/error | Show field validation and readable generic credential/API/network error; retain email, keep the password out of logs; allow retry. A field with an error is marked invalid and tied to its error text (AC-64, defined in F-02 for the Sign in and Create event forms) |
 | Success | Navigate to `/events`; header shows name/role returned by `/api/me`; participant and organizer links follow SDS navigation |
-| Session bootstrap | Show loading while `/api/me` is pending; 401 clears local user display and opens `/login`; other failures show a readable retryable error |
+| Session bootstrap | Show loading while `/api/me` is pending; 401 clears local user display and opens `/login`; other failures show a readable retryable error. A 401 from any later API call also clears the displayed user, so a session revoked in another tab opens `/login` and it stays there (AC-56) |
 | Logout | Wait for confirmed API success, clear displayed user, navigate to `/login`; an API/network failure is shown and must not be presented as successful server revocation |
 | Protected navigation | Missing/expired/revoked session redirects to `/login`; wrong-role page shows the readable 403 message. UI hiding never substitutes for API guards |
 
@@ -76,6 +76,7 @@ Existing AC-01..05 and AC-24 retain their original meaning. Additional IDs close
 | AC-41 | Invalid login request cases return 400 VALIDATION_ERROR with the safe error shape and no new Session; valid-shaped invalid credentials still use AC-02 | NFR-07 |
 | AC-42 | Shared guards reject anonymous callers with 401 before role handling; valid-session wrong role gets 403 before target lookup; client-supplied identity/role cannot authorize a request | NFR-01, NFR-03; BR-01/BR-05 foundation |
 | AC-24 | UI login shows name/role; logout followed by protected navigation returns to login | FR-01, FR-02, FR-03; cross-feature E2E |
+| AC-56 | With two tabs of one signed-in participant, after Logout in the second tab, protected navigation in the first tab shows the Sign in page, which stays; the header no longer shows the user, and the browser does not repeat the refused (401) requests | FR-02, FR-03; NFR-01; Lab 6 defect #142 (L6-09) |
 
 ## 7. Software Test Specification (planned)
 
@@ -92,6 +93,7 @@ All API/DB tests use DATABASE_URL_TEST, with sequential integration files and tr
 | TEST-40 / AC-40 | Service unit + API/DB | Fixed now; sessions expiring before, exactly at, and after now; unknown/revoked token | Call guard and /api/me; make successful request before expiry then inspect expiry | Before/equal expiry rejected and found expired rows deleted; unknown/revoked rejected; future expiry succeeds and timestamp unchanged |
 | TEST-41 / AC-41 | API + DB | Session count recorded | Parameterize missing fields, empty/non-string fields, invalid email, extra userId/role, array/null body, malformed JSON and non-JSON Content-Type | 400 VALIDATION_ERROR with safe shape; field details where applicable; no Session created; no stack/password reflected |
 | TEST-42 / AC-42 | Middleware unit + API integration | Guard test harness with a target-handler spy; no session, valid PARTICIPANT and ORGANIZER sessions | Call protected role-specific harness with missing/wrong/correct role; attempt identity override; use several target IDs | 401 before role/handler, 403 for wrong role regardless of ID, handler not reached on denial; correct role uses session identity only. Real endpoint matrices also required in F-02..F-06 contracts |
+| TEST-56 / AC-56 | E2E (Playwright), L6-09 #156 | Own E2E database seeded; one browser context, two pages signed in as the same participant | In page 2 press Logout; in page 1 click My registrations; count `/api/` requests that return 401 in page 1 over the next 3 seconds | Page 1 shows the Sign in form and still shows it after 3 seconds; header shows no user name; at most one 401 per refused endpoint (no repeated requests). Red on `04e8590`, where the tab returns to `/events` and repeats `GET /api/events` |
 | TEST-24 / AC-24 | E2E, later #37 | Own E2E database seeded; browser signed out | Login each role, check header, logout, open protected page | Name/role correct; successful logout then protected page opens login; retain command/commit/output when actually implemented |
 
 TEST-04 also parameterizes logout with a valid session and malformed JSON, non-object/nonempty body or non-JSON content type: expect 400 VALIDATION_ERROR, no cookie clearing and no Session deletion; the same session must still access /api/me. TEST-40 additionally calls logout with no, unknown, expired and revoked cookie, including malformed bodies: expect 401 before body validation, no private data and no deletion of another valid session (found expired-row cleanup remains required).
@@ -107,5 +109,7 @@ Use the shared [Sprint 1 Definition of Done](definition-of-done.md). Contract pr
 | Version | Date | Scope/change and reason | Status/review |
 |---|---|---|---|
 | F-01 1.0 | 2026-11-07 | Initial #17 contract from merged baseline. Retains AC/TEST-01..05 and 24; proposes AC/TEST-39..42 for authenticated /me, expiry, input validation and shared guards, closing traceability gaps without renumbering or defining F-04's 37 | Prepared by A with Codex/document_writer assistance; pending genuine B review and merge |
+
+| F-01 1.1 | 2026-11-26 | Lab 6 UAT: AC-56/TEST-56 for defect #142 (a 401 from any API call clears the displayed user; session bootstrap row extended); the Validation/error row points to AC-64 in F-02 for enhancement #145. Contract committed before the RED tests (L6-09 #156, L6-12 #159) | Prepared by A with Claude Code assistance; review by B on the PR |
 
 Later F-02..F-06 contracts keep their own version histories in their owned files. Record changes before implementation, with Issue/PR, reason, affected IDs and actual reviewer/merge state. Do not label a proposed contract or future test as approved/passed.
