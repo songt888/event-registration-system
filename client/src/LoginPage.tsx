@@ -39,7 +39,8 @@ export function LoginPage() {
       const apiErr = err as ApiError;
       setFieldErrors(Object.fromEntries((apiErr.details ?? []).map((d) => [d.field, d.message])));
       setError(apiErr.message);
-      setPassword('');
+      // AC-70: a 400 is a typing problem, so the password stays; after a refused sign-in (401) it is cleared.
+      if (apiErr.status !== 400) setPassword('');
     } finally {
       setSubmitting(false);
     }

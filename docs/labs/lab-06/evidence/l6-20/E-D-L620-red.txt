@@ -1,0 +1,157 @@
+Command: npm run test:e2e -- e2e/taskbar-overlap.spec.ts
+Tested commit: ea109a1 (RED test on the unfixed client; the RED commit itself)
+Run: 2026-11-26 21:21 (UTC+7), Node v24.19.0, Version 1.65.0
+
+
+> test:e2e
+> playwright test e2e/taskbar-overlap.spec.ts
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "eventreg_e2e", schema "public" at "localhost:5432"
+
+Applying migration `20261107093337_init`
+
+Database reset successful
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20261107093337_init/
+    └─ migration.sql
+
+Running generate... (Use --skip-generate to skip the generators)
+[2K[1A[2K[GRunning generate... - Prisma Client
+[2K[1A[2K[G✔ Generated Prisma Client (v5.22.0) to ./../node_modules/@prisma/client in 32ms
+
+┌─────────────────────────────────────────────────────────┐
+│  Update available 5.22.0 -> 8.0.0-rc.36                 │
+│                                                         │
+│  This is a major update - please follow the guide at    │
+│  https://pris.ly/d/major-version-upgrade                │
+│                                                         │
+│  Run the following to update                            │
+│    npm i --save-dev prisma@latest                       │
+│    npm i @prisma/client@latest                          │
+└─────────────────────────────────────────────────────────┘
+
+> seed
+> tsx --env-file-if-exists=.env prisma/seed.ts
+
+Seed done: 2 organizers, 4 participants, 4 events, 1 registration.
+
+Running 1 test using 1 worker
+
+  ✘  1 [chromium] › e2e/taskbar-overlap.spec.ts:10:1 › TEST-72 AC-72 the taskbar never covers the page, and from 641 px it keeps Logout on one row (L6-20) (20.8s)
+
+
+  1) [chromium] › e2e/taskbar-overlap.spec.ts:10:1 › TEST-72 AC-72 the taskbar never covers the page, and from 641 px it keeps Logout on one row (L6-20) 
+
+    Error: organizer1 at 320x568: page bottom vs taskbar top 458.875
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 458.875
+    Received:    477.1875
+
+      37 |       const at = `${email.split('@')[0]} at ${width}x${height}`;
+      38 |       // (a) after scrolling to the end, the lowest content of the page (for the organizer: Save draft) is above the taskbar
+    > 39 |       expect.soft(m.pageBottom, `${at}: page bottom vs taskbar top ${m.headerTop}`).toBeLessThanOrEqual(m.headerTop);
+         |                                                                                     ^
+      40 |       // (b) above the 640 px layout the taskbar is a single row: Logout sits on the same row as Events
+      41 |       if (width > 640) expect.soft(Math.abs(m.logoutTop - m.eventsTop), `${at}: Logout row vs Events row`).toBeLessThanOrEqual(8);
+      42 |       await page.context().close();
+        at <repo>/e2e/taskbar-overlap.spec.ts:39:85
+
+    Error: organizer1 at 768x1024: Logout row vs Events row
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 8
+    Received:    41.40625
+
+      39 |       expect.soft(m.pageBottom, `${at}: page bottom vs taskbar top ${m.headerTop}`).toBeLessThanOrEqual(m.headerTop);
+      40 |       // (b) above the 640 px layout the taskbar is a single row: Logout sits on the same row as Events
+    > 41 |       if (width > 640) expect.soft(Math.abs(m.logoutTop - m.eventsTop), `${at}: Logout row vs Events row`).toBeLessThanOrEqual(8);
+         |                                                                                                            ^
+      42 |       await page.context().close();
+      43 |     }
+      44 |   }
+        at <repo>/e2e/taskbar-overlap.spec.ts:41:108
+
+    Error: participant1 at 320x568: page bottom vs taskbar top 458.875
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 458.875
+    Received:    477.265625
+
+      37 |       const at = `${email.split('@')[0]} at ${width}x${height}`;
+      38 |       // (a) after scrolling to the end, the lowest content of the page (for the organizer: Save draft) is above the taskbar
+    > 39 |       expect.soft(m.pageBottom, `${at}: page bottom vs taskbar top ${m.headerTop}`).toBeLessThanOrEqual(m.headerTop);
+         |                                                                                     ^
+      40 |       // (b) above the 640 px layout the taskbar is a single row: Logout sits on the same row as Events
+      41 |       if (width > 640) expect.soft(Math.abs(m.logoutTop - m.eventsTop), `${at}: Logout row vs Events row`).toBeLessThanOrEqual(8);
+      42 |       await page.context().close();
+        at <repo>/e2e/taskbar-overlap.spec.ts:39:85
+
+    Error: participant1 at 375x667: page bottom vs taskbar top 557.875
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 557.875
+    Received:    576.265625
+
+      37 |       const at = `${email.split('@')[0]} at ${width}x${height}`;
+      38 |       // (a) after scrolling to the end, the lowest content of the page (for the organizer: Save draft) is above the taskbar
+    > 39 |       expect.soft(m.pageBottom, `${at}: page bottom vs taskbar top ${m.headerTop}`).toBeLessThanOrEqual(m.headerTop);
+         |                                                                                     ^
+      40 |       // (b) above the 640 px layout the taskbar is a single row: Logout sits on the same row as Events
+      41 |       if (width > 640) expect.soft(Math.abs(m.logoutTop - m.eventsTop), `${at}: Logout row vs Events row`).toBeLessThanOrEqual(8);
+      42 |       await page.context().close();
+        at <repo>/e2e/taskbar-overlap.spec.ts:39:85
+
+    Error: participant1 at 768x1024: Logout row vs Events row
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 8
+    Received:    41.40625
+
+      39 |       expect.soft(m.pageBottom, `${at}: page bottom vs taskbar top ${m.headerTop}`).toBeLessThanOrEqual(m.headerTop);
+      40 |       // (b) above the 640 px layout the taskbar is a single row: Logout sits on the same row as Events
+    > 41 |       if (width > 640) expect.soft(Math.abs(m.logoutTop - m.eventsTop), `${at}: Logout row vs Events row`).toBeLessThanOrEqual(8);
+         |                                                                                                            ^
+      42 |       await page.context().close();
+      43 |     }
+      44 |   }
+        at <repo>/e2e/taskbar-overlap.spec.ts:41:108
+
+    Error: participant1 at 812x375: Logout row vs Events row
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 8
+    Received:    41.40625
+
+      39 |       expect.soft(m.pageBottom, `${at}: page bottom vs taskbar top ${m.headerTop}`).toBeLessThanOrEqual(m.headerTop);
+      40 |       // (b) above the 640 px layout the taskbar is a single row: Logout sits on the same row as Events
+    > 41 |       if (width > 640) expect.soft(Math.abs(m.logoutTop - m.eventsTop), `${at}: Logout row vs Events row`).toBeLessThanOrEqual(8);
+         |                                                                                                            ^
+      42 |       await page.context().close();
+      43 |     }
+      44 |   }
+        at <repo>/e2e/taskbar-overlap.spec.ts:41:108
+
+    Error Context: test-results/taskbar-overlap-TEST-72-AC-571e4-ps-Logout-on-one-row-L6-20--chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/taskbar-overlap-TEST-72-AC-571e4-ps-Logout-on-one-row-L6-20--chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/taskbar-overlap-TEST-72-AC-571e4-ps-Logout-on-one-row-L6-20--chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › e2e/taskbar-overlap.spec.ts:10:1 › TEST-72 AC-72 the taskbar never covers the page, and from 641 px it keeps Logout on one row (L6-20) 

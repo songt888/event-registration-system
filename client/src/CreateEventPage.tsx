@@ -22,8 +22,10 @@ export function CreateEventPage() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     if (submitting) return;
-    setSubmitting(true);
     setError(null);
+    // AC-70: an empty Capacity would be sent as 0; say it is required instead (the API rule is unchanged).
+    if (form.capacity.trim() === '') return setFieldErrors({ capacity: 'Capacity is required.' });
+    setSubmitting(true);
     setFieldErrors({});
     try {
       await api('/events', {
