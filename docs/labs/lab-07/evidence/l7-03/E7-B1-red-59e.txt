@@ -1,0 +1,64 @@
+Tested commit: 7098c4e (red commit; server code identical to 502d2a6)
+Purpose: show TEST-59 step (e) red on its own. In E7-B1-red.txt TEST-59 stops at step (c), so (e) never runs there.
+Change for this run only (not committed): the line of step (c) in server/src/registrations.conflict.int.test.ts is commented out; everything else is as committed.
+Date: 2026-11-27 03:31:25 +07; Node v24.16.0; vitest 3.2.7; DATABASE_URL_TEST (local Docker PostgreSQL 16)
+
+$ npm test -w server -- src/registrations.conflict.int.test.ts -t "TEST-59"
+
+> test
+> vitest run src/registrations.conflict.int.test.ts -t TEST-59
+
+
+ RUN  v3.2.7 <repo>/server
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "eventreg_test", schema "public" at "localhost:5432"
+
+1 migration found in prisma/migrations
+
+
+No pending migrations to apply.
+ ❯ |integration| src/registrations.conflict.int.test.ts (4 tests | 1 failed | 3 skipped) 142ms
+   ↓ BR-10 time conflict (CR-01) > TEST-57 AC-57 rejects a registration 119 minutes after, 119 minutes before or at the same time as another
+   ↓ BR-10 time conflict (CR-01) > TEST-58 AC-58 allows exactly 120 minutes after and before, one minute inside is still a conflict
+   × BR-10 time conflict (CR-01) > TEST-59 AC-59 counts only the caller, counts a started registration and keeps the check order 136ms
+     → expected 201 to be 409 // Object.is equality
+   ↓ BR-10 time conflict (CR-01) > TEST-60 AC-60 lets exactly one of two parallel requests from one participant through when the events are 60 minutes apart
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |integration| src/registrations.conflict.int.test.ts > BR-10 time conflict (CR-01) > TEST-59 AC-59 counts only the caller, counts a started registration and keeps the check order
+AssertionError: expected 201 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 201
+
+ ❯ expectRejected src/registrations.conflict.int.test.ts:38:22
+     36| 
+     37| function expectRejected(res: request.Response, code: string) {
+     38|   expect(res.status).toBe(409);
+       |                      ^
+     39|   const error = errorBody(res);
+     40|   expect(error.code).toBe(code);
+ ❯ expectConflict src/registrations.conflict.int.test.ts:45:3
+ ❯ src/registrations.conflict.int.test.ts:106:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 skipped (4)
+   Start at  03:31:26
+   Duration  1.23s (transform 43ms, setup 18ms, collect 363ms, tests 142ms, environment 0ms, prepare 37ms)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path <repo>/server
+npm error workspace server
+npm error location <repo>/server
+npm error command failed
+npm error command sh -c vitest run src/registrations.conflict.int.test.ts -t TEST-59
