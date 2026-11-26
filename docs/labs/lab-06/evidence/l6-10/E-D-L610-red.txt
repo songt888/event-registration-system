@@ -52,7 +52,7 @@ Running 1 test using 1 worker
   ✘  1 [chromium] › e2e/reload-after-409.spec.ts:3:1 › TEST-62 AC-62 refreshes places after a refused registration (L6-10) (7.2s)
 
 
-  1) [chromium] › e2e/reload-after-409.spec.ts:3:1 › TEST-62 AC-62 refreshes places after a refused registration (L6-10) 
+  1) [chromium] › e2e/reload-after-409.spec.ts:3:1 › TEST-62 AC-62 refreshes places after a refused registration (L6-10)
 
     Error: expect(locator).toBeVisible() failed
 
@@ -85,4 +85,4 @@ Running 1 test using 1 worker
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
   1 failed
-    [chromium] › e2e/reload-after-409.spec.ts:3:1 › TEST-62 AC-62 refreshes places after a refused registration (L6-10) 
+    [chromium] › e2e/reload-after-409.spec.ts:3:1 › TEST-62 AC-62 refreshes places after a refused registration (L6-10)
