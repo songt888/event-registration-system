@@ -14,6 +14,12 @@ export class ApiError extends Error {
   }
 }
 
+// AuthProvider sets this so any 401 clears the displayed user (F-01 section 5, AC-56).
+let onUnauthenticated = () => {};
+export function setUnauthenticatedHandler(fn: () => void) {
+  onUnauthenticated = fn;
+}
+
 export async function api<T>(path: string, init: { method?: string; body?: unknown } = {}): Promise<T> {
   let res: Response;
   try {
@@ -28,6 +34,7 @@ export async function api<T>(path: string, init: { method?: string; body?: unkno
   }
   if (res.status === 204) return undefined as T;
   const data = await res.json().catch(() => null);
+  if (res.status === 401) onUnauthenticated();
   if (!res.ok) {
     const e = data?.error;
     throw new ApiError(res.status, e?.code ?? 'INTERNAL_ERROR', e?.message ?? 'Something went wrong. Please try again.', e?.details);
