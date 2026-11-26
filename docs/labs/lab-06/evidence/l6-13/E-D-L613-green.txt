@@ -1,0 +1,48 @@
+Command: npm run test:e2e -- e2e/long-text.spec.ts
+Tested commit: 4ca4d1a (green fix)
+Run: 2026-11-26 17:24 (UTC+7), Node v24.16.0, Playwright Version 1.65.0
+
+> test:e2e
+> playwright test e2e/long-text.spec.ts
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "eventreg_e2e", schema "public" at "localhost:5432"
+Applying migration `20261107093337_init`
+Database reset successful
+The following migration(s) have been applied:
+migrations/
+  └─ 20261107093337_init/
+    └─ migration.sql
+Running generate... (Use --skip-generate to skip the generators)
+[2K[1A[2K[GRunning generate... - Prisma Client
+[2K[1A[2K[G✔ Generated Prisma Client (v5.22.0) to ./../node_modules/@prisma/client in 39ms
+> seed
+> tsx --env-file-if-exists=.env prisma/seed.ts
+Seed done: 2 organizers, 4 participants, 4 events, 1 registration.
+[WebServer] node:events:487
+[WebServer]       throw er; // Unhandled 'error' event
+[WebServer]       ^
+[WebServer] 
+[WebServer] Error: listen EADDRINUSE: address already in use :::3000
+[WebServer]     at Server.setupListenHandle [as _listen2] (node:net:2008:16)
+[WebServer]     at listenInCluster (node:net:2065:12)
+[WebServer]     at Server.listen (node:net:2170:7)
+[WebServer]     at app.listen (/Users/tonklax/Documents/CPE/CPE 334 Software Engineering/Project/event-registration-system/node_modules/express/lib/application.js:635:24)
+[WebServer]     at <anonymous> (/Users/tonklax/Documents/CPE/CPE 334 Software Engineering/Project/event-registration-system/server/src/index.ts:4:13)
+[WebServer]     at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+[WebServer]     at async node:internal/modules/esm/loader:633:26
+[WebServer]     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+[WebServer] Emitted 'error' event on Server instance at:
+[WebServer]     at emitErrorNT (node:net:2044:8)
+[WebServer]     at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+[WebServer]   code: 'EADDRINUSE',
+[WebServer]   errno: -48,
+[WebServer]   syscall: 'listen',
+[WebServer]   address: '::',
+[WebServer]   port: 3000
+[WebServer] }
+[WebServer] 
+[WebServer] Node.js v24.16.0
+Running 1 test using 1 worker
+  ✓  1 [chromium] › e2e/long-text.spec.ts:28:1 › TEST-65 AC-65 maximum-length text without spaces keeps Publish on screen and no page scrolls sideways (L6-13) (3.4s)
+  1 passed (6.9s)

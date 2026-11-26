@@ -72,6 +72,7 @@ These journeys supplement service/API/DB checks; they do not replace negative au
 | AC-62 / TEST-62 | After a refused (409) registration the event page reloads the places text. | F-04; FR-05, FR-06 UI; Lab 6 enhancement #143 | A, L6-10 (#157) | not run yet |
 | AC-63 / TEST-63 | "Draft … saved." is removed after Publish and stays removed on reload. | F-02; FR-04 UI; Lab 6 enhancement #146 | A, L6-11 (#158) | not run yet |
 | AC-64 / TEST-64 | Sign in and Create event field errors set `aria-invalid` and `aria-describedby`. | F-01, F-02; FR-01, FR-04 UI; NFR-09; Lab 6 enhancement #145 | A, L6-12 (#159) | not run yet |
+| AC-65 / TEST-65 | Maximum-length text without spaces wraps: Publish in My events stays on screen at 1280 px; My events (1280 and 375 px), the event page and the Events list do not scroll sideways. | F-02, F-03; FR-04, FR-05 UI; Lab 6 defect #141 | B, L6-13 (#161) | pass at `4ca4d1a` (TEST-65; `npm run test:e2e` 6 passed, 0 failed, 0 skipped) |
 
 ## 6. Coverage gaps and planned closure
 
