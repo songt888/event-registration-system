@@ -1,0 +1,44 @@
+Command: npm run test:e2e -- e2e/long-text.spec.ts
+Tested commit: 820b97e (red test on the unfixed client, same client code as 04e8590)
+Run: 2026-11-26 17:19 (UTC+7), Node v24.16.0, Playwright Version 1.65.0
+
+> test:e2e
+> playwright test e2e/long-text.spec.ts
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "eventreg_e2e", schema "public" at "localhost:5432"
+Applying migration `20261107093337_init`
+Database reset successful
+The following migration(s) have been applied:
+migrations/
+  └─ 20261107093337_init/
+    └─ migration.sql
+Running generate... (Use --skip-generate to skip the generators)
+[2K[1A[2K[GRunning generate... - Prisma Client
+[2K[1A[2K[G✔ Generated Prisma Client (v5.22.0) to ./../node_modules/@prisma/client in 39ms
+> seed
+> tsx --env-file-if-exists=.env prisma/seed.ts
+Seed done: 2 organizers, 4 participants, 4 events, 1 registration.
+Running 1 test using 1 worker
+  ✘  1 [chromium] › e2e/long-text.spec.ts:28:1 › TEST-65 AC-65 maximum-length text without spaces keeps Publish on screen and no page scrolls sideways (L6-13) (1.9s)
+  1) [chromium] › e2e/long-text.spec.ts:28:1 › TEST-65 AC-65 maximum-length text without spaces keeps Publish on screen and no page scrolls sideways (L6-13) 
+    Error: My events scrolls sideways at 1280 px
+    expect(received).toBeLessThanOrEqual(expected)
+    Expected: <= 0
+    Received:    1783
+      43 |     await page.reload();
+      44 |     await expect(row.getByRole('button', { name: 'Publish' })).toBeVisible();
+    > 45 |     expect(await sideScroll(page), `My events scrolls sideways at ${width} px`).toBeLessThanOrEqual(0);
+         |                                                                                 ^
+      46 |     // Below 640 px the list is its own sideways-scrolling box by design, so Publish is checked at desktop width only.
+      47 |     if (width < 640) continue;
+      48 |     for (const button of await page.getByRole('button', { name: 'Publish' }).all()) {
+        at <repo>/e2e/long-text.spec.ts:45:81
+    Error Context: test-results/long-text-TEST-65-AC-65-ma-f3a5f-age-scrolls-sideways-L6-13--chromium/error-context.md
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/long-text-TEST-65-AC-65-ma-f3a5f-age-scrolls-sideways-L6-13--chromium/trace.zip
+    Usage:
+        npx playwright show-trace test-results/long-text-TEST-65-AC-65-ma-f3a5f-age-scrolls-sideways-L6-13--chromium/trace.zip
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+  1 failed
+    [chromium] › e2e/long-text.spec.ts:28:1 › TEST-65 AC-65 maximum-length text without spaces keeps Publish on screen and no page scrolls sideways (L6-13) 

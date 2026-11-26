@@ -70,7 +70,7 @@ body {
 .desktop3d { z-index: 0; }
 .sparkles { z-index: 50; }
 
-#root { position: relative; z-index: 1; padding-bottom: 5rem; }
+#root { position: relative; z-index: 1; padding-bottom: max(5rem, calc(var(--taskbar-h, 0px) + 0.75rem)); }
 
 p { margin: 0 0 0.6rem; }
 
@@ -458,6 +458,12 @@ main.logon { max-width: 30rem; margin-top: 14vh; }
 @keyframes boot-bar { to { background-size: 100% 100%; } }
 @keyframes boot-out { to { opacity: 0; visibility: hidden; } }
 
+/* below 1024 px the taskbar keeps one row (#151): the clock is decoration, and its buttons use the compact padding */
+@media (max-width: 1023px) {
+  .clock { display: none; }
+  header button { padding: 0.2rem 0.75rem; }
+}
+
 /* ---------- small screens ---------- */
 @media (max-width: 640px) {
   :root { font-size: 15px; }
@@ -467,7 +473,6 @@ main.logon { max-width: 30rem; margin-top: 14vh; }
   .props .disc { width: 8rem; height: 8rem; }
   table { display: block; overflow-x: auto; }
   th, td { white-space: nowrap; }
-  .clock { display: none; }
   /* two compact rows: tasks on top, who you are + sound + logout below, nothing off-screen */
   header { gap: 0.35rem 0.5rem; padding: 0.35rem 0.5rem; }
   header nav { flex: 1 0 100%; flex-wrap: nowrap; gap: 0.3rem; }
@@ -617,3 +622,25 @@ header nav .task-min {
 /* A window without a page title (loading, error and not-found messages) has no title bar for the window buttons
    to sit on: leave room for them so they never cover the message. */
 .wm > main:not(:has(> h1)) { padding-top: 3.4rem; }
+
+/* L6-13 (#141, AC-65): text with no spaces, up to the 120 / 2000 character limits, wraps instead of widening the page.
+   break-word keeps normal words whole; grid children may shrink below a long word; the cell caps stop one long
+   title (column 1) or location (column 3) from stretching a list table. Normal rows keep their current widths. */
+main, main * { overflow-wrap: break-word; }
+.cd-case, .cd-grid > *, .props > * { min-width: 0; }
+td { max-width: 16rem; }
+td:nth-child(3) { max-width: 12rem; }
+
+/* L6-13 (#141, AC-65): a list that is still wider than its window after the caps above scrolls inside its own box,
+   so the page never scrolls sideways; with normal rows nothing overflows and nothing changes. */
+.table-scroll { overflow-x: auto; }
+
+/* L6-14 (#144, AC-66): the event description keeps the line breaks the organizer typed. */
+.description { white-space: pre-line; }
+
+/* L6-15 (#147, AC-67): below 640 px the minimized window's task button shrinks and ends its title with an ellipsis,
+   so it stays inside the screen; its aria-label still carries the full title. */
+@media (max-width: 640px) {
+  header nav { min-width: 0; }
+  header nav .task-min { min-width: 0; flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}

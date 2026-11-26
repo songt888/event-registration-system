@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link, Navigate, useLocation } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { api, ApiError } from './api';
 
 export type EventPayload = {
@@ -14,6 +14,7 @@ export type EventPayload = {
 };
 
 export function MyEventsPage() {
+  const navigate = useNavigate();
   const saved = (useLocation().state as { saved?: string } | null)?.saved;
   const [events, setEvents] = useState<EventPayload[] | null>(null);
   const [error, setError] = useState<ApiError | null>(null);
@@ -39,6 +40,7 @@ export function MyEventsPage() {
     setPublishError(null);
     try {
       await api(`/events/${id}/publish`, { method: 'POST', body: {} });
+      if (saved) navigate('.', { replace: true, state: null });
       await load();
     } catch (err) {
       setPublishError(`Publish failed: ${(err as ApiError).message}`);
@@ -52,9 +54,11 @@ export function MyEventsPage() {
   return (
     <main>
       <h1>My events</h1>
-      <Link to="/organizer/events/new" className="button">
-        Create event
-      </Link>
+      {!error && (
+        <Link to="/organizer/events/new" className="button">
+          Create event
+        </Link>
+      )}
       {saved && <p role="status">Draft "{saved}" saved.</p>}
       {publishError && <p role="alert">{publishError}</p>}
       {error ? (
@@ -67,41 +71,43 @@ export function MyEventsPage() {
       ) : events.length === 0 ? (
         <p>No events yet</p>
       ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Starts</th>
-              <th>Location</th>
-              <th>Places left</th>
-              <th>Status</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {events.map((e) => (
-              <tr key={e.id}>
-                <td>
-                  <Link to={`/events/${e.id}`}>{e.title}</Link>
-                </td>
-                <td>{new Date(e.startsAt).toLocaleString()}</td>
-                <td>{e.location}</td>
-                <td>
-                  {e.remainingPlaces} of {e.capacity}
-                </td>
-                <td><span className={`led led-${e.status.toLowerCase()}`}>{e.status}</span></td>
-                <td className="actions">
-                  <Link to={`/organizer/events/${e.id}/registrations`}>Registrations</Link>{' '}
-                  {e.status === 'DRAFT' && (
-                    <button onClick={() => publish(e.id)} disabled={publishing === e.id}>
-                      {publishing === e.id ? 'Publishing...' : 'Publish'}
-                    </button>
-                  )}
-                </td>
+        <div className="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Starts</th>
+                <th>Location</th>
+                <th>Places left</th>
+                <th>Status</th>
+                <th />
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {events.map((e) => (
+                <tr key={e.id}>
+                  <td>
+                    <Link to={`/events/${e.id}`}>{e.title}</Link>
+                  </td>
+                  <td>{new Date(e.startsAt).toLocaleString()}</td>
+                  <td>{e.location}</td>
+                  <td>
+                    {e.remainingPlaces} of {e.capacity}
+                  </td>
+                  <td><span className={`led led-${e.status.toLowerCase()}`}>{e.status}</span></td>
+                  <td className="actions">
+                    <Link to={`/organizer/events/${e.id}/registrations`}>Registrations</Link>{' '}
+                    {e.status === 'DRAFT' && (
+                      <button onClick={() => publish(e.id)} disabled={publishing === e.id}>
+                        {publishing === e.id ? 'Publishing...' : 'Publish'}
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </main>
   );

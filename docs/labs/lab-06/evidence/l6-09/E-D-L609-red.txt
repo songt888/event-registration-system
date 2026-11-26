@@ -1,0 +1,65 @@
+$ npx playwright test e2e/stale-session.spec.ts
+# commit 4c05a54 (unfixed client; auth code identical to 04e8590) + this test, 2026-11-26 11:15 UTC, Node v24.19.0, Playwright Version 1.65.0
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "eventreg_e2e", schema "public" at "localhost:5432"
+
+Applying migration `20261107093337_init`
+
+Database reset successful
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20261107093337_init/
+    └─ migration.sql
+
+Running generate... (Use --skip-generate to skip the generators)
+[2K[1A[2K[GRunning generate... - Prisma Client
+[2K[1A[2K[G✔ Generated Prisma Client (v5.22.0) to ./../node_modules/@prisma/client in 28ms
+
+
+> seed
+> tsx --env-file-if-exists=.env prisma/seed.ts
+
+Seed done: 2 organizers, 4 participants, 4 events, 1 registration.
+
+Running 1 test using 1 worker
+
+[1/1] [chromium] › e2e/stale-session.spec.ts:4:1 › TEST-56 AC-56 after logout in another tab, protected navigation shows Sign in and stops the refused requests (L6-09)
+  1) [chromium] › e2e/stale-session.spec.ts:4:1 › TEST-56 AC-56 after logout in another tab, protected navigation shows Sign in and stops the refused requests (L6-09) 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Sign in' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Sign in' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Sign in' })
+
+
+      20 |   // repeats GET /api/events (401) about 16 times per second, so Sign in never stays.
+      21 |   await tab1.getByRole('link', { name: 'My registrations' }).click();
+    > 22 |   await expect(tab1.getByRole('heading', { name: 'Sign in' })).toBeVisible();
+         |                                                                ^
+      23 |
+      24 |   // Count refused requests only from here: the dev-mode client (React StrictMode) sends each first request twice.
+      25 |   const refused: string[] = [];
+        at e2e/stale-session.spec.ts:22:64
+
+    Error Context: test-results/stale-session-TEST-56-AC-5-1c4bf-the-refused-requests-L6-09--chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/stale-session-TEST-56-AC-5-1c4bf-the-refused-requests-L6-09--chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/stale-session-TEST-56-AC-5-1c4bf-the-refused-requests-L6-09--chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  1 failed
+    [chromium] › e2e/stale-session.spec.ts:4:1 › TEST-56 AC-56 after logout in another tab, protected navigation shows Sign in and stops the refused requests (L6-09) 

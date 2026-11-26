@@ -1,0 +1,282 @@
+# Lab 6 — Part B: our UAT of the partner's app (L6-03 #122)
+
+We are the **UAT Team** for team **Est** (EN-033), product "Campus Café Pre-order". These results are ours as independent testers.
+
+| Item | Value |
+|---|---|
+| Product team | Est (EN-033), section 131: Dechayut Panyawutvorakul, Garunyapas Danpitakkul |
+| UAT testers | Kirakit Kingkaew (A), Nattakit Prasertsak (B), team EN-009_P3 |
+| Release under test | commit `b71cdb2` on `vienggd/Food-order` `main` (merge of their PR #84, Lab 5); no tag on this commit, as their handoff says |
+| URL | https://food-order-d4jdyxqbca-as.a.run.app |
+| Their handoff and cases | `vienggd/Food-order` branch `lab6`, `docs/labs/lab-06/handoff.md` and `uat-cases.md` (read at commit `e1057b7`) |
+| Their contract | `docs/sprint_1/sprints/sprint-1/F-01..F-04` in their repo |
+| Accounts used | CUSTOMER-A, CUSTOMER-B, OPERATOR (labels only; the password came privately and is never written here) |
+| Where FAILs go | Est's shared sheet (Est gives the link on Discord; link: _to add_) plus an Issue on `vienggd/Food-order` (see "Reporting a failure") |
+| Pre-check | `GET /api/ready` returned 200 `{"status":"ready","db":"connected"}` on 2026-11-25 (A, before testing) |
+
+**Method.** Est's handoff asks for manual Chrome or Edge testing with a separate private window per account. Record actual behavior, local time (UTC+7) and screenshot IDs (`E-B<case>-<n>`). For rejected operations, record the rejection and check that the protected data stayed unchanged and was not shown.
+
+A ran UAT-01, UAT-03 and UAT-05 by hand on 2026-11-25 22:23 to 22:33 in the built-in browser pane of the Claude desktop app, one tab, signing out between accounts. A signed in and pressed every control; Claude Code only took the screenshots when A asked and noted the URL and time, so each row gives them (the images are page-only, 1280 × 800 viewport scaled to 800 px). An earlier run of the same cases by Codex Computer Use on A's instruction is kept only where a step was not repeated by hand, and is labelled as such.
+
+B ran UAT-02, UAT-04 and UAT-06 partly by hand in Chrome and partly with Claude Code using agent-browser (headless Chromium, one browser session per account). The recorded actual results, times and screenshots below come from the agent-browser run. Those screenshots are page-only, so each row gives the URL and local time.
+
+## Who runs what
+
+Their cases share accounts and depend on earlier orders (UAT-03 uses UAT-01's order; UAT-02 and UAT-06 count CUSTOMER-A's orders). So **A and B do not run at the same time**: A runs first, then B, and B notes `K` right before UAT-02 and UAT-06.
+
+This order differs from Est's handoff (UAT-01 → 06). It is safe: no case needs data from a later case, and UAT-03 and UAT-04 still run after the cases they depend on (UAT-01, and UAT-04's own new order).
+
+| Order | Case | Category | Tester | Checker |
+|---|---|---|---|---|
+| 1 | UAT-01 Place an order, staff accepts it | Normal journey | A | B |
+| 2 | UAT-03 Wrong role and another customer's order | Forbidden / ownership | A | B |
+| 3 | UAT-05 Wrong password and log out | Normal / state | A | B |
+| 4 | UAT-02 Quantity limit and sold-out item | Rule boundary | B | A |
+| 5 | UAT-04 Persistence and double accept | State / persistence | B | A |
+| 6 | UAT-06 Tampered price or total (API, optional) | Forbidden (API) | B | A |
+
+Their four required categories are covered: normal (UAT-01), business rule/boundary (UAT-02), forbidden role/ownership (UAT-03), state/persistence (UAT-04).
+
+## Coverage review of Est's supplied cases
+
+We compared Est's [UAT-01 to UAT-06](https://github.com/vienggd/Food-order/blob/e1057b7cdddb6d2c120d83d61d22a3868d2c24d6/docs/labs/lab-06/uat-cases.md) with the Sprint 1 acceptance criteria. The six cases address the four required categories. The table checks what the supplied cases are designed to cover. It does not record execution results or give coverage credit for the exploratory findings below.
+
+Direct means a supplied case explicitly checks the acceptance behavior. Partial means the case checks only part of the criterion, typically the browser behavior without demonstrating the specified API, database or concurrency behavior. In each row, the numeric suffixes use that feature's AC prefix, for example 13 in F-01 means `AC-F01-13`.
+
+| Feature | Supplied cases | Direct ACs | Partial ACs | ACs not explicitly exercised |
+|---|---|---|---|---|
+| [F-01 Login and logout](https://github.com/vienggd/Food-order/blob/e1057b7cdddb6d2c120d83d61d22a3868d2c24d6/docs/sprint_1/sprints/sprint-1/F-01-auth.md) | UAT-01, 03, 05 | 13, 14 | 01, 02, 09, 10, 12 | 03–08, 11 |
+| [F-02 Menu](https://github.com/vienggd/Food-order/blob/e1057b7cdddb6d2c120d83d61d22a3868d2c24d6/docs/sprint_1/sprints/sprint-1/F-02-menu.md) | UAT-01, 02, 03 | None in full | 01–04, 06 | 05, 07 |
+| [F-03 Orders](https://github.com/vienggd/Food-order/blob/e1057b7cdddb6d2c120d83d61d22a3868d2c24d6/docs/sprint_1/sprints/sprint-1/F-03-orders.md) | UAT-01 to 06 | 10 | 01, 02, 04, 05, 07–09, 12 | 03, 06, 11, 13 |
+| [F-04 Operator queue and accept](https://github.com/vienggd/Food-order/blob/e1057b7cdddb6d2c120d83d61d22a3868d2c24d6/docs/sprint_1/sprints/sprint-1/F-04-accept.md) | UAT-01, 03, 04 | 12, 13 | 01, 04, 05, 09, 11 | 02, 03, 06–08, 10 |
+
+UAT-06 is optional and checks two inputs under `AC-F03-05`. The browser redirects in UAT-03 and UAT-05 do not establish the API status codes. UAT-04's two-window acceptance check does not cover the parallel-load requirement in `AC-F04-07`.
+
+### Additional cases proposed for Est
+
+| Case | Coverage gap | Steps and expected behavior |
+|---|---|---|
+| COV-01 | `AC-F01-03`, `AC-F01-04` and the Sign in error states | Compare an unknown demo email to a known demo email with a wrong password. Expect the same generic error. Then submit with a blank or malformed email and check the field-specific validation text. This browser check does not verify the API response. |
+| COV-02 | `AC-F02-06`, `AC-F02-07` | Compare every seeded menu item's name, price and availability to Est's fixture. Check that sold-out items cannot be added. On an isolated browser test, interrupt the connection, open Menu, restore the connection and use Reload menu. Expect the error state and then the restored menu. |
+| COV-03 | `AC-F03-12`, `AC-F03-13` and the empty-cart UI | At phone width, check the Menu, Cart, My orders tab order. Add one item, try the quantity boundaries 1 and 10, then remove the final line. Expect the quantity to stay in range and Place order to be disabled when the cart is empty. |
+| COV-04 | `AC-F04-01`, `AC-F04-02`, `AC-F04-11` | Ask Est for an isolated fixture with two PLACED orders from different demo customers and one ACCEPTED order. Expect the queue count to be two and only the PLACED orders to show, oldest first. Accept only the fixture orders and check the empty state. |
+
+These cases were proposed from the coverage review. The checks below record overlap with earlier Computer Use sessions on Est's deployed demo site. They do not claim a new run of the whole proposed case or a manual student run.
+
+| Case | Observed in earlier Computer Use sessions | Still pending |
+|---|---|---|
+| COV-01 | An unknown demo email and a known email with a wrong password both showed `Incorrect email or password.` Blank and malformed emails showed the field-specific validation messages. | Student verification and share with Est. |
+| COV-02 | The six visible menu items matched Est's handoff prices. Croissant showed `Sold out` and its Add button was disabled. | Connection-loss and Reload menu recovery on an isolated browser session. |
+| COV-03 | Phone navigation showed Menu, Cart, My orders in order. The quantity checks stayed within 1–10 and removing the last line disabled Place order. These observations came from separate checks. | A single end-to-end manual run and share with Est. |
+| COV-04 | The live queue showed existing orders oldest first. In a separate check, A's test order #7 left the queue after acceptance and appeared as ACCEPTED in My orders. | The isolated two-customer fixture, exclusion of its pre-existing ACCEPTED order and the empty-queue check. Coordinate the fixture with Est. |
+
+COV-01 to COV-04 have not been sent to Est. The findings below remain the record of defects and observations from exploratory testing.
+
+## Results
+
+Fill in one block per case. Result is PASS, FAIL or BLOCKED (with the reason; BLOCKED is not a pass). Every FAIL becomes a row in their shared sheet and an outgoing report (L6-04 #123).
+
+### UAT-01 Place an order, staff accepts it
+
+| Field | Value |
+|---|---|
+| Tester / date and time | Kirakit Kingkaew, EN-009_P3, manual / 2026-11-25, 22:23 to 22:27 |
+| Version | `b71cdb2` |
+| Inputs | CUSTOMER-A, OPERATOR; Latte ×2, Americano ×1 |
+| Order number | #11 |
+| Actual result (per step) | 1–3: Signed in as CUSTOMER-A, added Latte twice and Americano once, pressed **Place order →**.<br>4: 22:23:30, `/orders/11`: `Order #11 placed!`, Latte ฿65.00 × 2 = ฿130.00, Americano ฿55.00 × 1 = ฿55.00, Total ฿185.00, `PLACED`, `Waiting for the café to accept your order.`<br>5: 22:24:31, OPERATOR on `/operator/orders`: `New orders 5`; row #11 Alice, Latte ×2, Americano ×1, ฿185.00, **Accept order**.<br>6: 22:24:56: `Order #11 accepted.`, `New orders 4`, #11 no longer in the queue. The transient `Accepting…` label was not captured.<br>7: 22:27:33, CUSTOMER-A on `/orders/11`: `ACCEPTED`, `Accepted — being prepared soon.`, Total ฿185.00, timeline Placed 22:23, Accepted 22:24. |
+| Result | PASS. `Accepting…` shows only while the request is in flight; the step's outcome was observed. |
+| Evidence | [E-B01-1](evidence/l6-03/E-B01-1-order-11-placed.jpg) order placed, [E-B01-2a](evidence/l6-03/E-B01-2a-queue-shows-11.jpg) queue before accept, [E-B01-2](evidence/l6-03/E-B01-2-order-11-accepted.jpg) accepted, [E-B01-3](evidence/l6-03/E-B01-3-order-11-accepted-customer.jpg) customer sees ACCEPTED |
+| Checked by | B |
+
+### UAT-03 Wrong role and another customer's order
+
+| Field | Value |
+|---|---|
+| Tester / date and time | Kirakit Kingkaew, EN-009_P3, manual / 2026-11-25, 22:25 to 22:31 (steps 4 and 3 from the earlier AI-executed run, see below) |
+| Version | `b71cdb2` |
+| Inputs | CUSTOMER-A, CUSTOMER-B, OPERATOR; order #11 from UAT-01 |
+| Actual result (per step) | 1: 22:28:19, CUSTOMER-A typed `/operator/orders`: landed on `/menu` with `You don't have access to that page.`; the menu was shown, no queue.<br>2: 22:29:34, CUSTOMER-B typed `/orders/11`: `Order not found.` and `Back to my orders`; no lines, total or name of Alice; Bob's list said `No orders yet.`<br>3: `/orders/99999` was not re-run manually. Earlier AI-executed run (Codex Computer Use on A's instruction, 2026-11-25): `Order not found.` for #99999.<br>4: Signed-out `/menu` was not re-run manually. Earlier AI-executed run: redirected to `/login`.<br>5: 22:25:42, OPERATOR typed `/menu`: landed on `/operator/orders` with `You don't have access to that page.`; the queue was shown, no menu.<br>6: 22:30:59, CUSTOMER-A on `/orders/11`: still `ACCEPTED`, ฿185.00, Accepted 22:24, the same as in UAT-01. |
+| Result | PASS |
+| Evidence | [E-B03-1](evidence/l6-03/E-B03-1-customer-queue-refused.jpg) customer refused, [E-B03-2](evidence/l6-03/E-B03-2-bob-order-11-not-found.jpg) CUSTOMER-B sees no Alice data, [E-B03-4](evidence/l6-03/E-B03-4-operator-menu-refused.jpg) operator refused, [E-B03-3](evidence/l6-03/E-B03-3-order-11-unchanged.jpg) order #11 unchanged (a separate capture at 22:30:59 in a new tab after signing back in as CUSTOMER-A; it is byte-identical to E-B01-3 from 22:27:33 because the page shows no clock and nothing on it changed, which is what step 6 checks) |
+| Checked by | B |
+
+### UAT-05 Wrong password and log out
+
+| Field | Value |
+|---|---|
+| Tester / date and time | Kirakit Kingkaew, EN-009_P3, manual / 2026-11-25, 22:31 to 22:33 |
+| Version | `b71cdb2` |
+| Inputs | CUSTOMER-A; wrong password `wrong-password-1` |
+| Actual result (per step) | 1: 22:31:52: `Incorrect email or password.`; the password field was empty; the email field still held `alice@cafe.test`.<br>2: The correct password opened the app as Alice.<br>3: **Log out** returned to `/login`.<br>4: 22:32:36, after **Back** and reload: still `/login` with an empty Sign in form; no menu or order data. Typing `/orders` while signed out was not re-run manually; the earlier AI-executed run returned to `/login`. |
+| Result | PASS |
+| Evidence | [E-B05-1](evidence/l6-03/E-B05-1-wrong-password.jpg) wrong-password message, [E-B05-2](evidence/l6-03/E-B05-2-after-logout-back-reload.jpg) after logout, Back and reload |
+| Checked by | B |
+
+### UAT-02 Quantity limit and sold-out item
+
+| Field | Value |
+|---|---|
+| Tester / date and time | Nattakit Prasertsak, EN-009_P3 (case owner); Claude Code agent-browser / 2026-11-25, 21:11:17 to 21:12:06 |
+| Version | `b71cdb2` |
+| Inputs | CUSTOMER-A; Thai Milk Tea ×10, try ×11; Croissant |
+| K before / order number | K = 3 (#4, #3, #2); #5 |
+| Actual result (per step) | 1–2: Added Thai Milk Tea, raised it with the stepper to 10. At 10 the **More** button was disabled; typing 11 in the box left 10; the menu **+** on Thai Milk Tea stayed enabled but the quantity stayed 10. Estimated total ฿500.00.<br>3: Placed at 21:11:53; `/orders/5` showed `Order #5 placed!`, Thai Milk Tea ฿50.00 × 10, total ฿500.00, `PLACED`.<br>4: Croissant greyed with a `Sold out` badge.<br>5: **Add Croissant** was disabled; the click did not reach it and the cart stayed empty.<br>6: My orders listed 4 orders = K + 1 (#5, #4, #3, #2). Lines: #5 Thai Milk Tea ×10; #4 Latte ×1, Americano ×1; #3 Latte ×2, Americano ×1; #2 Thai Milk Tea ×1, Basil Chicken Rice ×2. None has Croissant. |
+| Result | PASS |
+| Evidence | [E-B02-0](evidence/l6-03/E-B02-0-k-before.png) K before, [E-B02-1](evidence/l6-03/E-B02-1-stepper-stops-at-10.png) stepper stops at 10, [E-B02-2](evidence/l6-03/E-B02-2-order-500.png) order #5, ฿500.00, [E-B02-3](evidence/l6-03/E-B02-3-croissant-sold-out.png) Croissant sold out, add disabled, [E-B02-4](evidence/l6-03/E-B02-4-orders-k-plus-1.png) My orders count K + 1 |
+| Checked by | A |
+
+### UAT-04 Persistence and double accept
+
+| Field | Value |
+|---|---|
+| Tester / date and time | Nattakit Prasertsak, EN-009_P3 (case owner); Claude Code agent-browser / 2026-11-25, 21:12:20 to 21:13:36 |
+| Version | `b71cdb2` |
+| Inputs | CUSTOMER-A new order Thai Milk Tea ×1; OPERATOR in two browser sessions |
+| Order number | #P = 6 (placed 21:12:20, ฿50.00, `PLACED`) |
+| Actual result (per step) | 1: Logged out, closed the browser, opened a new browser and logged in again as CUSTOMER-A.<br>2: My orders row `#6 21:12 · 1 item PLACED ฿50.00`; `/orders/6` showed Thai Milk Tea ฿50.00 × 1, total ฿50.00.<br>3: Both operator sessions listed #1 (Smoke Test), #5 and #6.<br>4: Window 1 pressed **Accept order** on #6 at 21:13:28: `Order #6 accepted.` and the card was gone.<br>5: Window 2 (not reloaded, still showing #6) pressed **Accept order**: `Order #6: Already accepted by another staff member.`; the list reloaded and showed only #1 and #5.<br>6: CUSTOMER-A opened `/orders/6`: `ACCEPTED`, total ฿50.00, hint `Accepted — being prepared soon.`, timeline `Accepted 21:13`. |
+| Result | PASS |
+| Evidence | [E-B04-1](evidence/l6-03/E-B04-1-listed-after-new-session.png) order listed after a new session, [E-B04-2a](evidence/l6-03/E-B04-2a-window1-accepted.png) window 1 accepted, [E-B04-2](evidence/l6-03/E-B04-2-second-accept-refused.png) second accept refused, [E-B04-3](evidence/l6-03/E-B04-3-customer-sees-accepted.png) customer sees ACCEPTED, ฿50.00 |
+| Checked by | A |
+
+### UAT-06 Tampered price or total (API, optional)
+
+| Field | Value |
+|---|---|
+| Tester / date and time | Nattakit Prasertsak, EN-009_P3 (case owner); Claude Code agent-browser / 2026-11-25, 21:13:46 to 21:14:03 |
+| Version | `b71cdb2` |
+| Inputs | CUSTOMER-A; `LATTE_ID` = 1 from `/api/menu`; bodies with `unitPrice: 1` and with `total: 1` |
+| K before | K = 5 |
+| Actual result (per step) | 1: `unitPrice: 1` body: status 400, `error.code` `VALIDATION_ERROR`, details `Unrecognized key: "unitPrice"` at `items[0]`.<br>2: `total: 1` body: status 400, `error.code` `VALIDATION_ERROR`, details `Unrecognized key: "total"`.<br>3: My orders still listed 5 orders = K. |
+| Result | PASS |
+| Evidence | [E-B06-0](evidence/l6-03/E-B06-0-k-before.png) K before, [E-B06-1](evidence/l6-03/E-B06-1-console.txt) console output of both responses (text), [E-B06-2](evidence/l6-03/E-B06-2-orders-still-k.png) My orders still K |
+| Checked by | A |
+
+## Summary
+
+| Case | Tester | Result | Finding (sheet row / Issue) |
+|---|---|---|---|
+| UAT-01 | A | PASS (manual) | Exploratory: EX-01, EX-04, EX-05, EX-06 |
+| UAT-03 | A | PASS (manual; steps 3 and 4 from the AI-executed run) | Exploratory: EX-02 |
+| UAT-05 | A | PASS (manual) | Exploratory: EX-02, EX-03, EX-07 |
+| UAT-02 | B | PASS | none |
+| UAT-04 | B | PASS | none |
+| UAT-06 | B | PASS | none |
+
+## Exploratory findings for cross-check
+
+Codex Computer Use reproduced these seven behaviors on the deployed demo site. Severity is proposed as minor. B's cross-check and available screenshots are listed below. These entries are candidates for Est's triage and are separate from the supplied cases' formal outcomes.
+
+| ID | Case | Steps and actual result | Expected or suggested behavior |
+|---|---|---|---|
+| EX-01 | UAT-01 | At 320 px, open Cart from the bottom tab and press Tab. Focus goes to My orders while the cart is open. | Move keyboard focus to a control in the open cart. |
+| EX-02 | UAT-03 / UAT-05 | As CUSTOMER-A, open the operator queue. After the redirect and warning, log out without dismissing it. The warning remains on Sign in and disappears on reload. | Normal logout clears the prior page's access warning. |
+| EX-03 | UAT-05 | Submit an empty Sign in form. The two required-field messages are visible, but have no field association or live announcement in the browser's page structure. | Associate the errors with their fields and expose new messages to assistive technology. |
+| EX-04 | UAT-01 | On mobile, add Latte twice. The cart has one line and shows two items, but the tab reads Cart (2). | The shared UI specification calls for the badge to count lines. The tab should show Cart (1), with two items and ฿130.00 still shown in the cart. |
+| EX-05 | UAT-01 | At 1440 px, open the operator queue. Column labels are visible but hidden from assistive technologies with `aria-hidden`. The order rows are a list. | Expose the desktop queue's column labels and their relationship to the row values. |
+| EX-06 | UAT-01 | At mobile widths, view the customer Menu and the operator Order queue. Their top bars show name, role and Log out, but omit the café brand. | The shared UI specification includes the brand in the mobile top bar. |
+| EX-07 | UAT-05 | Submit with an empty or malformed email. Correct it and press Tab. The original error remains and the input still has `aria-invalid="true"`. | Clear or update the stale error after correction. This is a UX finding. The specification does not say when to clear validation errors. |
+
+EX-03 and EX-05 were checked through browser accessibility information and page structure. Screen-reader playback was not tested. See Est's [Sprint 1 UI specification](https://github.com/vienggd/Food-order/blob/lab6/docs/sprint_1/ui/ui-spec.md) for the expected mobile header and Cart badge behavior.
+
+**B's cross-check of EX-01 to EX-07** (Claude Code agent-browser, 2026-11-25, 21:54:49 to 21:55:47, CUSTOMER-A and OPERATOR, no orders placed): all seven reproduced.
+
+| ID | B's actual result | Evidence |
+|---|---|---|
+| EX-01 | At 320 px, **Cart** tab opened `/menu#cart`; one Tab moved focus to the `My orders` link, outside the cart. | [X-EX01](evidence/l6-03/X-EX01-cart-focus.png) |
+| EX-02 | CUSTOMER-A opened `/operator/orders`, landed on `/menu` with the warning, pressed **Log out**: `/login` still showed `You don't have access to that page.` Same family as EX-09 below. | [X-EX02](evidence/l6-03/X-EX02-warning-on-login.png) |
+| EX-03 | Empty Sign in: both inputs `aria-invalid="true"`, no `aria-describedby`; the two `.field-error` messages have no role and no live region. | [X-EX03](evidence/l6-03/X-EX03-empty-login.png) |
+| EX-04 | Latte added twice: 1 cart line, tab reads `Cart (2)`. ui-spec line 62: "Cart ... with the number of cart lines". The desktop sidebar count does the same (`Menu 10` for one line of 10 in E-B02-1). | [X-EX04](evidence/l6-03/X-EX04-cart-badge.png) |
+| EX-05 | At 1440 px the queue header row has `aria-hidden="true"`; the queue is a `UL`; no `table` or `role=table` on the page. | [X-EX05](evidence/l6-03/X-EX05-queue-headers.png) |
+| EX-06 | Phone top bar text: `Hey, Alice / CUSTOMER / Log out`; no brand. ui-spec line 62 lists the brand in the phone top bar. | (text check) |
+| EX-07 | `alice@` submitted: `Enter a valid email.`, `aria-invalid="true"`; corrected to `alice@cafe.test` and pressed Tab: the same error and `aria-invalid="true"` stayed. | [X-EX07](evidence/l6-03/X-EX07-stale-error.png) |
+
+**B's exploratory findings** (Claude Code agent-browser and a review of Est's public source at `b71cdb2`, 2026-11-25, 21:07 to 21:22). Sent to Est as a PDF report with IDs F1 to F6; the F ID is kept for their triage.
+
+| ID | Report ID | Steps and actual result | Expected | Proposed severity |
+|---|---|---|---|---|
+| EX-08 | F1 | As CUSTOMER-A, `GET /api/orders/0x2`, `2e0`, `2.0`, `+2`, `0b10`, `0o2`, `%202` each gave 200 with order #2 (`abc` gave 400). As OPERATOR, accept `0x2` and `2e0` on accepted #2 gave 409, `abc` gave 400. Cause: `server/src/ids.ts:5` `z.coerce.number()`. | AC-F03-08 and AC-F04-08: a malformed id gives 400 `VALIDATION_ERROR`. | minor |
+| EX-09 | F5 | As CUSTOMER-A, open `/operator/orders` (warning on `/menu`), then add Latte and place order #9: `/orders/9` shows `You don't have access to that page.` next to `Order #9 placed!`. Report this together with EX-02 as one Issue. | The warning is for one redirect only. | minor |
+| EX-10 | F2 | 375 × 812 with any item in the cart, scrolled to the bottom: the fixed cart bar (y 676 to 728) covers Basil Chicken Rice's name, price and **+** (y 657 to 701); only a 19 px strip of **+** is tappable. | Every available item can be seen and added (AC-F02-06, F-03 add). | major |
+| EX-11 | F3 | Place #8: `Order #8 placed!` stays after a page reload, and after OPERATOR accepts #8 and the customer presses **Refresh status** it shows above `ACCEPTED`. | The success message is not shown again on reload or above a later status. | minor |
+| EX-12 | F4 | Desktop, same screen: after **Refresh status** the detail shows #8 `ACCEPTED`, the list still shows #8 `PLACED`. | One status per order on one screen. | minor |
+| EX-13 | F6 | Sign in with `a..b@cafe.test` (passes the page's email check) or a 201-character password: server 400, page shows `Something went wrong. Please try again.` | ui-spec error table: a 400 shows `error.message` in the error box. | minor |
+
+Side note (not a finding): on the menu, **+** for an item already at 10 stays enabled and does nothing; AC-F03-12 only requires the quantity not to pass 10.
+
+**Screenshot index for B's F1–F6 report**
+
+| Report / exploratory finding | GitHub evidence | What the image shows |
+|---|---|---|
+| F1 / EX-08 | No screenshot in this PR | See B's recorded observations above. |
+| F2 / EX-10 | [x06-phone-bottom-scrolled.png](evidence/l6-03-explore/x06-phone-bottom-scrolled.png), [x04-phone-menu-with-cart.png](evidence/l6-03-explore/x04-phone-menu-with-cart.png) | The cart bar overlaps the final menu item. The x04 image also supports the cart-count observation in EX-04. |
+| F3 / EX-11 | [x07-placed-banner-with-accepted.png](evidence/l6-03-explore/x07-placed-banner-with-accepted.png) | The placement banner remains visible next to the ACCEPTED detail. The image does not show the reload sequence. |
+| F4 / EX-12 | [Same x07 screenshot](evidence/l6-03-explore/x07-placed-banner-with-accepted.png) | The left row for order #8 shows PLACED while the right detail for #8 shows ACCEPTED. The image is shared with F3 and there is no dedicated F4 image. |
+| F5 / EX-09 | [x09-stale-access-notice.png](evidence/l6-03-explore/x09-stale-access-notice.png) | The earlier access warning appears on the newly placed order's detail screen. |
+| F6 / EX-13 | [x02-long-password.png](evidence/l6-03-explore/x02-long-password.png) | The Sign in screen shows the generic error after B's long-password test. The image shows the UI message only. |
+
+## Reporting a failure (feeds L6-04 #123)
+
+Est's handoff lets us open the Issue ourselves on their public repo: "You may open it yourselves instead (label `lab6`); then put the link in the sheet."
+
+1. The tester sends the failing case, step, actual result, time and screenshot to A (or B).
+2. We write the Issue from the template below and both of us read it before it is posted.
+3. Post it at https://github.com/vienggd/Food-order/issues. We are not collaborators there, so GitHub drops labels we set; the body asks Est to add `lab6`.
+4. Put the Issue link in Est's shared sheet and the summary table above, add a row to the outgoing table below, and tell Est on Discord.
+5. Record Est's triage answer (defect, duplicate, not a defect, enhancement) and reason in the outgoing table when it arrives.
+
+Never put a password, token or personal email in an Issue or screenshot.
+
+### Issue template
+
+```markdown
+Title: UAT finding: <short summary> (UAT-0X step N)
+
+**Reporter:** <name>, UAT Team EN-009_P3 (testing team Est's Sprint 1 release)
+**Product team:** Est (EN-033)
+**Tested version:** commit `b71cdb2`, https://food-order-d4jdyxqbca-as.a.run.app
+**Tested at:** <YYYY-MM-DD HH:MM> (UTC+7)
+**Case / requirement:** UAT-0X step N; <AC / FR / BR from their uat-cases.md>
+**Defect or feature request:** defect against specified behavior (<contract file and AC>) | feature request
+
+**Preconditions and data**
+- Account: <CUSTOMER-A / CUSTOMER-B / OPERATOR> (label only)
+- Data: <order number, items, K>
+
+**Steps to reproduce**
+1. …
+2. …
+
+**Expected** (from <uat-cases.md / contract>)
+…
+
+**Actual**
+…
+
+**Severity:** <critical / major / minor>, because <user impact: who is affected and what they cannot do or what wrong data they get>
+
+**Evidence:** <screenshot, evidence ID E-B0X-n>
+
+Please add the label `lab6` (we cannot set labels on your repo) and reply with your triage decision.
+```
+
+## Outgoing reports (L6-04 #123)
+
+| Our ID | Est Issue | Case and step | Summary | Severity | Reporter | Sent (date, channel) | Est's decision and reason |
+|---|---|---|---|---|---|---|---|
+| EX-08 (F1) | [Food-order#121](https://github.com/vienggd/Food-order/issues/121) | exploratory around UAT-03 (API) | Malformed order id such as `0x2` or `2e0` is accepted instead of 400 | minor | Nattakit Prasertsak | 2026-11-25 23:58, GitHub Issue | Accepted defect, minor (2026-11-26 00:50): breaks AC-F03-08 / AC-F04-08, `z.coerce.number()` accepts the variants. Fix on their `lab6`. |
+| EX-02 + EX-09 (F5) | [Food-order#122](https://github.com/vienggd/Food-order/issues/122) | UAT-03 step 1, UAT-05 | Access warning stays after logout and on the next order page | minor | Kirakit Kingkaew, Nattakit Prasertsak | 2026-11-25 23:58, GitHub Issue | Accepted defect, minor (00:50): breaks the ui-spec one-off redirect notice rule. Owner vieng; fix on their `lab6`. |
+| EX-10 (F2) | [Food-order#123](https://github.com/vienggd/Food-order/issues/123) | UAT-01 at 375 × 812 | On a phone, the cart bar covers the last menu item | major | Nattakit Prasertsak | 2026-11-25 23:58, GitHub Issue | Accepted defect, **major, release-blocking** (00:50): breaks AC-F02-06 / NFR-06 at 375 px (`.cart-bar` covers the last item). Owner vieng; fix on their `lab6`. |
+| EX-11 (F3) | [Food-order#124](https://github.com/vienggd/Food-order/issues/124) | UAT-01 steps 4 and 7 | "Order #N placed!" stays after reload and above ACCEPTED | minor | Nattakit Prasertsak | 2026-11-25 23:59, GitHub Issue | Accepted defect, minor (00:50): breaks ui-spec S4 (the banner shows only right after placing). Owner vieng; fix on their `lab6`. |
+| EX-12 (F4) | [Food-order#125](https://github.com/vienggd/Food-order/issues/125) | UAT-01 step 7, UAT-04 step 6 | List shows PLACED while the detail shows ACCEPTED | minor | Nattakit Prasertsak | 2026-11-25 23:59, GitHub Issue | Accepted defect, minor (00:50): breaks AC-F03-07 / ui-spec S3 and S4 consistency on the desktop split view. Owner vieng; fix on their `lab6`. |
+| EX-13 (F6) | [Food-order#126](https://github.com/vienggd/Food-order/issues/126) | UAT-05 | Some invalid sign-ins show a generic error instead of the server message | minor | Nattakit Prasertsak | 2026-11-25 23:59, GitHub Issue | Accepted defect, minor (00:50): breaks the ui-spec Errors table (a 400 shows `error.message`). Owner vieng; fix on their `lab6`. |
+| EX-04 | [Food-order#128](https://github.com/vienggd/Food-order/issues/128) | UAT-01 (exploratory); ui-spec Shared layout | Phone Cart tab counts items, not cart lines (defect) | minor | Kirakit Kingkaew, Nattakit Prasertsak | 2026-11-26 00:32, GitHub Issue | Accepted defect, minor (00:51): breaks ui-spec Shared layout line 62 (badge counts lines). Owner vieng; fix on their `lab6`. |
+| EX-06 | [Food-order#129](https://github.com/vienggd/Food-order/issues/129) | UAT-01 (exploratory); ui-spec Shared layout | Phone top bar has no café brand (defect) | minor | Kirakit Kingkaew, Nattakit Prasertsak | 2026-11-26 00:32, GitHub Issue | Accepted defect, minor (00:51): breaks ui-spec Shared layout line 62 (brand missing). Owner vieng; fix on their `lab6`. |
+| EX-01 | [Food-order#130](https://github.com/vienggd/Food-order/issues/130) | UAT-01 (exploratory) | Opening Cart on phone does not move keyboard focus into the cart (feature request) | minor | Kirakit Kingkaew, Nattakit Prasertsak | 2026-11-26 00:32, GitHub Issue | Enhancement, minor (00:51): the contract does not specify the Cart focus shift; Sprint 3 accessibility work (F-12 / NFR-09, owner ninja). |
+| EX-03 | [Food-order#131](https://github.com/vienggd/Food-order/issues/131) | UAT-05 (exploratory) | Sign in field errors are not linked to their fields or announced (feature request) | minor | Kirakit Kingkaew, Nattakit Prasertsak | 2026-11-26 00:32, GitHub Issue | Enhancement, minor (00:51): visible messages match ui-spec S1; `aria-describedby` and live region go to Sprint 3 accessibility work (F-12 / NFR-09, owner ninja). |
+| EX-05 | [Food-order#132](https://github.com/vienggd/Food-order/issues/132) | UAT-01 (exploratory); ui-spec S5 | Desktop order queue hides its column labels from assistive technology (feature request) | minor | Kirakit Kingkaew, Nattakit Prasertsak | 2026-11-26 00:32, GitHub Issue | Enhancement (00:51), then **reclassified as accepted defect, minor** (15:47): their F-04 section 3 and changelog v1.2 say the desktop queue is a table. Fixed test-first (RED `d1bf95c` TEST-L6-132, GREEN `2e291c8`) in their PR #138. |
+| EX-07 | [Food-order#133](https://github.com/vienggd/Food-order/issues/133) | UAT-05 (exploratory) | Sign in email error stays after the email is corrected (feature request) | minor | Kirakit Kingkaew, Nattakit Prasertsak | 2026-11-26 00:32, GitHub Issue | Enhancement, minor (00:51): ui-spec S1 validates on submit and does not require clearing on input or blur; Sprint 3 (F-12 / NFR-09, owner ninja). |
+
+Food-order#127 (posted 2026-11-25 23:59) first bundled EX-01, 03, 04, 05, 06 and 07 as one checklist. On B's review of PR #131 it was split into #128 to #133, one finding each, and closed on 2026-11-26 as replaced, not fixed.
+
+Est's decisions are copied from their triage comment on each Issue (vienggd, 2026-11-26, times UTC+7). Summary: 9 accepted defects (one major, #123), 3 enhancements (#130, #131, #133). Where Est's class differs from ours: EX-05 (#132) we sent as a feature request; Est first called it an enhancement, then reclassified it as a defect against their own F-04 contract. The accepted defects are fixed on Est's `lab6` branch (their PR #138); we retest them when Est gives the deployed version (L6-07b #129).

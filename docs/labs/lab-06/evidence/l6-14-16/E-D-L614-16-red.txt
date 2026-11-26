@@ -1,0 +1,91 @@
+Command: npm run test:e2e -- e2e/ui-enhancements.spec.ts
+Tested commit: 413f21e (red tests on the unfixed client, same client code as 04e8590)
+Run: 2026-11-26 18:13 (UTC+7), Node v24.16.0, Playwright Version 1.65.0
+
+> test:e2e
+> playwright test e2e/ui-enhancements.spec.ts
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "eventreg_e2e", schema "public" at "localhost:5432"
+Applying migration `20261107093337_init`
+Database reset successful
+The following migration(s) have been applied:
+migrations/
+  └─ 20261107093337_init/
+    └─ migration.sql
+Running generate... (Use --skip-generate to skip the generators)
+[2K[1A[2K[GRunning generate... - Prisma Client
+[2K[1A[2K[G✔ Generated Prisma Client (v5.22.0) to ./../node_modules/@prisma/client in 40ms
+> seed
+> tsx --env-file-if-exists=.env prisma/seed.ts
+Seed done: 2 organizers, 4 participants, 4 events, 1 registration.
+Running 3 tests using 1 worker
+  ✘  1 [chromium] › e2e/ui-enhancements.spec.ts:12:1 › TEST-66 AC-66 the event page keeps the description line breaks (L6-14) (2.0s)
+  ✘  2 [chromium] › e2e/ui-enhancements.spec.ts:38:1 › TEST-67 AC-67 at 320 px the minimized window Restore button stays inside the screen (L6-15) (1.6s)
+  ✘  3 [chromium] › e2e/ui-enhancements.spec.ts:55:1 › TEST-68 AC-68 the Not found page names its window (L6-16) (6.2s)
+  1) [chromium] › e2e/ui-enhancements.spec.ts:12:1 › TEST-66 AC-66 the event page keeps the description line breaks (L6-14) 
+    Error: expect(received).toContain(expected) // indexOf
+    Expected substring: "line one
+    line two
+    line three"
+    Received string:    "line one line two line three"
+      31 |   const description = page.getByText('line one', { exact: false });
+      32 |   await expect(description).toBeVisible();
+    > 33 |   expect(await description.innerText()).toContain('line one\nline two\nline three');
+         |                                         ^
+      34 |   const lines = await description.evaluate((el) => el.getBoundingClientRect().height / parseFloat(getComputedStyle(el).lineHeight));
+      35 |   expect(Math.round(lines), 'the description renders on three lines').toBe(3);
+      36 | });
+        at <repo>/e2e/ui-enhancements.spec.ts:33:41
+    Error Context: test-results/ui-enhancements-TEST-66-AC-5e67f-cription-line-breaks-L6-14--chromium/error-context.md
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui-enhancements-TEST-66-AC-5e67f-cription-line-breaks-L6-14--chromium/trace.zip
+    Usage:
+        npx playwright show-trace test-results/ui-enhancements-TEST-66-AC-5e67f-cription-line-breaks-L6-14--chromium/trace.zip
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+  2) [chromium] › e2e/ui-enhancements.spec.ts:38:1 › TEST-67 AC-67 at 320 px the minimized window Restore button stays inside the screen (L6-15) 
+    Error: Restore button ends past the 320 px screen
+    expect(received).toBeLessThanOrEqual(expected)
+    Expected: <= 320
+    Received:    398.7439880371094
+      46 |   await expect(restore).toBeVisible();
+      47 |   const box = (await restore.boundingBox())!;
+    > 48 |   expect(box.x + box.width, 'Restore button ends past the 320 px screen').toBeLessThanOrEqual(320);
+         |                                                                           ^
+      49 |
+      50 |   await restore.focus();
+      51 |   await page.keyboard.press('Enter');
+        at <repo>/e2e/ui-enhancements.spec.ts:48:75
+    Error Context: test-results/ui-enhancements-TEST-67-AC-ac2ca-ys-inside-the-screen-L6-15--chromium/error-context.md
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui-enhancements-TEST-67-AC-ac2ca-ys-inside-the-screen-L6-15--chromium/trace.zip
+    Usage:
+        npx playwright show-trace test-results/ui-enhancements-TEST-67-AC-ac2ca-ys-inside-the-screen-L6-15--chromium/trace.zip
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+  3) [chromium] › e2e/ui-enhancements.spec.ts:55:1 › TEST-68 AC-68 the Not found page names its window (L6-16) 
+    Error: expect(locator).toBeVisible() failed
+    Locator: getByRole('heading', { name: 'Not found', level: 1 })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Not found', level: 1 }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Not found', level: 1 })
+      58 |   // (a) first load of an unknown path
+      59 |   await page.goto('/no-such-page');
+    > 60 |   await expect(page.getByRole('heading', { level: 1, name: 'Not found' })).toBeVisible();
+         |                                                                            ^
+      61 |   await page.getByRole('button', { name: 'Minimize window' }).click();
+      62 |   await expect(page.getByRole('button', { name: /^Restore window:/ })).toHaveAccessibleName('Restore window: Not found');
+      63 |
+        at <repo>/e2e/ui-enhancements.spec.ts:60:76
+    Error Context: test-results/ui-enhancements-TEST-68-AC-82735-age-names-its-window-L6-16--chromium/error-context.md
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ui-enhancements-TEST-68-AC-82735-age-names-its-window-L6-16--chromium/trace.zip
+    Usage:
+        npx playwright show-trace test-results/ui-enhancements-TEST-68-AC-82735-age-names-its-window-L6-16--chromium/trace.zip
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+  3 failed
+    [chromium] › e2e/ui-enhancements.spec.ts:12:1 › TEST-66 AC-66 the event page keeps the description line breaks (L6-14) 
+    [chromium] › e2e/ui-enhancements.spec.ts:38:1 › TEST-67 AC-67 at 320 px the minimized window Restore button stays inside the screen (L6-15) 
+    [chromium] › e2e/ui-enhancements.spec.ts:55:1 › TEST-68 AC-68 the Not found page names its window (L6-16) 

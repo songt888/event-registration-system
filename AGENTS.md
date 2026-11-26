@@ -36,7 +36,7 @@ Kanban: Backlog → Specified → Started → PR Review → Fixing → Done. Nev
 3. **TDD:** commit failing tests (red) → commit implementation (green) → refactor. Test names must contain the TEST ID, e.g. `TEST-13 AC-13 rejects registration when event is full`.
 4. Run the full test suite, inspect the diff, update docs/README.
 5. Open a PR into `sprint-1-staging`, linked to the Issue (FR/BR/F/AC IDs in the description). **The teammate reviews with a specific check or finding. Authors never approve their own PR.**
-6. After integration and acceptance checks, open a reviewed release PR `sprint-1-staging` → `main`, then tag `v0.1.0-sprint1`. **No commits to `main` after the tag** before submission (this applies to Deliverable 1 only; Lab 5 has its own rules below).
+6. After integration and acceptance checks, open a reviewed release PR `sprint-1-staging` → `main`, then tag `v0.1.0-sprint1`. **No commits to `main` after the tag** before submission (this applies to Deliverable 1 only; Lab 5 and Lab 6 have their own rules below).
 7. Keep contract revisions visible; record justified scope changes instead of silently shrinking scope.
 
 Commit style: short imperative subject with IDs, e.g. `test(F-04): add failing capacity tests (AC-13, AC-15)`.
@@ -78,3 +78,11 @@ Plan: `lab5-plan.md` (Issues #85 to #95: order in section 8, who authors and rev
 - The failing-check demo uses a temporary branch (for example `lab5/temp-failing-check`) and is never merged.
 - New AC/TEST IDs continue the sequence (AC-52, TEST-52, ...). Same TDD order: red commit, then green commit.
 - Lab 5 commands: `npm run seed:demo` (non-destructive demo seed for the deployed database, #87); `CLIENT_DIST` makes the API serve the built UI. `bash deploy/deploy.sh` (dry run; `DRY_RUN=0` on `main` deploys to the course cloud, #90) and `bash deploy/tests/test_deploy_stub.sh` (TEST-54, offline). Add each new command to the Commands section and the README when it is created.
+
+## Lab 6 (independent UAT and defect management): rules that apply only to Lab 6 work
+Plan: `lab6-plan.md`. Handout: `Lab_6_Sprint_1_UAT` (in the user's Downloads). Due 29 Nov 2026 (moved from 22 Nov). Everything above, Lab 5 rules included, still applies unless this section says otherwise.
+- Integration branch is `lab6-staging` (D-26), created from `main` `04e8590`: branches `docs/l6-NN-topic` and `fix/l6-NN-topic` start from it, PRs go into it with the label `lab6`. A release is a reviewed PR `lab6-staging` → `main`, tagged `v0.1.3-lab6` (D-29); earlier tags never move.
+- UAT scope is the Sprint 1 contract only (D-27). The baseline under test is `v0.1.2-lab5`, revision `s47a6b53b-00005-5l7`.
+- Only the partner team can accept our release; our own testing never replaces their UAT. Never fabricate a finding, result or sign-off, never invent a defect, and never break the live release for a controlled exercise.
+- UAT runs on production with synthetic demo data; never reset or reseed production (D-20, D-28). Demo passwords reach the partner only privately; documents and the PDF name account labels and roles only.
+- Every accepted defect: Issue, failing test commit (RED) whose name carries the new TEST ID, fix commit (GREEN), full `npm test`, reviewed PR, CI, release, deploy, smoke check, partner retest. Tell the partner before any deploy.

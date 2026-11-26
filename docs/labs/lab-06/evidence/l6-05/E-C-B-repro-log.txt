@@ -1,0 +1,24 @@
+Reproduction of Est findings #141, #144, #147, #148 (B, L6-05 #124)
+Run: 2026-11-26 17:04 (UTC+7), automated (Playwright, Chrome headless), by Claude Code on B's instruction
+Code: commit 04e8590 (v0.1.2-lab5, the release Est tested), checked out alone in a git worktree
+App: local dev servers (npm run dev: API :3000, Vite :5173), local database migrated and seeded with npm run seed
+Accounts: seeded Organizer One and Participant 3 (local seed password, not the production password)
+Not production: nothing was created on the deployed app
+
+#141 My events @1280: scrollWidth=2863, Publish x=2765..2850, inViewport=false
+#141 My events @375: scrollWidth=1060, Publish x=2490..2571, inViewport=false
+#141 detail link: /events/2424daa4-92d3-4cd4-9fab-557363a6cdc9
+#141 detail @1280 scrollWidth=24387
+#141 Publish after sideways scroll: PUBLISHED labels on page=3
+#144 API description: "line one\nline two\nline three"
+#144 detail paragraph: {"text":"line one line two line three","ws":"normal","h":24.197998046875,"lh":"24.8px"}
+#147 @320 Restore button x=251..399, past right edge by 79 px, label="Restore window: My registrations"
+#147 after Enter on Restore: Minimize visible=true
+#148 first load /no-such-page: ["Close window","Minimize window","Maximize window"]
+#148 after Minimize on first load: ["Restore window: ","Close window","Minimize window","Maximize window"]
+#148 after navigating from Events, minimized: ["Restore window: Events","Close window","Minimize window","Maximize window"]
+
+Notes
+- #141: the event was created with a 120-character title and location and a 2000-character description, none with spaces. "PUBLISHED labels on page=3": before the click the seeded Organizer One had 2 PUBLISHED events, so the third is the long-title event published after scrolling sideways to its Publish button.
+- #144: the API returns the line breaks; the detail paragraph has white-space normal, so the three lines show as one line (height 24.2 px, one line height 24.8 px).
+- #147: Est measured about 81 px; this run measured 79 px at 320 px wide.

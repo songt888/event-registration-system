@@ -1,0 +1,52 @@
+Command: npm run test:e2e
+Tested commit: ddf85e4 (green fix)
+Run: 2026-11-26 21:22 (UTC+7), Node v24.19.0, Version 1.65.0
+
+
+> test:e2e
+> playwright test
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "eventreg_e2e", schema "public" at "localhost:5432"
+
+Applying migration `20261107093337_init`
+
+Database reset successful
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20261107093337_init/
+    └─ migration.sql
+
+Running generate... (Use --skip-generate to skip the generators)
+[2K[1A[2K[GRunning generate... - Prisma Client
+[2K[1A[2K[G✔ Generated Prisma Client (v5.22.0) to ./../node_modules/@prisma/client in 30ms
+
+
+> seed
+> tsx --env-file-if-exists=.env prisma/seed.ts
+
+Seed done: 2 organizers, 4 participants, 4 events, 1 registration.
+
+Running 16 tests using 1 worker
+
+  ✓   1 [chromium] › e2e/aria-errors.spec.ts:9:1 › TEST-64 AC-64 links Sign in errors to email and password (L6-12) (1.3s)
+  ✓   2 [chromium] › e2e/aria-errors.spec.ts:20:1 › TEST-64 AC-64 marks only the invalid field on Create event (L6-12) (1.9s)
+  ✓   3 [chromium] › e2e/browse.spec.ts:4:1 › TEST-11 AC-11 Events screen shows the empty state for an empty list (1.3s)
+  ✓   4 [chromium] › e2e/create-event-link.spec.ts:12:1 › TEST-71 AC-71 a participant on My events sees the 403 message and no Create event link (L6-19) (2.8s)
+  ✓   5 [chromium] › e2e/full-event.spec.ts:12:1 › TEST-23 AC-23 full event shows the full message and My registrations stays unchanged (3.6s)
+  ✓   6 [chromium] › e2e/golden-journey.spec.ts:19:1 › TEST-22 AC-22 organizer publishes, participant registers and sees it, owner sees the registrant (4.7s)
+  ✓   7 [chromium] › e2e/golden-journey.spec.ts:53:1 › TEST-24 AC-24 header shows name and role for each role; after logout a protected page opens login (2.8s)
+  ✓   8 [chromium] › e2e/long-text.spec.ts:28:1 › TEST-65 AC-65 maximum-length text without spaces keeps Publish on screen and no page scrolls sideways (L6-13) (5.0s)
+  ✓   9 [chromium] › e2e/reload-after-409.spec.ts:3:1 › TEST-62 AC-62 refreshes places after a refused registration (L6-10) (1.8s)
+  ✓  10 [chromium] › e2e/saved-message.spec.ts:3:1 › TEST-63 AC-63 clears the draft confirmation after publishing (L6-11) (2.0s)
+  ✓  11 [chromium] › e2e/smoke.spec.ts:5:1 › signed-out visitor is sent to the login form (118ms)
+  ✓  12 [chromium] › e2e/stale-session.spec.ts:4:1 › TEST-56 AC-56 after logout in another tab, protected navigation shows Sign in and stops the refused requests (L6-09) (4.6s)
+  ✓  13 [chromium] › e2e/taskbar-overlap.spec.ts:10:1 › TEST-72 AC-72 the taskbar never covers the page, and from 641 px it keeps Logout on one row (L6-20) (11.4s)
+  ✓  14 [chromium] › e2e/ui-enhancements.spec.ts:12:1 › TEST-66 AC-66 the event page keeps the description line breaks (L6-14) (1.4s)
+  ✓  15 [chromium] › e2e/ui-enhancements.spec.ts:38:1 › TEST-67 AC-67 at 320 px the minimized window Restore button stays inside the screen (L6-15) (1.7s)
+  ✓  16 [chromium] › e2e/ui-enhancements.spec.ts:55:1 › TEST-68 AC-68 the Not found page names its window (L6-16) (3.3s)
+
+  16 passed (52.9s)

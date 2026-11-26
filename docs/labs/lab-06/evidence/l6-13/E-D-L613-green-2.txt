@@ -1,0 +1,24 @@
+Command: npm run test:e2e -- e2e/long-text.spec.ts
+Tested commit: d7b89b0 (second green fix)
+Run: 2026-11-26 18:18 (UTC+7), Node v24.16.0, Playwright Version 1.65.0
+
+> test:e2e
+> playwright test e2e/long-text.spec.ts
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "eventreg_e2e", schema "public" at "localhost:5432"
+Applying migration `20261107093337_init`
+Database reset successful
+The following migration(s) have been applied:
+migrations/
+  └─ 20261107093337_init/
+    └─ migration.sql
+Running generate... (Use --skip-generate to skip the generators)
+[2K[1A[2K[GRunning generate... - Prisma Client
+[2K[1A[2K[G✔ Generated Prisma Client (v5.22.0) to ./../node_modules/@prisma/client in 90ms
+> seed
+> tsx --env-file-if-exists=.env prisma/seed.ts
+Seed done: 2 organizers, 4 participants, 4 events, 1 registration.
+Running 1 test using 1 worker
+  ✓  1 [chromium] › e2e/long-text.spec.ts:28:1 › TEST-65 AC-65 maximum-length text without spaces keeps Publish on screen and no page scrolls sideways (L6-13) (5.3s)
+  1 passed (10.1s)
