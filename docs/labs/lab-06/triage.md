@@ -10,16 +10,18 @@ Product: Event Registration and Attendance System, team EN-009_P3. Findings from
 | Revision served at test time | Est wrote "served revision not confirmed". The last Deploy workflow run before the session, run 44941012107 on 2026-11-22 02:27 (UTC+7) from `04e8590`, created `s47a6b53b-00005-5l7`, and no Deploy run has happened since. This covers workflow deploys only; a manual Cloud Shell deploy would not show here (check: `gcloud run revisions list`, L6-06) |
 | Owners | A (songt888): #142, #143, #145, #146. B (stickkersz): #141, #144, #147, #148 |
 
+**Fixing enhancements.** An enhancement keeps its class; when the team decides to fix it in Lab 6 it first gets a new AC/TEST in the feature contract (committed before the RED test), because no Sprint 1 AC covers it.
+
 **Classes.** Accepted defect: the behavior breaks a Sprint 1 acceptance criterion or feature contract line. Enhancement: the contract does not require the behavior; we may still improve it. Not a defect: the app does what the contract says and the report expects something else. Duplicate: same cause as another finding, linked to it. **Severity** is by user impact: critical (data loss, security breach, main journey impossible), major (a contract behavior fails and the user cannot continue without a workaround, or it blocks acceptance), minor (wrong or confusing but the task can be completed).
 
 ## Summary
 
 | Issue | Finding | Est's severity | Class | Our severity | Owner | Fix status |
 |---|---|---|---|---|---|---|
-| [#142](https://github.com/songt888/event-registration-system/issues/142) | After logout in another tab, the first tab keeps the account and menu | major | **Accepted defect** | **major** | A | fix in L6-06 (`fix/l6-NN-stale-session`) |
-| [#143](https://github.com/songt888/event-registration-system/issues/143) | Places-left count stale after a refused duplicate registration | minor | Enhancement | minor | A | optional in L6-06; otherwise Sprint 3 |
-| [#145](https://github.com/songt888/event-registration-system/issues/145) | Form errors not tied to their fields with ARIA attributes | minor | Enhancement | minor | A | Sprint 3 accessibility hardening (F-13) |
-| [#146](https://github.com/songt888/event-registration-system/issues/146) | "Draft … saved." stays after the event is published | minor | Enhancement | minor | A | optional in L6-06; otherwise Sprint 3 |
+| [#142](https://github.com/songt888/event-registration-system/issues/142) | After logout in another tab, the first tab keeps the account and menu | major | **Accepted defect** | **major** | A | fix in [L6-09 #156](https://github.com/songt888/event-registration-system/issues/156) (AC-56/TEST-56), released in `v0.1.3-lab6` |
+| [#143](https://github.com/songt888/event-registration-system/issues/143) | Places-left count stale after a refused duplicate registration | minor | Enhancement | minor | A | fix in [L6-10 #157](https://github.com/songt888/event-registration-system/issues/157) (AC-62/TEST-62), released in `v0.1.3-lab6` |
+| [#145](https://github.com/songt888/event-registration-system/issues/145) | Form errors not tied to their fields with ARIA attributes | minor | Enhancement | minor | A | fix in [L6-12 #159](https://github.com/songt888/event-registration-system/issues/159) (AC-64/TEST-64), released in `v0.1.3-lab6` |
+| [#146](https://github.com/songt888/event-registration-system/issues/146) | "Draft … saved." stays after the event is published | minor | Enhancement | minor | A | fix in [L6-11 #158](https://github.com/songt888/event-registration-system/issues/158) (AC-63/TEST-63), released in `v0.1.3-lab6` |
 | [#141](https://github.com/songt888/event-registration-system/issues/141) | Very long title, location or description breaks the layout | major | **Accepted defect** | minor | B | fix in L6-06 (`fix/l6-NN-long-text`) |
 | [#144](https://github.com/songt888/event-registration-system/issues/144) | Description line breaks are lost on the event page | minor | Enhancement | minor | B | optional in L6-06; otherwise Sprint 3 |
 | [#147](https://github.com/songt888/event-registration-system/issues/147) | At 320 px the Restore button sticks out about 81 px | minor | Enhancement | minor | B | optional in L6-06; otherwise Sprint 3 |
@@ -37,7 +39,7 @@ Product: Event Registration and Attendance System, team EN-009_P3. Findings from
 - **Cause:** on a 401 each page renders `<Navigate to="/login">`, but nothing clears `user` in `AuthProvider` (`client/src/auth.tsx`). `LoginPage.tsx:26` (`if (user) return <Navigate to="/events" replace />`) sends the tab straight back, and `/events` gets 401 again.
 - **Severity major** (we agree with Est): after a logout elsewhere the tab is unusable until a manual reload, it gives no message, and the browser repeats failed requests against the server. No data is exposed: every request is refused by the server (AC-04, TEST-04 still hold).
 - **Not covered by our UAT cases:** UAT-04 checks logout and Back in a single tab only. The retest adds this two-tab check.
-- **Fix plan (L6-06):** clear the displayed user once, in `AuthProvider`, when any API call returns 401; RED first as an E2E test with two pages in one browser context (logout in one, protected navigation in the other expects the Sign in page and no repeated requests), then GREEN, then `npm test` and `npm run test:e2e`.
+- **Fix plan (L6-09 #156, released in L6-06):** AC-56/TEST-56 added to `f-01-auth.md` before the test. Clear the displayed user once, in `AuthProvider`, when any API call returns 401; RED first as an E2E test with two pages in one browser context (logout in one, protected navigation in the other expects the Sign in page and no repeated requests), then GREEN, then `npm test` and `npm run test:e2e`.
 
 Run 1 (16:03–16:05) is not used as a result: before the after-click capture the browser recorded a reload, Back or address-bar action on tab A, so its `/login` screen ([E-C142-4](evidence/l6-05/E-C142-4-run1-invalid-tab-reloaded.jpg)) does not show the click alone. Run 2 added a console logger first; the logger survived, so no reload happened.
 
@@ -47,13 +49,14 @@ Run 1 (16:03–16:05) is not used as a result: before the after-click capture th
 - **Code matches the contract:** `EventsPage.tsx` calls `reload()` only after a 201; a 409 shows `You are already registered for this event.`, which is the AC-14 behavior Est observed.
 - **Reason for the class:** the refusal and its message are correct, and no AC asks for a reload after an error. Showing the current count after any 409 is a fair improvement (one `reload()` in the error path).
 - Not reproduced on production: the code path above is unconditional; Est's report and the code agree.
+- **Decision:** the class stays enhancement (no Sprint 1 AC is broken), but the team fixes it now: new AC-62/TEST-62 in `f-04-register.md`, L6-10 #157, released in `v0.1.3-lab6`.
 
 ### #145 Form errors are not exposed to assistive technology: enhancement, minor
 
 - **Contract:** `f-01-auth.md` line 55 "Show field validation …"; `f-02-publish-event.md` line 28 "Show validation errors near fields or in the form". Neither, nor NFR-09, requires `aria-invalid`, `aria-describedby` or `aria-errormessage`.
 - **Current behavior:** every field error and the form error are rendered with `role="alert"` next to their field (`LoginPage.tsx`, `CreateEventPage.tsx`), so screen readers announce them when they appear; they are not programmatically tied to the input.
 - **Reason for the class:** no Sprint 1 AC is broken. Est classified our report of the same gap in their app (Food-order #131) as an enhancement for Sprint 3; we classify ours the same way.
-- **Plan:** Sprint 3 hardening (F-13): add `aria-invalid` and `aria-describedby` to the Sign in and Create event fields.
+- **Decision:** the class stays enhancement, but the team fixes it now instead of in Sprint 3: new AC-64/TEST-64 in `f-02-publish-event.md` (pointer in `f-01-auth.md`), L6-12 #159, released in `v0.1.3-lab6`.
 
 ### #146 "Draft … saved." stays after the event is published: enhancement, minor
 
@@ -61,6 +64,7 @@ Run 1 (16:03–16:05) is not used as a result: before the after-click capture th
 - **Cause:** the message comes from the navigation state (`MyEventsPage.tsx:17`, shown at line 58); the browser keeps that state on reload, so the message stays until the user leaves the page.
 - **Reason for the class:** the confirmation was true when shown and the row status is correct; no AC is broken. It is confusing next to `PUBLISHED`, and clearing it on Publish is a one-line change.
 - Not reproduced on production: the code path is unconditional; Est's report and the code agree.
+- **Decision:** the class stays enhancement, but the team fixes it now: new AC-63/TEST-63 in `f-02-publish-event.md`, L6-11 #158, released in `v0.1.3-lab6`.
 
 ## B's findings
 
