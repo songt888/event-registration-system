@@ -39,6 +39,7 @@ A modular monolith: one Node process serves the API and, in production, the buil
 | Capacity (BR-02) | service layer, inside one transaction with `SELECT ... FOR UPDATE` on the event row (D-10) | `capacity` CHECK 1..10000 |
 | One active registration (BR-03) | service layer check inside the same transaction | partial unique index `(eventId, participantId) WHERE status = 'ACTIVE'` |
 | Registrable event (BR-04) | service layer: status PUBLISHED and `startsAt > now` | none |
+| Time conflict (BR-10, CR-01) | service layer, in the D-10 registration transaction after the duplicate check: the participant's `User` row is locked `FOR UPDATE` after the event row, then the participant's other ACTIVE registrations are checked for a `startsAt` less than 120 minutes away | none: a constraint cannot compare `startsAt` across two events |
 | Valid start time (BR-09, D-12) | service layer on create and publish | none |
 | Input shape | zod schema at the route | DB types and NOT NULL |
 
@@ -164,7 +165,7 @@ The header shows the signed-in user's name and role (from `GET /api/me`) and a L
 | 401 | `UNAUTHENTICATED`, `INVALID_CREDENTIALS` | no valid session; wrong email or password (one generic message) |
 | 403 | `FORBIDDEN` | wrong role on a role-restricted route (for any event ID), or a non-owner organizer on an owner-only operation of a PUBLISHED event |
 | 404 | `NOT_FOUND`, `EVENT_NOT_FOUND` | record missing, a DRAFT requested by anyone except its owner (when the caller has the route's role), or another participant's registration |
-| 409 | `EVENT_FULL`, `ALREADY_REGISTERED`, `EVENT_STARTED`, `ALREADY_PUBLISHED` | a business rule rejects the request; nothing is stored |
+| 409 | `EVENT_FULL`, `ALREADY_REGISTERED`, `EVENT_STARTED`, `TIME_CONFLICT`, `ALREADY_PUBLISHED` | a business rule rejects the request; nothing is stored |
 | 500 | `INTERNAL_ERROR` | unexpected failure; generic message, details logged on the server only, no stack trace |
 
 ### 4.3 Endpoint inventory (S1)
@@ -262,7 +263,7 @@ Identity and role always come from the session on the server. The API never acce
 | Level | Tool | Database | Covers |
 |---|---|---|---|
 | Unit | Vitest | none | pure rules: start-time check with an injected `now`, capacity input validation |
-| API/DB integration | Vitest + Supertest | `DATABASE_URL_TEST`, files run one at a time, tables truncated in `beforeEach` (D-14) | persistence, permissions, ownership, error codes, concurrency (TEST-15 last place, TEST-37 NFR-04 scenario) |
+| API/DB integration | Vitest + Supertest | `DATABASE_URL_TEST`, files run one at a time, tables truncated in `beforeEach` (D-14) | persistence, permissions, ownership, error codes, concurrency (TEST-15 last place, TEST-37 NFR-04 scenario, TEST-60 two requests by one participant under BR-10) |
 | End-to-end | Playwright | `DATABASE_URL_E2E`, reset and seeded before each run | TEST-22..TEST-24 critical journeys |
 
 Test names start with their TEST and AC IDs, for example `TEST-13 AC-13 rejects registration when event is full`.
@@ -301,3 +302,4 @@ flowchart LR
 |---|---|---|---|---|
 | 1.0 | 2026-11-07 | First System-Level SDS for Deliverable 1 (Issue #15) | B (stickkersz) | A (songt888) |
 | 1.1 | 2026-11-07 | PR #49 review: `/api/me` fields match FR-03; check order and D-13 precedence made explicit; NFR-04 verified by TEST-37 | B (stickkersz) | A (songt888) |
+| 1.2 | 2026-11-27 | Lab 7 CR-01 (#134): BR-10 row in 1.3 with the lock order event row, then participant row (extends D-10); `TIME_CONFLICT` in the 4.2 409 codes; TEST-60 in 9 | B (stickkersz), with Claude Code | A (songt888) |
