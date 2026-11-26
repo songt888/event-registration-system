@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
-import { ApiError, api, type User } from './api';
+import { ApiError, api, setUnauthenticatedHandler, type User } from './api';
 
 type AuthState = {
   user: User | null;
@@ -31,6 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(reload, [reload]);
+  useEffect(() => setUnauthenticatedHandler(() => setUser(null)), []);
 
   const login = async (email: string, password: string) => {
     await api('/auth/login', { method: 'POST', body: { email, password } });
