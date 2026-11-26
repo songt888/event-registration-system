@@ -1,0 +1,3 @@
+2026-11-27 03:42:58 (UTC+7) order #17: banner right after placing visible=true text="Order #17 placed!"
+2026-11-27 03:42:59 (UTC+7) after reload banner count=0
+2026-11-27 03:43:04 (UTC+7) after accept + Refresh status: banner count=0, detail status=16 ACCEPTED labels

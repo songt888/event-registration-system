@@ -1,0 +1,12 @@
+Retest of Est #132, tester B, 2026-11-27 03:34:54 (UTC+7), URL https://food-order-d4jdyxqbca-as.a.run.app
+/api/ready: {"status":"ready","db":"connected"}; page assets: css2?family=Fraunces:opsz,wght@9..144,500..700&family=Plus+Jakarta+Sans:wght@400..800&display=swap, index-DbdmxBc6.js, index--AGnC0Oj.css
+Header cells: 7; rows: 4; cells per row: [7,7,7,7]
+Column | header (scope) | header left px | row 1 cell | cell left px | same column
+1 | Order (col) | 296 | #1 | 296 | true
+2 | Status (col) | 367 | PLACED | 367 | true
+3 | Customer (col) | 470 | Smoke Test | 470 | true
+4 | Items (col) | 575 | Latte ×2 | 575 | true
+5 | Placed (col) | 913 | 22 Nov 21:47 | 913 | true
+6 | Total (col) | 1011 | ฿130.00 | 1011 | true
+7 | Action (col) | 1114 | Accept order | 1114 | true
+RESULT: PASS
