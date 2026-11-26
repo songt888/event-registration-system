@@ -1,0 +1,21 @@
+Start 2026-11-27 03:42:25 (UTC+7)  URL https://food-order-d4jdyxqbca-as.a.run.app  /api/ready {"status":"ready","db":"connected"}
+#123 PASS @ 2026-11-27 03:42:28 (UTC+7)
+   actual: 375x812, Latte in cart, scrolled to bottom: Basil name y 584-606, + y 585-629, fixed bottom bar top y Infinity (); centre of + hits the button: true [R-123-phone-bottom.png]
+#129 PASS @ 2026-11-27 03:42:28 (UTC+7)
+   actual: 375x812 /menu header text "Campus Café Hey, Alice CUSTOMER Log out"; page scrollWidth 375 vs viewport 375 [R-129-phone-header.png]
+#128 PASS @ 2026-11-27 03:42:32 (UTC+7)
+   actual: Latte x2 (1 line): phone tab "Cart (1)"; desktop badge/count elements: count:1, badge in-cart:In cart · 2, badge sold:Sold out [R-128-phone-cart-badge.png, R-128-desktop-cart-badge.png]
+#121 PASS @ 2026-11-27 03:42:35 (UTC+7)
+   actual: GET /api/orders/<id>: 0x2:400 VALIDATION_ERROR, 2e0:400 VALIDATION_ERROR, 2.0:400 VALIDATION_ERROR, +2:400 VALIDATION_ERROR, 0b10:400 VALIDATION_ERROR, 0o2:400 VALIDATION_ERROR, %202:400 VALIDATION_ERROR; UI /orders/0x2: "Pre-order / My orders My orders Refresh list Order Placed Status Total #15 01:40 · 3 items ACCEPTED ฿185.00 #14 00:20 · 1 item ACCEPTED ฿50.00 #13 00:19 · 1 item ACCEPTED ฿65.00 #12 00:18 · 1 item ACCEPTED ฿65.00 #11 25 Nov 22:23 · 3 items ACCEPTED ฿185.00 #10 25 Nov 22:10 · 5 items PLACED ฿325.00 #9 25 Nov 21:20 · 1 item PLACED ฿65.00 #8 25 Nov 21:19 · 1 item ACCEPTED ฿65.00 #7 25 Nov 21:15 · 1 item ACCEPTED ฿55.00 #6 25 Nov 21:12 · 1 item ACCEPTED ฿50.00 #5 25 Nov 21:11 · 10 items PLACED ฿500.00 #4 25 Nov 20:56 · 2 items ACCEPTED ฿120.00 #3 25 Nov 20:30 · 3 items ACCEPTED ฿185.00 #2 22 Nov 23:22 · 3 items ACCEPTED ฿210.00 Order not found. Back to my orders" [R-121-orders-0x2.png]
+#126 PASS @ 2026-11-27 03:42:37 (UTC+7)
+   actual: a..b@cafe.test: API 400 "Invalid request.", shown "Invalid request."; alice + 201-char password: API 400 "Invalid request.", shown "Invalid request." [R-126-login-201-chars.png]
+#122 PASS @ 2026-11-27 03:42:41 (UTC+7)
+   actual: /operator/orders as CUSTOMER-A -> /menu, warning shown: true; after My orders: false; on /login after Log out: false [R-122-1, R-122-2]
+#124 FAIL @ 2026-11-27 03:42:49 (UTC+7)
+   actual: order #16 (Latte x1, test data): banner right after placing: false; after reload: false; after operator accept + Refresh status: false [R-124-1-after-reload.png, R-124-125-after-accept.png]
+#125 PASS @ 2026-11-27 03:42:49 (UTC+7)
+   actual: 1280 px after accept + Refresh status: list entries for #16: ["#16 03:42 · 1 item ACCEPTED ฿65.00","#16 03:42 · 1 item ACCEPTED ฿65.00"]; "ACCEPTED" appears 13 times on the page [R-124-125-after-accept.png]
+#132 PASS @ 2026-11-27 03:42:51 (UTC+7)
+   actual: 1280 px OPERATOR /operator/orders: <table> count 1, headers ["Order","Status","Customer","Items","Placed","Total","Action"] [R-132-operator-table.png]
+
+SUMMARY #123 PASS, #129 PASS, #128 PASS, #121 PASS, #126 PASS, #122 PASS, #124 FAIL, #125 PASS, #132 PASS
