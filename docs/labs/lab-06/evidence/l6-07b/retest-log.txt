@@ -1,0 +1,21 @@
+Start 2026-11-27 00:18:24 (UTC+7)  URL https://food-order-d4jdyxqbca-as.a.run.app  /api/ready {"status":"ready","db":"connected"}
+#123 PASS @ 2026-11-27 00:18:27 (UTC+7)
+   actual: 375x812, Latte in cart, scrolled to bottom: Basil name y 584-606, + y 585-629, fixed bottom bar top y Infinity (); centre of + hits the button: true [R-123-phone-bottom.png]
+#129 PASS @ 2026-11-27 00:18:27 (UTC+7)
+   actual: 375x812 /menu header text "Campus Café Hey, Alice CUSTOMER Log out"; page scrollWidth 375 vs viewport 375 [R-129-phone-header.png]
+#128 PASS @ 2026-11-27 00:18:31 (UTC+7)
+   actual: Latte x2 (1 line): phone tab "Cart (1)"; desktop badge/count elements: count:1, badge in-cart:In cart · 2, badge sold:Sold out [R-128-phone-cart-badge.png, R-128-desktop-cart-badge.png]
+#121 FAIL @ 2026-11-27 00:18:34 (UTC+7)
+   actual: GET /api/orders/<id>: 0x2:400 VALIDATION_ERROR, 2e0:400 VALIDATION_ERROR, 2.0:400 VALIDATION_ERROR, +2:400 VALIDATION_ERROR, 0b10:400 VALIDATION_ERROR, 0o2:400 VALIDATION_ERROR, %202:400 VALIDATION_ERROR; UI /orders/0x2: "Pre-order / My orders My orders Refresh list Order Placed Status Total #11 25 Nov 22:23 · 3 items ACCEPTED ฿185.00 #10 25 Nov 22:10 · 5 items PLACED ฿325.00 #9 " [R-121-orders-0x2.png]
+#126 PASS @ 2026-11-27 00:18:36 (UTC+7)
+   actual: a..b@cafe.test: API 400 "Invalid request.", shown "Invalid request."; alice + 201-char password: API 400 "Invalid request.", shown "Invalid request." [R-126-login-201-chars.png]
+#122 PASS @ 2026-11-27 00:18:40 (UTC+7)
+   actual: /operator/orders as CUSTOMER-A -> /menu, warning shown: true; after My orders: false; on /login after Log out: false [R-122-1, R-122-2]
+#124 FAIL @ 2026-11-27 00:18:48 (UTC+7)
+   actual: order #12 (Latte x1, test data): banner right after placing: false; after reload: false; after operator accept + Refresh status: false [R-124-1-after-reload.png, R-124-125-after-accept.png]
+#125 PASS @ 2026-11-27 00:18:48 (UTC+7)
+   actual: 1280 px after accept + Refresh status: list entries for #12: ["#12 00:18 · 1 item ACCEPTED ฿65.00","#12 00:18 · 1 item ACCEPTED ฿65.00"]; "ACCEPTED" appears 9 times on the page [R-124-125-after-accept.png]
+#132 PASS @ 2026-11-27 00:18:50 (UTC+7)
+   actual: 1280 px OPERATOR /operator/orders: <table> count 1, headers ["Order","Customer","Items","Placed","Total","Action"] [R-132-operator-table.png]
+
+SUMMARY #123 PASS, #129 PASS, #128 PASS, #121 FAIL, #126 PASS, #122 PASS, #124 FAIL, #125 PASS, #132 PASS
