@@ -1,0 +1,7 @@
+setup 2026-11-27 00:20:31: CUSTOMER-A placed #14 (Thai Milk Tea x1)
+1 2026-11-27 00:20:32: logged out, closed the context, new context, logged in again as CUSTOMER-A
+2 2026-11-27 00:20:35: My orders row "#14 00:20 · 1 item PLACED ฿50.00"; detail has Thai Milk Tea: true, ฿50.00: true, PLACED: true
+3 2026-11-27 00:20:38: operator window 1 lists #14: true; window 2: true
+4 2026-11-27 00:20:39: window 1 Accept -> "Order #14 accepted."; row still listed: false
+5 2026-11-27 00:20:41: window 2 (not reloaded) Accept -> "Order #14: Already accepted by another staff member."; row still listed: false
+6 2026-11-27 00:20:43: CUSTOMER-A /orders/14: ACCEPTED: true, ฿50.00: true, hint "Accepted": true
