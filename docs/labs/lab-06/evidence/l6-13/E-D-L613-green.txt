@@ -27,8 +27,8 @@ Seed done: 2 organizers, 4 participants, 4 events, 1 registration.
 [WebServer]     at Server.setupListenHandle [as _listen2] (node:net:2008:16)
 [WebServer]     at listenInCluster (node:net:2065:12)
 [WebServer]     at Server.listen (node:net:2170:7)
-[WebServer]     at app.listen (/Users/tonklax/Documents/CPE/CPE 334 Software Engineering/Project/event-registration-system/node_modules/express/lib/application.js:635:24)
-[WebServer]     at <anonymous> (/Users/tonklax/Documents/CPE/CPE 334 Software Engineering/Project/event-registration-system/server/src/index.ts:4:13)
+[WebServer]     at app.listen (<repo>/node_modules/express/lib/application.js:635:24)
+[WebServer]     at <anonymous> (<repo>/server/src/index.ts:4:13)
 [WebServer]     at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
 [WebServer]     at async node:internal/modules/esm/loader:633:26
 [WebServer]     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)

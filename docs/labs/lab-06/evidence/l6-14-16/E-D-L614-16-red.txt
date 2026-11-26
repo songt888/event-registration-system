@@ -36,7 +36,7 @@ Running 3 tests using 1 worker
       34 |   const lines = await description.evaluate((el) => el.getBoundingClientRect().height / parseFloat(getComputedStyle(el).lineHeight));
       35 |   expect(Math.round(lines), 'the description renders on three lines').toBe(3);
       36 | });
-        at /Users/tonklax/Documents/CPE/CPE 334 Software Engineering/Project/event-registration-system/e2e/ui-enhancements.spec.ts:33:41
+        at <repo>/e2e/ui-enhancements.spec.ts:33:41
     Error Context: test-results/ui-enhancements-TEST-66-AC-5e67f-cription-line-breaks-L6-14--chromium/error-context.md
     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
     test-results/ui-enhancements-TEST-66-AC-5e67f-cription-line-breaks-L6-14--chromium/trace.zip
@@ -55,7 +55,7 @@ Running 3 tests using 1 worker
       49 |
       50 |   await restore.focus();
       51 |   await page.keyboard.press('Enter');
-        at /Users/tonklax/Documents/CPE/CPE 334 Software Engineering/Project/event-registration-system/e2e/ui-enhancements.spec.ts:48:75
+        at <repo>/e2e/ui-enhancements.spec.ts:48:75
     Error Context: test-results/ui-enhancements-TEST-67-AC-ac2ca-ys-inside-the-screen-L6-15--chromium/error-context.md
     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
     test-results/ui-enhancements-TEST-67-AC-ac2ca-ys-inside-the-screen-L6-15--chromium/trace.zip
@@ -78,7 +78,7 @@ Running 3 tests using 1 worker
       61 |   await page.getByRole('button', { name: 'Minimize window' }).click();
       62 |   await expect(page.getByRole('button', { name: /^Restore window:/ })).toHaveAccessibleName('Restore window: Not found');
       63 |
-        at /Users/tonklax/Documents/CPE/CPE 334 Software Engineering/Project/event-registration-system/e2e/ui-enhancements.spec.ts:60:76
+        at <repo>/e2e/ui-enhancements.spec.ts:60:76
     Error Context: test-results/ui-enhancements-TEST-68-AC-82735-age-names-its-window-L6-16--chromium/error-context.md
     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
     test-results/ui-enhancements-TEST-68-AC-82735-age-names-its-window-L6-16--chromium/trace.zip
