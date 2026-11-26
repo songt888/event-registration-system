@@ -1,10 +1,10 @@
 # L5-04 (R-05, check C-01; D-21, D-23): the required check. Job id `test-and-docker` runs build, npm test against a
-# real Postgres and the Docker build on every PR into lab5-staging, lab6-staging (D-26) and main, and is reused by the deploy workflow.
+# real Postgres and the Docker build on every PR into lab5-staging, lab6-staging (D-26), lab7-staging (D-31) and main, and is reused by the deploy workflow.
 name: ci-docker
 
 on:
   pull_request:
-    branches: [lab5-staging, lab6-staging, main]
+    branches: [lab5-staging, lab6-staging, lab7-staging, main]
   workflow_call:
 
 permissions:
