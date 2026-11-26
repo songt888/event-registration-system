@@ -75,27 +75,28 @@ Run 1 (16:03–16:05) is not used as a result: before the after-click capture th
 - **Reason for the class:** contract-valid input makes the Publish control and the detail text unusable without scrolling sideways, so a contract behavior fails. It is not a duplicate of another finding.
 - **Severity minor** (Est proposed major): the task can still be completed by scrolling sideways to Publish, no data is wrong, and it needs an unbroken 120-character title or a description with no spaces, which normal event text does not have. We fix it anyway in L6-06.
 - **Fix plan (L6-06):** `overflow-wrap: anywhere` on window content, list cells and the event detail text; RED first as an E2E test that saves a 120-character title with no spaces and checks that Publish is inside the viewport at 1280 px and at 375 px, then GREEN, then `npm test` and `npm run test:e2e`.
-- Not reproduced by B on production yet; Est's report, their saved event (`/events/6e0c7e76-…`) and the CSS above agree.
+- **Reproduced** by B on 2026-11-26 17:04 (UTC+7), automated (Playwright), on `04e8590` run locally with the seeded database, not on production ([log](evidence/l6-05/E-C-B-repro-log.txt)). A 120-character title and location and a 2000-character description, none with spaces: at 1280 px My events is 2863 px wide and Publish sits at x 2765 to 2850; at 375 px Publish sits at x 2490 to 2571; the detail page is 24,387 px wide (Est measured about 22,800). The long row widens the whole list, so the Status and Publish columns of **every** row move off screen, not only the long one ([E-C141-1](evidence/l6-05/E-C141-1-my-events-1280.png), [E-C141-2](evidence/l6-05/E-C141-2-my-events-375.png), [E-C141-3](evidence/l6-05/E-C141-3-detail-1280.png)). Scrolling sideways to Publish and pressing it still publishes the event.
 
 ### #144 Description line breaks are lost on the event page: enhancement, minor
 
 - **Contract:** `f-03-browse-events.md` line 54 says Event detail "Shows title, description, location"; `f-02-publish-event.md` line 22 defines the description as a string of 0..2000 characters. Neither says that line breaks are kept on screen.
 - **Current behavior:** the API stores and returns the description with its line breaks; `EventsPage.tsx` line 102 renders it as `<p>{e.description}</p>`, and HTML collapses the breaks into spaces. The text itself is complete.
 - **Reason for the class:** no AC is broken and no data is lost. Keeping the author's line breaks is a fair improvement (`white-space: pre-line` on that paragraph).
-- Not reproduced on production: the rendering is unconditional; Est's report and the code agree.
+- **Reproduced** by B on 2026-11-26 17:04 (UTC+7), same local run ([log](evidence/l6-05/E-C-B-repro-log.txt)): the API returns `"line one\nline two\nline three"`; the detail paragraph has `white-space: normal` and shows `line one line two line three` on one line ([E-C144-1](evidence/l6-05/E-C144-1-detail-one-line.png)).
 
 ### #147 At 320 px the Restore button sticks out about 81 px: enhancement, minor
 
 - **Contract:** D-15 asks for working close, minimize and maximize buttons, 24 px window buttons and everything usable by keyboard. No Sprint 1 contract, AC or NFR sets a minimum screen width.
 - **Cause:** below 640 px `header nav` does not wrap (`flex-wrap: nowrap`, `styles.css` line 473) and the minimized task button (`.task-min`) carries the full window title, so at 320 px it runs past the right edge.
 - **Reason for the class:** Est reports the visible part is still clickable, so Restore still works by mouse and keyboard; no contract line is broken. Keeping the button inside the viewport (truncate the title with an ellipsis) is a fair improvement.
-- Not reproduced by B on production yet; Est's measurement and the CSS above agree.
+- **Reproduced** by B on 2026-11-26 17:04 (UTC+7), same local run ([log](evidence/l6-05/E-C-B-repro-log.txt)): at 320 px after Minimize, `Restore window: My registrations` spans x 251 to 399, 79 px past the right edge (Est measured about 81). Focusing it and pressing Enter restores the window ([E-C147-1](evidence/l6-05/E-C147-1-restore-320.png)).
 
 ### #148 Window buttons on the Not found page have no page name: enhancement, minor
 
 - **Contract:** system SDS 3.2 says a 404 shows "Not found", which the page does. D-15 asks for visible focus and keyboard use of the window buttons; no contract line sets their accessible names.
 - **Cause:** the window title comes from the page's `h1` (`Layout.tsx` lines 35–38). The catch-all route in `App.tsx` line 28 renders `<p>Not found</p>` with no `h1`, so the title is never set: it stays empty on a first load (Est's "Restore window:") and keeps the previous page's name after navigation.
 - **Reason for the class:** the buttons have a name and work; only the page part of the name is missing, and no AC covers it. Giving the Not found page an `h1` would fix both cases.
+- **Reproduced** by B on 2026-11-26 17:04 (UTC+7), same local run ([log](evidence/l6-05/E-C-B-repro-log.txt)): opening `/no-such-page` first and pressing Minimize gives `Restore window: ` with no name ([E-C148-1](evidence/l6-05/E-C148-1-first-load-minimized.png)); opening it after Events gives `Restore window: Events`, the previous page's name ([E-C148-2](evidence/l6-05/E-C148-2-after-events-minimized.png)).
 - **Plan:** Sprint 3 accessibility hardening (F-13), or with #147 if L6-06 has room.
 
 ## Replies to Est
