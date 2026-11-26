@@ -625,3 +625,7 @@ main, main * { overflow-wrap: break-word; }
 .cd-case, .cd-grid > *, .props > * { min-width: 0; }
 td { max-width: 16rem; }
 td:nth-child(3) { max-width: 12rem; }
+
+/* L6-13 (#141, AC-65): a list that is still wider than its window after the caps above scrolls inside its own box,
+   so the page never scrolls sideways; with normal rows nothing overflows and nothing changes. */
+.table-scroll { overflow-x: auto; }
