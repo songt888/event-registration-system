@@ -6,7 +6,7 @@ Run: 2026-11-26 17:24 (UTC+7), Node v24.16.0, Playwright Version 1.65.0
 > npm test -w server
 > test
 > vitest run
- RUN  v3.2.7 /Users/tonklax/Documents/CPE/CPE 334 Software Engineering/Project/event-registration-system/server
+ RUN  v3.2.7 <repo>/server
 Environment variables loaded from .env
 Prisma schema loaded from prisma/schema.prisma
 Datasource "db": PostgreSQL database "eventreg_test", schema "public" at "localhost:5432"

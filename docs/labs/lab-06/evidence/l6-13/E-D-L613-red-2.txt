@@ -33,7 +33,7 @@ Running 1 test using 1 worker
       46 |     // Below 1280 px a list that is still too wide scrolls inside its own box, so Publish is checked at 1280 px only.
       47 |     if (width < 1280) continue;
       48 |     for (const button of await page.getByRole('button', { name: 'Publish' }).all()) {
-        at /Users/tonklax/Documents/CPE/CPE 334 Software Engineering/Project/event-registration-system/e2e/long-text.spec.ts:45:81
+        at <repo>/e2e/long-text.spec.ts:45:81
     Error Context: test-results/long-text-TEST-65-AC-65-ma-f3a5f-age-scrolls-sideways-L6-13--chromium/error-context.md
     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
     test-results/long-text-TEST-65-AC-65-ma-f3a5f-age-scrolls-sideways-L6-13--chromium/trace.zip

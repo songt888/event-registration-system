@@ -39,7 +39,7 @@ Running 1 test using 1 worker
       18 |
       19 |   const organizer = await (await browser.newContext()).newPage();
       20 |   await signIn(organizer, 'organizer2@example.com');
-        at /Users/tonklax/Documents/CPE/CPE 334 Software Engineering/Project/event-registration-system/e2e/create-event-link.spec.ts:17:73
+        at <repo>/e2e/create-event-link.spec.ts:17:73
     Error Context: test-results/create-event-link-TEST-71--e1c56-no-Create-event-link-L6-19--chromium/error-context.md
     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
     test-results/create-event-link-TEST-71--e1c56-no-Create-event-link-L6-19--chromium/trace.zip
