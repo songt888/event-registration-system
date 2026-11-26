@@ -109,7 +109,6 @@ Use the shared [Sprint 1 Definition of Done](definition-of-done.md). Contract pr
 | Version | Date | Scope/change and reason | Status/review |
 |---|---|---|---|
 | F-01 1.0 | 2026-11-07 | Initial #17 contract from merged baseline. Retains AC/TEST-01..05 and 24; proposes AC/TEST-39..42 for authenticated /me, expiry, input validation and shared guards, closing traceability gaps without renumbering or defining F-04's 37 | Prepared by A with Codex/document_writer assistance; pending genuine B review and merge |
-
 | F-01 1.1 | 2026-11-26 | Lab 6 UAT: AC-56/TEST-56 for defect #142 (a 401 from any API call clears the displayed user; session bootstrap row extended); the Validation/error row points to AC-64 in F-02 for enhancement #145. Contract committed before the RED tests (L6-09 #156, L6-12 #159) | Prepared by A with Claude Code assistance; review by B on the PR |
 
 Later F-02..F-06 contracts keep their own version histories in their owned files. Record changes before implementation, with Issue/PR, reason, affected IDs and actual reviewer/merge state. Do not label a proposed contract or future test as approved/passed.
