@@ -21,3 +21,5 @@ Also seen: as Organizer One, the same unknown-ID registrations URL shows "Not fo
 
 ## Finding during the check
 At a 727 px wide viewport, signed in as Participant 3, the taskbar is 2 rows: Logout sits 42 px below Events (taskbar items need 710 px, 703 px available). Nothing is covered (the page reserves the taskbar's height), but AC-72 states "from 641 px the taskbar is one row"; TEST-72 checks 768 and 812 px only. Not one of Est's reported widths.
+
+Disposition: AC-72 wording narrowed to "at 768 px and wider" (F-01 1.6); the 641 to about 735 px wrap is a known limitation.
