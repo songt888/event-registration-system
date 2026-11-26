@@ -618,6 +618,14 @@ header nav .task-min {
    to sit on: leave room for them so they never cover the message. */
 .wm > main:not(:has(> h1)) { padding-top: 3.4rem; }
 
+/* L6-13 (#141, AC-65): text with no spaces, up to the 120 / 2000 character limits, wraps instead of widening the page.
+   break-word keeps normal words whole; grid children may shrink below a long word; the cell caps stop one long
+   title (column 1) or location (column 3) from stretching a list table. Normal rows keep their current widths. */
+main, main * { overflow-wrap: break-word; }
+.cd-case, .cd-grid > *, .props > * { min-width: 0; }
+td { max-width: 16rem; }
+td:nth-child(3) { max-width: 12rem; }
+
 /* L6-14 (#144, AC-66): the event description keeps the line breaks the organizer typed. */
 .description { white-space: pre-line; }
 
