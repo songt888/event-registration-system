@@ -1,0 +1,132 @@
+Command: npm run test:e2e -- e2e/aria-errors.spec.ts | Commit: 0cb4d6788a7cb7a7f5fed7c96c80ebcc943e715a (unfixed base plus uncommitted regression tests) | UTC: 2026-11-26T11:24:24Z | Node: v24.19.0 | Playwright: 1.65.0
+
+> test:e2e
+> playwright test e2e/aria-errors.spec.ts
+
+[WebServer] (node:99318) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99319) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:99351) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "eventreg_e2e", schema "public" at "localhost:5432"
+
+Applying migration `20261107093337_init`
+
+Database reset successful
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20261107093337_init/
+    └─ migration.sql
+
+Running generate... (Use --skip-generate to skip the generators)
+Running generate... - Prisma Client
+✔ Generated Prisma Client (v5.22.0) to ./../node_modules/@prisma/client in 31ms
+
+┌─────────────────────────────────────────────────────────┐
+│  Update available 5.22.0 -> 8.0.0-rc.36                 │
+│                                                         │
+│  This is a major update - please follow the guide at    │
+│  https://pris.ly/d/major-version-upgrade                │
+│                                                         │
+│  Run the following to update                            │
+│    npm i --save-dev prisma@latest                       │
+│    npm i @prisma/client@latest                          │
+└─────────────────────────────────────────────────────────┘
+
+> seed
+> tsx --env-file-if-exists=.env prisma/seed.ts
+
+Seed done: 2 organizers, 4 participants, 4 events, 1 registration.
+[WebServer] (node:99389) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:99424) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › e2e/aria-errors.spec.ts:9:1 › TEST-64 AC-64 links Sign in errors to email and password (L6-12) (6.3s)
+(node:99476) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 [chromium] › e2e/aria-errors.spec.ts:20:1 › TEST-64 AC-64 marks only the invalid field on Create event (L6-12) (7.1s)
+
+
+  1) [chromium] › e2e/aria-errors.spec.ts:9:1 › TEST-64 AC-64 links Sign in errors to email and password (L6-12)
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  getByLabel('Email')
+    Expected: "true"
+    Received: ""
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveAttribute" getByLabel('Email') with timeout 5000ms
+      - waiting for getByLabel('Email')
+        14 × locator resolved to <input value="" id="email" required="" type="email" autocomplete="username"/>
+           - unexpected value "null"
+
+
+      2 |
+      3 | async function expectFieldError(field: Locator, message: string) {
+    > 4 |   await expect(field).toHaveAttribute('aria-invalid', 'true');
+        |                       ^
+      5 |   await expect(field).toHaveAttribute('aria-describedby', /^\S+$/);
+      6 |   await expect(field).toHaveAccessibleDescription(message);
+      7 | }
+        at expectFieldError (e2e/aria-errors.spec.ts:4:23)
+        at e2e/aria-errors.spec.ts:16:9
+
+    Error Context: test-results/aria-errors-TEST-64-AC-64--d485d-o-email-and-password-L6-12--chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/aria-errors-TEST-64-AC-64--d485d-o-email-and-password-L6-12--chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/aria-errors-TEST-64-AC-64--d485d-o-email-and-password-L6-12--chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › e2e/aria-errors.spec.ts:20:1 › TEST-64 AC-64 marks only the invalid field on Create event (L6-12)
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  getByLabel('Title')
+    Expected: "true"
+    Received: ""
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveAttribute" getByLabel('Title') with timeout 5000ms
+      - waiting for getByLabel('Title')
+        14 × locator resolved to <input value="" id="title" type="text"/>
+           - unexpected value "null"
+
+
+      2 |
+      3 | async function expectFieldError(field: Locator, message: string) {
+    > 4 |   await expect(field).toHaveAttribute('aria-invalid', 'true');
+        |                       ^
+      5 |   await expect(field).toHaveAttribute('aria-describedby', /^\S+$/);
+      6 |   await expect(field).toHaveAccessibleDescription(message);
+      7 | }
+        at expectFieldError (e2e/aria-errors.spec.ts:4:23)
+        at e2e/aria-errors.spec.ts:42:9
+
+    Error Context: test-results/aria-errors-TEST-64-AC-64--deaf8-ield-on-Create-event-L6-12--chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/aria-errors-TEST-64-AC-64--deaf8-ield-on-Create-event-L6-12--chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/aria-errors-TEST-64-AC-64--deaf8-ield-on-Create-event-L6-12--chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [chromium] › e2e/aria-errors.spec.ts:9:1 › TEST-64 AC-64 links Sign in errors to email and password (L6-12)
+    [chromium] › e2e/aria-errors.spec.ts:20:1 › TEST-64 AC-64 marks only the invalid field on Create event (L6-12)
