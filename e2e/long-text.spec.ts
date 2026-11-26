@@ -9,9 +9,9 @@ async function signIn(page: Page, email: string) {
   await expect(page).toHaveURL(/\/events$/);
 }
 
-// datetime-local value for a week from now, in the browser's local time.
-function nextWeek() {
-  const d = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+// datetime-local value for two weeks from now, in the browser's local time.
+function inTwoWeeks() {
+  const d = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
   const p = (n: number) => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T10:00`;
 }
@@ -32,7 +32,7 @@ test('TEST-65 AC-65 maximum-length text without spaces keeps Publish on screen a
   await page.getByLabel('Title').fill(title);
   await page.getByLabel('Description').fill(description);
   await page.getByLabel('Location').fill(location);
-  await page.getByLabel('Starts at (your local time)').fill(nextWeek());
+  await page.getByLabel('Starts at (your local time)').fill(inTwoWeeks());
   await page.getByLabel('Capacity').fill('5');
   await page.getByRole('button', { name: 'Save draft' }).click();
   await expect(page).toHaveURL(/\/organizer\/events$/);
