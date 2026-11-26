@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link, Navigate, useLocation } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { api, ApiError } from './api';
 
 export type EventPayload = {
@@ -14,6 +14,7 @@ export type EventPayload = {
 };
 
 export function MyEventsPage() {
+  const navigate = useNavigate();
   const saved = (useLocation().state as { saved?: string } | null)?.saved;
   const [events, setEvents] = useState<EventPayload[] | null>(null);
   const [error, setError] = useState<ApiError | null>(null);
@@ -39,6 +40,7 @@ export function MyEventsPage() {
     setPublishError(null);
     try {
       await api(`/events/${id}/publish`, { method: 'POST', body: {} });
+      if (saved) navigate('.', { replace: true, state: null });
       await load();
     } catch (err) {
       setPublishError(`Publish failed: ${(err as ApiError).message}`);
