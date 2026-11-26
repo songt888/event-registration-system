@@ -617,3 +617,13 @@ header nav .task-min {
 /* A window without a page title (loading, error and not-found messages) has no title bar for the window buttons
    to sit on: leave room for them so they never cover the message. */
 .wm > main:not(:has(> h1)) { padding-top: 3.4rem; }
+
+/* L6-14 (#144, AC-66): the event description keeps the line breaks the organizer typed. */
+.description { white-space: pre-line; }
+
+/* L6-15 (#147, AC-67): below 640 px the minimized window's task button shrinks and ends its title with an ellipsis,
+   so it stays inside the screen; its aria-label still carries the full title. */
+@media (max-width: 640px) {
+  header nav { min-width: 0; }
+  header nav .task-min { min-width: 0; flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}

@@ -99,7 +99,7 @@ export function EventDetailPage() {
       <div className={burning ? 'props burning' : 'props'}>
         <div className="disc" aria-hidden="true" />
         <div>
-          <p>{e.description}</p>
+          <p className="description">{e.description}</p>
           <p className="muted">{e.location}</p>
           <p className="muted">{new Date(e.startsAt).toLocaleString()}</p>
           <Places e={e} />
