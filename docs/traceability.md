@@ -72,6 +72,9 @@ These journeys supplement service/API/DB checks; they do not replace negative au
 | AC-62 / TEST-62 | After a refused (409) registration the event page reloads the places text. | F-04; FR-05, FR-06 UI; Lab 6 enhancement #143 | A, L6-10 (#157) | not run yet |
 | AC-63 / TEST-63 | "Draft … saved." is removed after Publish and stays removed on reload. | F-02; FR-04 UI; Lab 6 enhancement #146 | A, L6-11 (#158) | not run yet |
 | AC-64 / TEST-64 | Sign in and Create event field errors set `aria-invalid` and `aria-describedby`. | F-01, F-02; FR-01, FR-04 UI; NFR-09; Lab 6 enhancement #145 | A, L6-12 (#159) | not run yet |
+| AC-66 / TEST-66 | The event page keeps the description's line breaks. | F-03; FR-05 UI; Lab 6 enhancement #144 | B, L6-14 (#163) | not run yet |
+| AC-67 / TEST-67 | At 320 px the minimized window's Restore button stays inside the screen and keeps its name. | F-01 shell (D-15); Lab 6 enhancement #147 | B, L6-15 (#164) | not run yet |
+| AC-68 / TEST-68 | The Not found page names its window ("Not found"). | F-01 shell (D-15); system SDS 3.2; Lab 6 enhancement #148 | B, L6-16 (#165) | not run yet |
 
 ## 6. Coverage gaps and planned closure
 
