@@ -20,7 +20,7 @@ This matrix maps the whole-product [SRS](srs.md) to [features](features.md), com
 | FR-03 Current-user identity | F-01 | S1 | AC-03 (no session); AC-01 returns login user; AC-39 authenticated current user | TEST-03; TEST-01; TEST-39 | Exact id/name/role response. Verified: listed AC pass at `c1ee1ce` ([results](evidence/ac-test-results.md)). |
 | FR-04 Create DRAFT/publish own event | F-02 | S1 | AC-06, AC-07, AC-08, AC-09, AC-25, AC-26, AC-29, AC-30, AC-35, AC-36; AC-50 | TEST-06, TEST-07, TEST-08, TEST-09, TEST-25, TEST-26, TEST-29, TEST-30, TEST-35, TEST-36; TEST-50 | Verified: listed AC pass at `c1ee1ce` ([results](evidence/ac-test-results.md)). |
 | FR-05 Published-event browse/detail | F-03; F-02 owns shared detail definition | S1 | AC-10 (list), AC-11 (empty UI); AC-49; AC-38 | TEST-10, TEST-11; TEST-49; TEST-38 | Shared published detail is F-02 AC-49/TEST-49. Verified: listed AC pass at `c1ee1ce` ([results](evidence/ac-test-results.md)). |
-| FR-06 Register | F-04 | S1 | AC-12, AC-13, AC-14, AC-15, AC-16, AC-27, AC-28; AC-43, AC-44 | TEST-12, TEST-13, TEST-14, TEST-15, TEST-16, TEST-27, TEST-28; TEST-43, TEST-44 | Verified: listed AC pass at `c1ee1ce` ([results](evidence/ac-test-results.md)). |
+| FR-06 Register | F-04 | S1; CR-01 in Lab 7 | AC-12, AC-13, AC-14, AC-15, AC-16, AC-27, AC-28; AC-43, AC-44; AC-57..AC-61 | TEST-12, TEST-13, TEST-14, TEST-15, TEST-16, TEST-27, TEST-28; TEST-43, TEST-44; TEST-57..TEST-61 | Verified: AC-12..44 listed here pass at `c1ee1ce` ([results](evidence/ac-test-results.md)). Verified at `4d51c76` in L7-04 (#136): TEST-57 through TEST-61 passed ([E7-B2](labs/lab-07/evidence/l7-04/E7-B2-green.txt), [E7-B3](labs/lab-07/evidence/l7-04/E7-B3-regression.txt)). |
 | FR-07 Own registrations | F-05 | S1 | AC-17, AC-18; AC-45, AC-46 | TEST-17, TEST-18; TEST-45, TEST-46 | Verified: listed AC pass at `c1ee1ce` ([results](evidence/ac-test-results.md)). |
 | FR-08 Organizer registration list | F-06 | S1 | AC-19, AC-20, AC-21; AC-47, AC-48 | TEST-19, TEST-20, TEST-21; TEST-47, TEST-48 | Verified: listed AC pass at `c1ee1ce` ([results](evidence/ac-test-results.md)). |
 | FR-09 Cancel/re-register | F-07 | S2 | Pending S2 contract | Pending S2 contract | Planned future coverage; retain BR-07 and ownership. |
@@ -44,6 +44,7 @@ This matrix maps the whole-product [SRS](srs.md) to [features](features.md), com
 | BR-07 Cancellation frees place/re-registration | F-07 | S2 | Pending S2 contract | Pending S2 contract | Future rule retained; preserve BR-03. |
 | BR-08 ACTIVE/once/owner/window check-in | F-10 | S3; starts S2 | Pending check-in contract | Pending check-in contract | Future rule retained; exact event window unresolved. |
 | BR-09 Future start at create/publish; owner/state rules | F-02 | S1 | AC-25, AC-26, AC-29, AC-30, AC-35, AC-36 | TEST-25, TEST-26, TEST-29, TEST-30, TEST-35, TEST-36 | Past and equal start times on create and publish; no state change on rejection. Verified: listed AC pass at `c1ee1ce` ([results](evidence/ac-test-results.md)). |
+| BR-10 No two ACTIVE registrations less than 120 minutes apart (CR-01) | F-04 | S1 maintenance (Lab 7) | AC-57, AC-58, AC-59, AC-60, AC-61 | TEST-57, TEST-58, TEST-59, TEST-60, TEST-61 | Verified at `4d51c76` in L7-04 (#136): TEST-57 through TEST-61 passed ([E7-B2](labs/lab-07/evidence/l7-04/E7-B2-green.txt), [E7-B3](labs/lab-07/evidence/l7-04/E7-B3-regression.txt)). |
 
 ## 4. Non-functional requirements
 
@@ -112,6 +113,7 @@ This table records changes already visible in the merged baseline; it does not a
 | Issue #2 contract PRs #52, #53, #54, #55, #56 | S1 contracts add AC/TEST-37..51: current user, expiry, validation and guards (F-01, 39..42); F-03 session cases (38); F-04 capacity-5, session and input cases (37, 43, 44); F-05/F-06 session, role, input and DRAFT cases (45..48); F-02 detail, access matrix and validation (49..51). | New IDs are added to the rows above; no ID is renumbered. Recorded here as the A-owned follow-up agreed in PR #53 and #54. |
 | QA PR #72, Issue #40 | S1 run on staging `c1ee1ce`: build, `npm test` 67 of 67, E2E 5 of 5, TEST-15/37 five runs; NFR-06/08/09 checks added. | S1 rows above now state verified results with a link to the results file. |
 | D-15, D-16; Issue #73, PRs #76 and #77 | Scope addition: one shared Y2K visual style for every S1 screen, a decorative 3D layer, self-hosted fonts and Web Audio sounds. F-03 Events list shows CD cases (contract v1.1). | No FR/BR/NFR, route, API or data change; no new AC/TEST ID. Existing tests still pass (`npm test` 67 of 67 at merge `934dc51`, recorded on Issue #75). |
+| CR-01 (Lab 7), #133 PR #184, #134 | Change request: new BR-10 time-conflict rule for F-04 (`docs/labs/lab-07/change-request.md`); F-04 contract 1.7, system SDS 1.2, SRS FR-06 and BR-10. | New BR-10 row and AC/TEST-57..61; no existing ID is renumbered or changed. |
 
 ## 8. Sources and updating actual results
 
