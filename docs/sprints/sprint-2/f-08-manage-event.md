@@ -203,7 +203,7 @@ API tests use Vitest and Supertest on the real PostgreSQL test database (`DATABA
 | TEST-108 | API + DB | P1 holds an ACTIVE registration; O cancels the event; P1 calls `GET /api/registrations/mine` | the row has status CANCELLED and `cancelledAt` |
 | TEST-109 | API + DB | O cancels an event with 2 ACTIVE registrations; O and O2 call the roster | O: 200 with both rows CANCELLED; O2: 404 `EVENT_NOT_FOUND` (a CANCELLED event is hidden from non-owners, like a DRAFT) |
 
-Red: TEST-90 to TEST-104 and TEST-108, TEST-109 are committed alone and run on the code after S2-02 (the schema exists, the routes do not), so they fail on the missing behavior (404 route or wrong code), not on a compile error. TEST-105 to TEST-107 are E2E and are red against the same code.
+Red: TEST-90 to TEST-103 and TEST-108, TEST-109 are committed alone and run on the code after S2-02 (the schema exists, the routes do not), so they fail on the missing behavior (404 route or wrong code), not on a compile error. TEST-105 to TEST-107 are E2E and are red against the same code. TEST-104 is committed with them as a regression check and is expected to pass before the F-08 implementation, because the publish handler already returns 409 `ALREADY_PUBLISHED` for an owner's non-DRAFT event.
 
 ## 12. Definition of Done (F-08)
 - This contract merged into `sprint-2-staging` before any F-08 test (#200), with the F-02, F-03, F-04 and F-05/F-06 revisions and the new codes in system SDS 4.2.
