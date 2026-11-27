@@ -47,6 +47,10 @@ Same Kanban (Backlog → Specified → Started → PR Review → Fixing → Done
 | S2-07 (#209) | D2 PDF | A: Parts B, D (35 pts). B: Parts A, C, E (35 pts) | cross-check | `docs/s2-07-pdf` | one PDF, submitted |
 | later (Sprint 3 plan) | F-10 to F-13 contracts and code, NFR-05, final UAT retests, video, final release | see section 5 | | | |
 
+### Red and green PR handoff
+
+After the contract PR merges, open a red-test PR into the unprotected feature branch. The other student reviews and approves the red PR; record the expected failing output on the red commit. Give every red step its own `it` so one failure does not hide another. Then implement green on the feature branch and open a separate PR from that branch into `sprint-2-staging`; the other student reviews it and `test-and-docker` must pass. Preserve the red and green commit history. B owns this handoff starting with S2-03 (F-07: B red, A green), as agreed in Lab 7 retrospective D.4.
+
 ## 3. Workload and honesty rule
 
 **Workload balance.** Code: A has the migration, F-07 green and F-09; B has F-07 red and F-08. Release: A (the Sprint 2 release, which is also the candidate). PDF: 35 points each. B also still has the Lab 7 metrics, readiness and PDF Parts C/D; A's Lab 6/7 work is done, so A takes the plan, two contracts and the release (moved back after B's review of #198).
