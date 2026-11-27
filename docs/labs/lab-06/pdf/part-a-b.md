@@ -51,6 +51,10 @@ Not in the manual scope, and named in the cases so the UAT Team knows why: concu
 | E-A2 | A's Discord direct message to a member of team Est: links to the test URL, `handoff.md` and `uat-cases.md` (pinned at `f5089dc`, the merge of PR #128, same files as `e22c20a`), and the shared password on its own line, covered by a solid black box in the screenshot (`evidence/l6-02/E-A2-discord-handoff.png`) | 2026-11-25 00:24 |
 | E-A3 | B's dry-run of all six cases on the live URL before the handoff: "every step matched except the notes below. no app defects found." (PR #128 review, changes requested, then approved at `e22c20a`) | 2026-11-24 |
 
+![E-A2](evidence/l6-02/E-A2-discord-handoff-crop.png)
+
+**Figure E-A2.** A's Discord direct message to team Est, 2026-11-25 00:24 (UTC+7): links to the test URL, the handoff and the UAT cases; the line with the shared password is covered by the black box. Cropped above the link previews.
+
 ## A.4 How the handoff was used
 
 Est ran all six cases on `v0.1.2-lab5` / `04e8590` and reported that all six and their extra check X8 passed functionally, with the demo events and Participant One and 2 untouched (Est's Lab 6 message and their findings PDF, `UAT-findings-EN009_P3-by-Est.pdf`, Appendix A4). Their 13 findings came from exploratory testing around the cases; they are triaged in Part C.
@@ -105,13 +109,13 @@ Actual results are what we saw, not the expected text. Times are UTC+7.
 | UAT-04 | B, 2026-11-25 21:12–21:13 | CUSTOMER-A new order; OPERATOR in two sessions | Order #6 still listed after logout and a new browser; window 1 accepted #6; window 2 (not reloaded) got "Order #6: Already accepted by another staff member."; customer saw ACCEPTED ฿50.00 | PASS | E-B04-1, E-B04-2a, E-B04-2, E-B04-3 |
 | UAT-06 | B, 2026-11-25 21:13–21:14 | CUSTOMER-A; order body with `unitPrice: 1`, then with `total: 1` | Both 400 `VALIDATION_ERROR` ("Unrecognized key"); My orders count unchanged (K = 5) | PASS | E-B06-0, E-B06-1 (text), E-B06-2 |
 
-**All six cases PASS on `b71cdb2`; none BLOCKED.** The four required categories are covered by UAT-01, UAT-02, UAT-03 and UAT-04.
+**All six cases PASS** on `b71cdb2`; **none BLOCKED.** The four required categories are covered by UAT-01, UAT-02, UAT-03 and UAT-04.
 
 For the rejected operations we checked that protected state was not changed or disclosed: UAT-03 step 2 shows no data of Alice to CUSTOMER-B, and step 6 shows #11 unchanged; UAT-04 shows the second accept refused and the order accepted once; UAT-06 shows the order count unchanged after both refused requests.
 
 ## B.4 Selected evidence
 
-Each figure: evidence ID, action, expected / actual, time, version `b71cdb2`.
+Each figure: evidence ID, action, expected / actual, time, version `b71cdb2`. The figures below are crops of the capture files named in each ID (the relevant panel plus the signed-in role from the sidebar), enlarged so the text stays readable; the full captures are unchanged in `docs/labs/lab-06/evidence/l6-03/`.
 
 | ID | Action | Expected | Actual | Time |
 |---|---|---|---|---|
@@ -122,27 +126,27 @@ Each figure: evidence ID, action, expected / actual, time, version `b71cdb2`.
 | E-B04-2 | second operator window accepts #6 | refused, order not accepted twice | "Order #6: Already accepted by another staff member." | 21:13 |
 | E-B06-2 | My orders after two tampered requests | count still K | 5 orders = K | 21:14:03 |
 
-![E-B01-1](evidence/l6-03/E-B01-1-order-11-placed.jpg)
+![E-B01-1](evidence/l6-03/E-B01-1-order-11-placed-crop.png)
 
 Figure **E-B01-1**, version `b71cdb2`: CUSTOMER-A's order #11 placed, PLACED, ฿185.00 (22:23:30)
 
-![E-B01-3](evidence/l6-03/E-B01-3-order-11-accepted-customer.jpg)
+![E-B01-3](evidence/l6-03/E-B01-3-order-11-accepted-customer-crop.png)
 
 Figure **E-B01-3**, version `b71cdb2`: CUSTOMER-A sees #11 ACCEPTED, total unchanged (22:27:33)
 
-![E-B03-2](evidence/l6-03/E-B03-2-bob-order-11-not-found.jpg)
+![E-B03-2](evidence/l6-03/E-B03-2-bob-order-11-not-found-crop.png)
 
 Figure **E-B03-2**, version `b71cdb2`: CUSTOMER-B opens /orders/11: "Order not found.", no data of Alice (22:29:34)
 
-![E-B03-4](evidence/l6-03/E-B03-4-operator-menu-refused.jpg)
+![E-B03-4](evidence/l6-03/E-B03-4-operator-menu-refused-crop.png)
 
 Figure **E-B03-4**, version `b71cdb2`: OPERATOR opens /menu: "You don't have access to that page." (22:25:42)
 
-![E-B04-2](evidence/l6-03/E-B04-2-second-accept-refused.png)
+![E-B04-2](evidence/l6-03/E-B04-2-second-accept-refused-crop.png)
 
 Figure **E-B04-2**, version `b71cdb2`: second operator window: "Already accepted by another staff member." (21:13)
 
-![E-B06-2](evidence/l6-03/E-B06-2-orders-still-k.png)
+![E-B06-2](evidence/l6-03/E-B06-2-orders-still-k-crop.png)
 
 Figure **E-B06-2**, version `b71cdb2`: My orders after two tampered requests: still 5 = K (21:14:03)
 

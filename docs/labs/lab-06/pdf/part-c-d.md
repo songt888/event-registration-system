@@ -71,6 +71,26 @@ Totals: 3 accepted defects (1 major), 1 duplicate, 9 enhancements, 0 not-a-defec
 - #141 minor, not major: sideways scrolling still reaches Publish, the event can be published, no data is wrong, and it needs a 120-character word with no spaces.
 - #151 minor, not major: Save draft's centre stays above the taskbar and the button works; only the bottom 18 px are covered.
 
+**Reproduction evidence on our app, before the fix** (each finding was reproduced before it was classed):
+
+| ID | Finding | Action | Actual (the defect) | Time, version |
+|---|---|---|---|---|
+| E-C142-5 | #142 (major) | Participant 3 signed in in tab A and tab B; Logout in tab B | tab A still shows the account and the Events menu while its `GET /api/me` already returns 401 | 2026-11-26 16:07, production `s47a6b53b-00005-5l7` (manual, A) |
+| E-C141-1 | #141 | Organizer One's My events with a 120-character title and location | the list is wider than the window; the page scrolls sideways at 1280 px | 2026-11-26 17:04, `04e8590` local (automated, B) |
+| E-C151-1 | #151 | Organizer One's Create event at 320 x 568, scrolled to the end | the taskbar covers the bottom of Save draft | 2026-11-26 about 17:50, `04e8590` local (automated, B) |
+
+![E-C142-5](evidence/l6-05/E-C142-5-run2-tab-a-stale-after-logout.jpg)
+
+**Figure E-C142-5.** #142 before the fix: after Logout in the other tab, tab A still shows "Participant 3 (Participant)" in the taskbar and the event list.
+
+![E-C141-1](evidence/l6-05/E-C141-1-my-events-1280.png)
+
+**Figure E-C141-1.** #141 before the fix: the long unbroken title and location stretch My events past the window at 1280 px.
+
+![E-C151-1](evidence/l6-05/E-C151-1-320-save-draft-covered.png)
+
+**Figure E-C151-1.** #151 before the fix: at 320 x 568 the taskbar covers Save draft on Create event.
+
 **Quoted triage reply (#141, stickkersz, 2026-11-26 18:34 UTC+7):**
 
 > Triage (team EN-009_P3): **Accepted defect, minor** (you proposed major: sideways scrolling still reaches Publish, so the task can be completed). Owner: Nattakit Prasertsak (B). Reproduced on `04e8590`, and your 768/812 px follow-up is confirmed. Fix in #161 / PR #162 (AC-65): long text wraps, Publish stays on screen at 1280 px, and below that a list that is still too wide scrolls inside its own box, so no page scrolls sideways at any width. Ships in `v0.1.3-lab6`; we will tell you on Discord before we deploy, with the new revision, so you can retest it.
@@ -237,6 +257,26 @@ The failure is the reported behavior. The unfixed client loops between `/login` 
 | B's read-only live check (23:27, no sign-in) | `GET /api/health` 200 `{"status":"ok"}`; `GET /api/me` without a cookie 401 `UNAUTHENTICATED`; the served bundle contains the fix strings "Capacity is required." (AC-70), `allSettled` (AC-69), `table-scroll` (AC-65). Output: `docs/labs/lab-06/evidence/l6-06/E-D-L606-live-check.txt` |
 | A's smoke check (manual, PR #182, `E-D-L606-smoke`) | Without a session: `/` and `/login` 200, `/api/me` and `/api/events` 401. Signed in, 2026-11-26 23:32 to 23:33 (UTC+7): participant sees the 403 message on an unknown-ID registrations page (AC-69), Save draft above the taskbar at 320 px (AC-72), empty Capacity sends no request (AC-70): all PASS. At 727 px a participant's taskbar wrapped Logout; AC-72 narrowed to 768 px and wider as a known limitation (F-01 1.6) |
 | Version sent to Est | A on Discord, recorded on #126 at 2026-11-26 23:48 (UTC+7): tag, commit, revision, release notes #181 and the findings to retest with their UAT cases |
+
+**Live check of the fixes on the release** `v0.1.3-lab6` (A, manual, signed in by hand; revision `s47a6b53b-00006-7bv`; E-D-L606-smoke):
+
+| ID | Fix | Action | Expected | Actual | Time (UTC+7) |
+|---|---|---|---|---|---|
+| E-D-L606-smoke-1 | #153 (AC-69) | Participant 3 opens the registrations page of an unknown event ID | "You do not have access to this", no "Not found" | the 403 alert only, no table | 2026-11-26 23:33:21 |
+| E-D-L606-smoke-2 | #151 (AC-72) | Organizer One, Create event at 320 x 568, scrolled to the end | Save draft above the taskbar | Save draft fully visible above the taskbar (compare E-C151-1) | 23:32:13 |
+| E-D-L606-smoke-3 | #155 (AC-70) | Organizer One fills every field except Capacity, presses Save draft | "Capacity is required.", no request sent | the message under Capacity, no `POST /api/events`, the typed values kept | 23:32:32 |
+
+![E-D-L606-smoke-1](evidence/l6-06/E-D-L606-smoke-1-participant-403.jpg)
+
+**Figure E-D-L606-smoke-1.** #153 fixed on the live release: a participant sees only "You do not have access to this".
+
+![E-D-L606-smoke-2](evidence/l6-06/E-D-L606-smoke-2-320-save-draft.jpg)
+
+**Figure E-D-L606-smoke-2.** #151 fixed on the live release: Save draft sits above the taskbar at 320 px (before: Figure E-C151-1).
+
+![E-D-L606-smoke-3](evidence/l6-06/E-D-L606-smoke-3-capacity-required.jpg)
+
+**Figure E-D-L606-smoke-3.** #155 fixed on the live release: "Capacity is required." and the other fields keep their values.
 
 ## D.4 Retest by Est (L6-07 #126)
 
