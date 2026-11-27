@@ -1,0 +1,6 @@
+date: 2026-11-27 14:14:04 +0700
+$ python3 deploy/smoke_test.py https://s47a6b53b-4d7hbszvwq-as.a.run.app
+PASS: GET /api/health is 200 ok
+PASS: GET / is 200 HTML
+PASS: GET /api/me without a session is 401
+exit: 0
