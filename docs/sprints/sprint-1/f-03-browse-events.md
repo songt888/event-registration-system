@@ -11,7 +11,7 @@ Sources: `docs/srs.md` (FR-05, NFR-01, NFR-07, NFR-09), `docs/decisions.md` (D-0
 | NFR-01 | `GET /api/events` with no, invalid, expired or revoked session returns 401 and no event data (AC-38). |
 | NFR-07 | Errors use the shared shape `{ "error": { "code", "message" } }`; no stack trace. |
 | NFR-09 | The Events screen and the Event detail screen show loading, empty (list only) and error states. |
-| D-07 | Only PUBLISHED events are listed. |
+| D-07 | Only PUBLISHED events are listed (from Sprint 2 CLOSED events too, D-34). |
 | D-13 | DRAFT visibility on the detail endpoint follows F-02 (404 `EVENT_NOT_FOUND` for everyone except the owner). |
 
 No BR is owned by F-03. BR-02..BR-04 (registration rules) belong to F-04.
@@ -20,7 +20,7 @@ No BR is owned by F-03. BR-02..BR-04 (registration rules) belong to F-04.
 1. A signed-in user (participant or organizer) opens `/events`.
 2. The UI calls `GET /api/events`.
 3. The API checks the session (`requireSession`). No role check: both roles may browse.
-4. The service reads every event with status `PUBLISHED` and, for each, counts its ACTIVE registrations. It returns `remainingPlaces = capacity - activeCount`. The value is computed on read and never stored (system SDS 2.1).
+4. The service reads every event with status `PUBLISHED` (from Sprint 2 also `CLOSED`, which stays listed with its status; DRAFT and CANCELLED are never listed, D-34, F-08 AC-97 and AC-99) and, for each, counts its ACTIVE registrations. It returns `remainingPlaces = capacity - activeCount`. The value is computed on read and never stored (system SDS 2.1).
 5. The UI lists the events. Each row links to `/events/:id`.
 6. The Event detail screen calls `GET /api/events/:id`. That endpoint is defined by the F-02 contract (#18), including the DRAFT rule (AC-31, AC-32). F-03 does not redefine it; F-03 only needs its response to contain the same fields as one list item, including `remainingPlaces` (see section 9).
 7. The Register button on the detail screen belongs to F-04.
@@ -42,7 +42,7 @@ PUBLISHED events whose `startsAt` has passed stay in the list in Sprint 1. FR-05
 ## 5. Permissions
 | Operation | Anon | Participant | Organizer |
 |---|---|---|---|
-| `GET /api/events` (list PUBLISHED) | 401 | allowed | allowed |
+| `GET /api/events` (list PUBLISHED; CLOSED from Sprint 2) | 401 | allowed | allowed |
 | `GET /api/events/:id` | as defined in F-02 | as defined in F-02 | as defined in F-02 |
 
 Identity comes only from the session cookie. The list is the same for every signed-in user: it contains no private data and no registrant information.
@@ -129,3 +129,4 @@ The Sprint 1 Definition of Done (F-01 contract, #17) applies. For F-03 in additi
 | 1.0 | 2026-11-07 | First F-03 contract (Issue #19) | B (stickkersz) | A (songt888) |
 | 1.1 | 2026-11-08 | D-15 (Issue #73): the Events screen shows each event as a card (CD case) instead of a table row; the fields, the title link to `/events/:id`, the loading, empty and error texts and every AC are unchanged. "Row" in sections 1 and 6 reads as "card" | B (stickkersz) | A (songt888) |
 | 1.2 | 2026-11-26 | Lab 6 UAT: AC-66/TEST-66 (enhancement #144): the event page keeps the description's line breaks. Committed before the RED test (L6-14 #163) | B (stickkersz), with Claude Code | A (songt888) |
+| 1.3 | 2026-11-27 | Sprint 2 F-08 (#200, `docs/sprints/sprint-2/f-08-manage-event.md`): the list also returns CLOSED events with their status, and never CANCELLED ones (D-34); detail visibility follows F-02 1.6. AC-10 and TEST-10 are unchanged (Sprint 1 has no CLOSED event); the new cases are F-08 AC-97, AC-99 and AC-106. Planned; implemented in S2-04 | B (stickkersz), with Claude Code | A (songt888) |

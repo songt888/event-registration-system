@@ -1,7 +1,7 @@
 # F-11 Attendance record and report: engineering contract (Sprint 3)
 
 Issue: #206 (S3-01, contract). Implementation: after Deliverable 2 (`deliverable2-plan.md` section 2 row "later (by 13 Dec)" and section 5: B, 5 Dec). Author: B (stickkersz). Reviewer: A (songt888).
-Sources: `docs/srs.md` (FR-13, BR-05, NFR-01, NFR-03, NFR-06, NFR-07, NFR-09), `docs/features.md` (F-11), `docs/decisions.md` (D-13, D-14, D-20, D-34, D-36, D-37), `docs/system-sds.md` (sections 2.2, 3.2, 4, 5), the F-05/F-06, F-08 and F-10 contracts, and the ID agreement on #206 (F-11 uses AC/TEST-120 to 129).
+Sources: `docs/srs.md` (FR-13, BR-05, NFR-01, NFR-03, NFR-06, NFR-07, NFR-09), `docs/features.md` (F-11), `docs/decisions.md` (D-13, D-14, D-20, D-34, D-36, D-37), `docs/system-sds.md` (sections 2.2, 3.2, 4, 5), the F-05/F-06, F-08 and F-10 contracts, and the ID proposal on #206 (F-11 uses AC/TEST-120 to 129; open until A answers).
 
 ## 1. Linked requirements
 | ID | How F-11 covers it |

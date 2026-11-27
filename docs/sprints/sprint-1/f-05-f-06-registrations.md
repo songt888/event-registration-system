@@ -30,8 +30,8 @@ Sources: `docs/srs.md` (FR-07, FR-08, FR-15, BR-05, NFR-01, NFR-03, NFR-07, NFR-
 3. The route runs `requireSession` (401), then `requireRole('ORGANIZER')` (403), then validates `:id` as a UUID (400). A participant therefore gets 403 for every event ID (D-13 check order).
 4. The service loads the event:
    1. No event: 404 `EVENT_NOT_FOUND`.
-   2. Event is DRAFT and its owner is not the caller: 404 `EVENT_NOT_FOUND` (D-13 event rule).
-   3. Event is PUBLISHED and its owner is not the caller: 403 `FORBIDDEN`.
+   2. Event is DRAFT and its owner is not the caller: 404 `EVENT_NOT_FOUND` (D-13 event rule). From Sprint 2 the same for a CANCELLED event (F-08 AC-109).
+   3. Event is PUBLISHED and its owner is not the caller: 403 `FORBIDDEN`. From Sprint 2 the same for a CLOSED event.
    4. Owner: return the event's registrations, oldest first (`createdAt` ascending), each with the participant's name and email.
 5. The queries only read; nothing is stored or changed.
 
@@ -52,6 +52,8 @@ Sources: `docs/srs.md` (FR-07, FR-08, FR-15, BR-05, NFR-01, NFR-03, NFR-07, NFR-
 | `GET /api/events/:id/registrations` | Caller is a participant (DRAFT, PUBLISHED or unknown ID) | 403 `FORBIDDEN`, no data (AC-21) |
 | `GET /api/events/:id/registrations` | Another organizer's PUBLISHED event | 403 `FORBIDDEN`, no data (AC-20) |
 | `GET /api/events/:id/registrations` | Another organizer's DRAFT event, or unknown UUID | 404 `EVENT_NOT_FOUND`, no data (AC-48) |
+| `GET /api/events/:id/registrations` | Another organizer's CANCELLED event (Sprint 2) | 404 `EVENT_NOT_FOUND`, no data (F-08 AC-109) |
+| `GET /api/events/:id/registrations` | Owner's CANCELLED event (Sprint 2) | 200 with its registrations, now CANCELLED (F-08 AC-109) |
 | `GET /api/events/:id/registrations` | `:id` not a UUID | 400 `VALIDATION_ERROR` (AC-48) |
 | `GET /api/events/:id/registrations` | Owner's event with no registrations (for example the owner's own DRAFT) | 200, `registrations: []`; UI empty state (AC-19) |
 | all three | Unexpected server or database failure | 500 `INTERNAL_ERROR`, generic message, no stack trace (NFR-07) |
@@ -61,7 +63,7 @@ Sources: `docs/srs.md` (FR-07, FR-08, FR-15, BR-05, NFR-01, NFR-03, NFR-07, NFR-
 |---|---|---|---|---|
 | `GET /api/registrations/mine` | 401 | allowed (own only) | 403 | 403 |
 | `GET /api/registrations/:id` | 401 | own: allowed; another participant's: 404 | 403 | 403 |
-| `GET /api/events/:id/registrations` | 401 | 403 | allowed | 403 (PUBLISHED), 404 (DRAFT) |
+| `GET /api/events/:id/registrations` | 401 | 403 | allowed | 403 (PUBLISHED; CLOSED from S2), 404 (DRAFT; CANCELLED from S2) |
 
 This is the system SDS 5.1 matrix. For the registration routes "Organizer (owner)" means the owner of the registration's event: an organizer never uses the participant routes, even for their own event.
 
@@ -197,3 +199,4 @@ The shared [Sprint 1 Definition of Done](definition-of-done.md) applies. In addi
 | 1.0 | 2026-11-07 | First F-05 and F-06 contract (Issue #21) | B (stickkersz) | A (songt888) |
 | 1.1 | 2026-11-07 | Review round 1 (PR #55): TEST-45 uses a separate expired token per route (F-01 deletes a found expired row); every error case asserts `error.message` (section 6 text, nonempty for 401); TEST-46 and TEST-48 assert the full validation envelope with a `details` item for `id` (system SDS 4.2) | B (stickkersz) | A (songt888) |
 | 1.2 | 2026-11-26 | Lab 6 UAT: AC-69/TEST-69 (defect #153): the Event registrations page shows the 403 message to a participant for every event ID, whatever answer comes first; UI behavior row extended. Committed before the RED test (L6-17 #172) | A (songt888), with Claude Code | B (stickkersz) |
+| 1.3 | 2026-11-27 | Sprint 2 F-08 (#200, `docs/sprints/sprint-2/f-08-manage-event.md`): the roster of a CANCELLED event gives 404 `EVENT_NOT_FOUND` to a non-owner, as for a DRAFT; the owner still gets 200 with the rows, now CANCELLED (F-08 AC-109). F-05 shows registrations cancelled by an event cancel with status CANCELLED (AC-108). Section 2 steps 4.2 and 4.3, the failure table and the permissions table are updated; S1 AC and tests are unchanged. Planned; implemented in S2-04 | B (stickkersz), with Claude Code | A (songt888) |

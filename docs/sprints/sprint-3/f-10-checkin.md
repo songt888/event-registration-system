@@ -1,7 +1,7 @@
 # F-10 Check-in: engineering contract (Sprint 3)
 
 Issue: #206 (S3-01, contract) and #207 (S3-02, implementation, `feature/s3-02-checkin`). Author: B (stickkersz). Reviewer: A (songt888).
-Sources: `docs/srs.md` (FR-12, BR-05, BR-08, NFR-01, NFR-03, NFR-07, NFR-09), `docs/features.md` (F-10), `docs/decisions.md` (D-10, D-12, D-13, D-20, D-33, D-34, D-36), `docs/system-sds.md` (sections 1.3, 2.2, 4, 5), `deliverable2-plan.md` sections 1 and 2, the F-05/F-06 contract (`docs/sprints/sprint-1/f-05-f-06-registrations.md`), the F-07 and F-08 contracts (`docs/sprints/sprint-2/`), and the ID agreement on #206 (F-10 uses AC/TEST-110 to 119).
+Sources: `docs/srs.md` (FR-12, BR-05, BR-08, NFR-01, NFR-03, NFR-07, NFR-09), `docs/features.md` (F-10), `docs/decisions.md` (D-10, D-12, D-13, D-20, D-33, D-34, D-36), `docs/system-sds.md` (sections 1.3, 2.2, 4, 5), `deliverable2-plan.md` sections 1 and 2, the F-05/F-06 contract (`docs/sprints/sprint-1/f-05-f-06-registrations.md`), the F-07 and F-08 contracts (`docs/sprints/sprint-2/`), and the ID proposal on #206 (F-10 uses AC/TEST-110 to 119; open until A answers).
 
 ## 1. Linked requirements
 | ID | How F-10 covers it |
