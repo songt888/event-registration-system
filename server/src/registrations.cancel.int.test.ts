@@ -72,9 +72,11 @@ describe('F-07 cancel registration API', () => {
     const res = await cancelAt(now, r.id, p.cookie);
 
     expect(res.status).toBe(200);
-    expect(res.body.registration).toMatchObject({
-      id: r.id, status: 'CANCELLED', cancelledAt: now.toISOString(),
-      event: { id: e.id, title: e.title, location: e.location, startsAt: e.startsAt.toISOString() },
+    expect(res.body).toEqual({
+      registration: {
+        id: r.id, status: 'CANCELLED', createdAt: r.createdAt.toISOString(), cancelledAt: now.toISOString(),
+        event: { id: e.id, title: e.title, location: e.location, startsAt: e.startsAt.toISOString() },
+      },
     });
     const list = await request(app).get('/api/registrations/mine').set('Cookie', p.cookie);
     expect(list.status).toBe(200);
@@ -91,18 +93,22 @@ describe('F-07 cancel registration API', () => {
     const p = await login('PARTICIPANT', 'p@example.com');
     const e = await seedEvent(o.user.id, future());
     const r = await hold(e.id, p.user.id);
-    const before = await row(r.id);
     const expired = await insertSession(p.user.id, new Date(Date.now() - 1000));
     const old = await login('PARTICIPANT', 'p-old@example.com');
     expect((await request(app).post('/api/auth/logout').set('Cookie', old.cookie).send({})).status).toBe(204);
     const oldRow = await hold(e.id, old.user.id);
+    const before = [await row(r.id), await row(oldRow.id)];
+    const unchanged = async () => expect([await row(r.id), await row(oldRow.id)]).toEqual(before);
 
     for (const cookie of [undefined, 'sid=unknown-token', `sid=${expired}`]) {
       expectError(await cancel(r.id, cookie), 401, 'UNAUTHENTICATED');
+      await unchanged();
     }
     expectError(await cancel(oldRow.id, old.cookie), 401, 'UNAUTHENTICATED');
+    await unchanged();
     for (const id of [r.id, 'not-a-uuid']) {
       expectError(await cancel(id, o.cookie), 403, 'FORBIDDEN', 'You do not have access to this.');
+      await unchanged();
     }
 
     const bad = await cancel('not-a-uuid', p.cookie);
@@ -110,9 +116,7 @@ describe('F-07 cancel registration API', () => {
     const error = errorBody(bad);
     expect(error.code).toBe('VALIDATION_ERROR');
     expect(error.details!.some((d) => d.field === 'id')).toBe(true);
-
-    expect(await row(r.id)).toEqual(before);
-    expect((await row(oldRow.id)).status).toBe('ACTIVE');
+    await unchanged();
   });
 
   it('TEST-75 AC-75 returns the same 404 for another participant\'s and an unknown registration', async () => {
