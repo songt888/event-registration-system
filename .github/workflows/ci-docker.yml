@@ -1,5 +1,6 @@
 # L5-04 (R-05, check C-01; D-21, D-23): the required check. Job id `test-and-docker` runs build, npm test against a
 # real Postgres and the Docker build on every PR into lab5-staging, lab6-staging (D-26), lab7-staging (D-31), sprint-2-staging (D-32) and main, and is reused by the deploy workflow.
+# D-39 (supersedes the E2E part of D-23): job `e2e` runs `npm run test:e2e` (Playwright, Chromium) on the same PRs, against its own E2E database.
 name: ci-docker
 
 on:
@@ -59,3 +60,47 @@ jobs:
         run: npm run build
       - name: Build the Docker image
         run: docker build -t eventreg:ci .
+
+  # D-39: the Playwright suite on every PR, so a UI regression cannot merge with a green check (Lab 7 TD-1).
+  # Pull requests only: the deploy workflow reuses this file through workflow_call and does not need E2E.
+  e2e:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app
+          POSTGRES_DB: eventreg
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U app -d eventreg"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # CI placeholders for the throwaway service container above, not real secrets.
+      DATABASE_URL: postgresql://app:app@localhost:5432/eventreg
+      DATABASE_URL_E2E: postgresql://app:app@localhost:5432/eventreg_e2e
+      SEED_PASSWORD: ci-only-placeholder
+      PORT: 3000
+      NODE_ENV: development
+      SESSION_TTL_MINUTES: 60
+      COOKIE_SECURE: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      # The E2E database is separate from the dev one (D-14); global-setup resets and seeds it before the run.
+      - name: Create the E2E database
+        run: PGPASSWORD=app psql -h localhost -U app -d eventreg -c 'CREATE DATABASE eventreg_e2e'
+      - run: npm ci
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+      - name: End-to-end tests (Playwright, Chromium)
+        run: npm run test:e2e
