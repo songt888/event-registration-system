@@ -25,8 +25,9 @@ Sources: `docs/srs.md` (FR-06, BR-02, BR-03, BR-04, NFR-01, NFR-03, NFR-04, NFR-
 3. The route runs `requireSession` (401), then `requireRole('PARTICIPANT')` (403). An organizer gets 403 for every event ID, so the check order of D-13 holds.
 4. The service runs one database transaction, in this order (D-10; steps 5 and 6 added by CR-01, BR-10):
    1. Lock the event row: `SELECT ... FROM "Event" WHERE id = $1 FOR UPDATE` (Prisma `$queryRaw` inside `$transaction`).
-   2. No row, or status is not `PUBLISHED`: 404 `EVENT_NOT_FOUND`.
+   2. No row, or status is not `PUBLISHED`: 404 `EVENT_NOT_FOUND`. From Sprint 2 (F-08): no row, DRAFT or CANCELLED gives 404; a CLOSED event goes on to step 3.
    3. `startsAt <= now`: 409 `EVENT_STARTED`. `now` is a parameter of the service function; the route passes `new Date()` (D-12).
+      From Sprint 2, between steps 3 and 4 (D-35 order): CLOSED: 409 `EVENT_CLOSED` (F-08 AC-97); then a non-null `registrationDeadline` with `now >= registrationDeadline`: 409 `REGISTRATION_CLOSED` (F-09 AC-83, AC-88).
    4. The participant already has an ACTIVE registration for this event: 409 `ALREADY_REGISTERED`.
    5. Lock the participant's row: `SELECT id FROM "User" WHERE id = ${participantId}::uuid FOR UPDATE` (Prisma `$queryRaw`, like the event lock).
    6. The participant has an ACTIVE registration for another event whose `startsAt` differs from this event's `startsAt` by less than 120 minutes, in either direction: 409 `TIME_CONFLICT` (BR-10). The target event itself is excluded, and the other event counts whatever its state, also when it has already started. Exactly 120 minutes is allowed.
@@ -51,6 +52,8 @@ The lock order is always the event row, then the participant row (CR-01). Two re
 | No cookie, unknown token, expired session (`expiresAt <= now`) or logged-out session | 401 `UNAUTHENTICATED`, nothing stored (AC-43), tested on this route |
 | Caller is an organizer (owner or not, any event ID) | 403 `FORBIDDEN`, nothing stored (AC-16) |
 | Event ID unknown or event is DRAFT | 404 `EVENT_NOT_FOUND`, nothing stored (AC-27) |
+| Event is CANCELLED (Sprint 2) | 404 `EVENT_NOT_FOUND`, nothing stored (F-08 AC-99) |
+| Event is CLOSED and not started (Sprint 2) | 409 `EVENT_CLOSED`, nothing stored (F-08 AC-97) |
 | `:id` not a UUID | 400 `VALIDATION_ERROR`, nothing stored (AC-44) |
 | Event PUBLISHED but `startsAt` in the past | 409 `EVENT_STARTED`, nothing stored (AC-28) |
 | `startsAt` exactly equal to `now` (boundary) | 409 `EVENT_STARTED` (AC-28, BR-04) |
@@ -114,7 +117,7 @@ Shared states follow system SDS 3.2. The UI never decides capacity, duplicates o
 ```
 - `remainingPlaces` is computed after the insert, inside the same transaction.
 - Not returned: `participantId` (it is the caller), other registrations, owner details.
-- Errors: 400 `VALIDATION_ERROR`; 401 `UNAUTHENTICATED`; 403 `FORBIDDEN`; 404 `EVENT_NOT_FOUND`; 409 `EVENT_STARTED`, `ALREADY_REGISTERED`, `TIME_CONFLICT`, `EVENT_FULL`; 500 `INTERNAL_ERROR`. Shape as in system SDS 4.2.
+- Errors: 400 `VALIDATION_ERROR`; 401 `UNAUTHENTICATED`; 403 `FORBIDDEN`; 404 `EVENT_NOT_FOUND`; 409 `EVENT_STARTED`, `ALREADY_REGISTERED`, `TIME_CONFLICT`, `EVENT_FULL` (from Sprint 2 also `EVENT_CLOSED`, F-08, and `REGISTRATION_CLOSED`, F-09); 500 `INTERNAL_ERROR`. Shape as in system SDS 4.2.
 
 ## 8. Data
 - No schema change and no migration. F-04 writes `Registration` (`id`, `eventId`, `participantId`, `status`, `createdAt`) as created in Issue 3.
@@ -199,3 +202,4 @@ The shared [Sprint 1 Definition of Done](definition-of-done.md) applies. For F-0
 | 1.5 | 2026-11-07 | Review round 2 (PR #54): TEST-16 adds a DRAFT event; an organizer gets 403 `FORBIDDEN` (not 404) before any DRAFT check (D-13); AC-16 wording extended | B (stickkersz) | A (songt888) |
 | 1.6 | 2026-11-26 | Lab 6 UAT: AC-62/TEST-62 (enhancement #143): the event reloads after a 409, so the places text is current; UI behavior row extended. Committed before the RED test (L6-10 #157) | A (songt888), with Claude Code | B (stickkersz) |
 | 1.7 | 2026-11-27 | Lab 7 CR-01 (#133, #134; `docs/labs/lab-07/change-request.md`): new BR-10 time-conflict rule. Section 2 adds the participant row lock and the `TIME_CONFLICT` check between the duplicate and capacity checks; failure rows, message, API errors and data note; AC-57 to AC-61 and TEST-57 to TEST-61. No existing AC or TEST changes. Review round 1 (PR #185): AC-59 and TEST-59 (e) cover a registration for a started event that still counts, and AC-59 names the started-event precedence (d); the participant lock SQL casts to `uuid`. Committed before the L7-03 red tests | B (stickkersz), with Claude Code | A (songt888) |
+| 1.8 | 2026-11-27 | Sprint 2 F-08 (#200, `docs/sprints/sprint-2/f-08-manage-event.md`): section 2 step 4, the failure table and the API errors: a CANCELLED event is treated like a DRAFT (404 `EVENT_NOT_FOUND`); a CLOSED event gets 409 `EVENT_CLOSED` after `EVENT_STARTED`, then F-09's `REGISTRATION_CLOSED` (D-35 order). S1 AC and tests are unchanged (Sprint 1 has no CLOSED or CANCELLED event); the new cases are F-08 AC-97, AC-99 and F-09 AC-83, AC-88. Planned; implemented in S2-04 and S2-05 | B (stickkersz), with Claude Code | A (songt888) |
