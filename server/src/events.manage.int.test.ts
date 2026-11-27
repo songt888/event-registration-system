@@ -1,6 +1,7 @@
 import request, { type Test } from 'supertest';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createApp } from './app';
+import { editEvent } from './events.service';
 import { prisma } from '../test/setup-db';
 import { PASSWORD, createUser, errorBody, insertSession, sidFrom } from '../test/fixtures';
 
@@ -162,6 +163,15 @@ describe('F-08 manage event API', () => {
     expectError(await patch(d.id, { startsAt: new Date(t.getTime() - 120 * MIN).toISOString() }, o.cookie), 400, 'INVALID_DEADLINE');
 
     expect(await snapshot()).toEqual(before);
+  });
+
+  it('TEST-94 AC-94 service editEvent with a fixed now rejects a startsAt equal to now', async () => {
+    const o = await createUser('ORGANIZER', 'o@example.com');
+    const e = await seedEvent(o.id, { startsAt: T() });
+    const now = new Date(Date.now() + DAY);
+
+    await expect(editEvent(prisma, o.id, e.id, { startsAt: now }, now)).rejects.toMatchObject({ status: 400, code: 'INVALID_START_TIME' });
+    expect((await event(e.id)).startsAt).toEqual(e.startsAt);
   });
 
   it('TEST-95 AC-95 rejects an empty, unknown, wrongly typed or out-of-bounds edit and a bad ID or content type', async () => {
