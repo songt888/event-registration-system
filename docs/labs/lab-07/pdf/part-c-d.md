@@ -134,7 +134,7 @@ READY does not mean the outstanding items below are done; each has an owner and 
 
 | Outstanding item | Owner | Action |
 |---|---|---|
-| D7-1: `main` still has F-01 1.5 ("one row from 641 px") | A (Sprint 2 releases) | sync PR `lab6-staging` → `sprint-2-staging` (a merge, not a rebase) before the Sprint 2 release, so F-01 1.6, the Lab 6 evidence and the PDF sources reach `main` |
+| D7-1: `main` still has F-01 1.5 ("one row from 641 px") | A (Sprint 2 releases) | sync PR `lab6-staging` → `sprint-2-staging` (a merge, not a rebase) once the Lab 6 PDF (#127) is final and before the Sprint 2 release, so F-01 1.6, the Lab 6 evidence and the PDF sources reach `main` |
 | E2E not in the required CI check | B | the Part C action: Playwright job in `ci-docker` before S2-03 |
 | Est's non-blocking observations #151 (641 to 735 px) and #147 (label ellipsis at 320 px) | B | recheck both with the responsive debt item (TD-3) in the Sprint 2 UI work |
 | #137 still open | A | close it; release, tag, deploy and evidence are done (#193, #196) |
@@ -158,18 +158,18 @@ Deferred engineering work, not wrong behavior; wrong behavior is in D.2.
 
 | # | Item | Impact | Priority | Disposition / action |
 |---|---|---|---|---|
-| TD-1 | Playwright E2E is outside the required check (D-23); 20 tests run only by hand | A UI regression (TEST-61, or the Lab 6 fixes TEST-56, TEST-62 to TEST-72) can merge with a green check | high | E2E job in `ci-docker` before S2-03; owner B (Part C action) |
+| TD-1 | Playwright E2E is outside the required check (D-23); 20 tests run only by hand | A UI regression (TEST-61, or the Lab 6 fixes TEST-56, TEST-62 to TEST-72) can merge with a green check | high | E2E job in `ci-docker` before S2-03, recorded as a new decision D-39 that replaces D-23 in the same PR; owner B (Part C action) |
 | TD-2 | E2E runs against the Vite dev servers, not the built image that is deployed | Behavior that only appears in dev leaks into tests: React StrictMode's double request forced the TEST-56 contract correction (`4c05a54`). A difference that only appears in the built image is never caught | medium | run the CI E2E job against the API serving `CLIENT_DIST`; owner B, with TD-1 |
 | TD-3 | Responsive layout is checked only at sampled widths (TEST-65: 1280, 1024, 768, 375; TEST-72: 320 to 812) | #141 passed at 1280 and 375 px but overflowed at 768 and 812 px (follow-up PR #171). Est still saw Logout wrap at 641 to 735 px (#151) | medium | one width list shared by the layout tests, with 640, 700 and 1440 added; owner B, in the Sprint 2 UI work |
-| TD-4 | Each page maps 401, 403 and 404 to its own screen (`EventsPage`, `EventRegistrationsPage`, `MyEventsPage`, `MyRegistrationsPage`) | Lab 6 defects #142, #152 and #153 came from this. The new Sprint 2 pages (cancel, manage event) can repeat it | medium | one shared error-to-screen helper before the F-07 and F-08 UI; owner A |
+| TD-4 | Each page maps 401, 403 and 404 to its own screen (`EventsPage`, `EventRegistrationsPage`, `MyEventsPage`, `MyRegistrationsPage`) | Lab 6 defects #142, #152 and #153 came from this. The new Sprint 2 pages (cancel, manage event) can repeat it | medium | one shared error-to-screen helper, built in S2-03 (F-07 UI) and reused by F-08; owner A |
 | TD-5 | BR-10 has no database constraint; it relies on the service check and the participant-row `FOR UPDATE` lock | A write path that skips the service (seed, script) can store a conflict. Only TEST-60 guards the race | low | keep TEST-60 in every regression run, and keep new write paths behind `registerForEvent` (F-07 re-registration included); owner A |
-| TD-6 | Lab 6 post-release docs and evidence are on `lab6-staging` only (27 commits not on `main`) | The repository's `main` does not show the whole history the PDFs cite (D7-1 comes from this) | low | the sync PR in the outstanding items; owner A |
+| TD-6 | Lab 6 post-release docs and evidence are on `lab6-staging` only (27 commits not on `main`) | The repository's `main` does not show the whole history the PDFs cite (D7-1 comes from this) | low | the sync PR in the outstanding items, after #127 is final; owner A |
 
 ## D.4 Retrospective
 
 - **What helped:** reviewing the contract before any code found the one gap that mattered. A asked for TEST-59 (e), which checks that a started registration still counts, so the red set covered every BR-10 branch before the implementation was written.
 - **What hurt:** red and green shared one PR (#190) opened from B's account, so GitHub let only A approve it. Its CI run failed on the red commit by design, and both had to be explained in comments. TEST-59 (e) also stayed hidden behind step (c) and needed a separate run.
-- **What will change:** for Sprint 2, each feature gets a red PR and a green PR, each approved by the other student, and every red step gets its own `it`. Owner B, starting with S2-03 (F-07: B red, A green).
+- **What will change:** for Sprint 2, the red part gets its own reviewed PR into the unprotected feature branch (for example `feature/s2-03-cancel`), approved by the other student. The green PR then goes from that feature branch into `sprint-2-staging`, where `test-and-docker` must pass. Every red step gets its own `it`. Owner B, starting with S2-03 (F-07: B red, A green).
 
 # Contribution, AI use and limitations (Parts C and D)
 
