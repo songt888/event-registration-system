@@ -1,0 +1,20 @@
+Live check by B (read-only, no sign-in), 2026-11-26 23:27:48 +07; URL https://s47a6b53b-4d7hbszvwq-as.a.run.app
+Deploy run 45858377105 (push of 502d2a6): image tag 502d2a67708e8908487bd56f1b45835fc69de416, revision s47a6b53b-00006-7bv serving 100 percent
+
+$ curl -s -w " HTTP %{http_code}" $U/api/health   (our health route, server/src/app.ts:12; /api/ready does not exist in our app)
+{"status":"ok"} HTTP 200
+
+$ curl -s -w " HTTP %{http_code}" $U/api/me   (no cookie, expect 401)
+{"error":{"code":"UNAUTHENTICATED","message":"Please sign in."}} HTTP 401
+
+$ curl -s $U/ | grep -o assets/index-*
+assets/index-CcXia3Aw.js
+assets/index-DM5hmvTK.css
+
+Local npm run build of 14d0e72 (same tree as 502d2a6) produced: index-CcXia3Aw.js, index-DM5hmvTK.css
+
+Fix strings in the served bundle assets/index-CcXia3Aw.js:
+  Capacity is required.            found
+  allSettled                       found
+  table-scroll                     found
+  You do not have access to this   found
