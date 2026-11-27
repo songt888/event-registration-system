@@ -122,7 +122,29 @@ Each figure: evidence ID, action, expected / actual, time, version `b71cdb2`.
 | E-B04-2 | second operator window accepts #6 | refused, order not accepted twice | "Order #6: Already accepted by another staff member." | 21:13 |
 | E-B06-2 | My orders after two tampered requests | count still K | 5 orders = K | 21:14:03 |
 
-_(Figures embedded here at build: E-B01-1, E-B01-3, E-B03-2, E-B03-4, E-B04-2, E-B06-2.)_
+![E-B01-1](evidence/l6-03/E-B01-1-order-11-placed.jpg)
+
+Figure **E-B01-1**, version `b71cdb2`: CUSTOMER-A's order #11 placed, PLACED, ฿185.00 (22:23:30)
+
+![E-B01-3](evidence/l6-03/E-B01-3-order-11-accepted-customer.jpg)
+
+Figure **E-B01-3**, version `b71cdb2`: CUSTOMER-A sees #11 ACCEPTED, total unchanged (22:27:33)
+
+![E-B03-2](evidence/l6-03/E-B03-2-bob-order-11-not-found.jpg)
+
+Figure **E-B03-2**, version `b71cdb2`: CUSTOMER-B opens /orders/11: "Order not found.", no data of Alice (22:29:34)
+
+![E-B03-4](evidence/l6-03/E-B03-4-operator-menu-refused.jpg)
+
+Figure **E-B03-4**, version `b71cdb2`: OPERATOR opens /menu: "You don't have access to that page." (22:25:42)
+
+![E-B04-2](evidence/l6-03/E-B04-2-second-accept-refused.png)
+
+Figure **E-B04-2**, version `b71cdb2`: second operator window: "Already accepted by another staff member." (21:13)
+
+![E-B06-2](evidence/l6-03/E-B06-2-orders-still-k.png)
+
+Figure **E-B06-2**, version `b71cdb2`: My orders after two tampered requests: still 5 = K (21:14:03)
 
 ## B.5 Coverage review and exploratory testing
 
