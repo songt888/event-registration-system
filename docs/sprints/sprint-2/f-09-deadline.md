@@ -74,7 +74,7 @@ The browser formats this instant in local time on My events, event detail, the p
 
 ### Registration deadline check (F-04 endpoint)
 
-For `POST /api/events/:id/registrations`, retain the existing route guards and F-04 transaction. After the service has established that the event is visible and PUBLISHED, apply the exact D-35 service-rule order:
+For `POST /api/events/:id/registrations`, retain the existing route guards and F-04 transaction. After the service has established that the event is visible and is either PUBLISHED or CLOSED, apply the exact D-35 service-rule order:
 
 1. Missing/hidden event: 404 (`EVENT_NOT_FOUND` under F-04/D-13).
 2. `startsAt <= now`: 409 `EVENT_STARTED`.
