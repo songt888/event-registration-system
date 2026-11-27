@@ -17,10 +17,13 @@ enum Role {
 enum EventStatus {
   DRAFT
   PUBLISHED
+  CLOSED
+  CANCELLED
 }
 
 enum RegistrationStatus {
   ACTIVE
+  CANCELLED
 }
 
 model User {
@@ -47,18 +50,19 @@ model Session {
 }
 
 model Event {
-  id            String         @id @default(uuid()) @db.Uuid
-  ownerId       String         @db.Uuid
-  owner         User           @relation(fields: [ownerId], references: [id], onDelete: Restrict)
-  title         String         @db.VarChar(120)
-  description   String         @default("") @db.VarChar(2000)
-  location      String         @db.VarChar(120)
-  startsAt      DateTime       @db.Timestamptz(3)
-  capacity      Int
-  status        EventStatus    @default(DRAFT)
-  createdAt     DateTime       @default(now()) @db.Timestamptz(3)
-  publishedAt   DateTime?      @db.Timestamptz(3)
-  registrations Registration[]
+  id                   String         @id @default(uuid()) @db.Uuid
+  ownerId              String         @db.Uuid
+  owner                User           @relation(fields: [ownerId], references: [id], onDelete: Restrict)
+  title                String         @db.VarChar(120)
+  description          String         @default("") @db.VarChar(2000)
+  location             String         @db.VarChar(120)
+  startsAt             DateTime       @db.Timestamptz(3)
+  capacity             Int
+  status               EventStatus    @default(DRAFT)
+  createdAt            DateTime       @default(now()) @db.Timestamptz(3)
+  publishedAt          DateTime?      @db.Timestamptz(3)
+  registrationDeadline DateTime?      @db.Timestamptz(3)
+  registrations        Registration[]
 }
 
 model Registration {
@@ -69,6 +73,7 @@ model Registration {
   participant   User               @relation(fields: [participantId], references: [id], onDelete: Restrict)
   status        RegistrationStatus @default(ACTIVE)
   createdAt     DateTime           @default(now()) @db.Timestamptz(3)
+  cancelledAt   DateTime?          @db.Timestamptz(3)
 
   @@index([eventId, status])
 }
