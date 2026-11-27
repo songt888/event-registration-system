@@ -112,6 +112,114 @@ Every fix: Issue, then a branch from `lab6-staging`, then the contract row (AC/T
 
 > **stickkersz on #179 (2026-11-26):** "checked bro. allSettled + registrations error wins over the event error matches AC-69 and D-13, owner path unchanged. ran it locally on lab6-staging 860f8a1 + #180 + #179 merged: npm test 69/69, e2e 19/19, TEST-69 passes for all 3 IDs."
 
+## D.1a Accepted-defect chain in detail
+
+The three accepted defects are shown step by step: test, red output, fix diff, green output, review and CI, release, partner retest. #142 is the major one and is shown in full. The enhancements follow the same chain, summarised in D.1.
+
+### #142 (major): after logout in another tab, the first tab keeps the account (L6-09, AC-56, TEST-56)
+
+**Regression test** (`e2e/stale-session.spec.ts`, Playwright; it signs in through the UI with a seeded account, and the password comes from an environment variable, never a value in the file):
+
+```ts
+test('TEST-56 AC-56 after logout in another tab, protected navigation shows Sign in and stops the refused requests (L6-09)', async ({ context }) => {
+  const tab1 = await context.newPage();               // signs in as Participant One
+  // ...
+  const tab2 = await context.newPage();               // same context, so it shares the session cookie
+  await tab2.goto('/events');
+  await tab2.getByRole('button', { name: 'Logout' }).click();
+  await expect(tab2).toHaveURL(/\/login$/);
+
+  await tab1.getByRole('link', { name: 'My registrations' }).click();
+  await expect(tab1.getByRole('heading', { name: 'Sign in' })).toBeVisible();
+
+  const refused: string[] = [];                       // counted only after Sign in appears (D.1 note on StrictMode)
+  tab1.on('response', (res) => {
+    if (res.status() === 401 && new URL(res.url()).pathname.startsWith('/api/')) refused.push(new URL(res.url()).pathname);
+  });
+  await tab1.waitForTimeout(3000);
+  await expect(tab1).toHaveURL(/\/login$/);
+  await expect(tab1.getByText('Participant One (Participant)')).toHaveCount(0);
+  expect(refused, 'requests refused with 401 after Sign in appeared').toEqual([]);
+});
+```
+
+**Red** on `7525406`: the test commit on top of `4c05a54`, whose client is unchanged from the release under test `04e8590`. Run 2026-11-26 18:15 (UTC+7), Node v24.19.0, Playwright 1.65.0, `npx playwright test e2e/stale-session.spec.ts` (E-D-L609-red):
+
+```
+  1) [chromium] › e2e/stale-session.spec.ts:4:1 › TEST-56 AC-56 after logout in another tab, ...
+    Error: expect(locator).toBeVisible() failed
+    Locator: getByRole('heading', { name: 'Sign in' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+    > 22 |   await expect(tab1.getByRole('heading', { name: 'Sign in' })).toBeVisible();
+  1 failed
+```
+
+The failure is the reported behavior. The unfixed client loops between `/login` and `/events` and repeats `GET /api/events` (401), so Sign in never stays on screen.
+
+**Fix** `d7184bf` (`git diff 7525406 d7184bf -- client`: 2 files, +9/−1). Any 401 now clears the signed-in user, so every protected page falls back to Sign in:
+
+```diff
+--- a/client/src/api.ts
++++ b/client/src/api.ts
++// AuthProvider sets this so any 401 clears the displayed user (F-01 section 5, AC-56).
++let onUnauthenticated = () => {};
++export function setUnauthenticatedHandler(fn: () => void) {
++  onUnauthenticated = fn;
++}
+@@ export async function api<T>(path: string, init ...
+   const data = await res.json().catch(() => null);
++  if (res.status === 401) onUnauthenticated();
+   if (!res.ok) {
+--- a/client/src/auth.tsx
++++ b/client/src/auth.tsx
+-import { ApiError, api, type User } from './api';
++import { ApiError, api, setUnauthenticatedHandler, type User } from './api';
+   useEffect(reload, [reload]);
++  useEffect(() => setUnauthenticatedHandler(() => setUser(null)), []);
+```
+
+**Green** on `d7184bf` (18:16): `npx playwright test e2e/stale-session.spec.ts` 1 passed. Full suites on the same commit: `npm test` 14 files, 69 passed, 0 failed, 0 skipped; `npm run test:e2e` 7 passed, 0 failed, 0 skipped (E-D-L609-green, E-D-L609-npm-test, E-D-L609-e2e-full).
+
+**Review and CI:** PR #167 (author A, reviewer B), `test-and-docker` success on the head `c3183de` (run 45811065249). B approved at 18:50: *"checked c3183de, fix + test match the AC, CI green ... this fixes #152 too (Layout sends a null user to /login on any 401), so #152 = duplicate of #142"*. Merged as `3390d83`.
+
+**Release and partner retest:** in `v0.1.3-lab6` / `502d2a6` / `s47a6b53b-00006-7bv` (D.3). Est retested #142 PASS (2026-11-27, 02:15 to 02:46 round): after logout in the other tab, the first tab shows Sign in, with no loop, and `/api/me` returns 401. They retested the duplicate #152 PASS at 00:20:45 (D.4).
+
+### #153 (minor): the registrations page shows "Not found" or 403 depending on timing (L6-17, AC-69, TEST-69)
+
+- **Red** on `3e7a23a`, 2026-11-26 21:25, `npm run test:e2e -- e2e/registrations-403.spec.ts` (E-D-L617-red). For an unknown event ID: `Expected: "You do not have access to this"`, `Error: element(s) not found`, 1 failed.
+- **Fix** `c54d10a` (`client/src/EventRegistrationsPage.tsx`, +9/−6). The page waits for both requests, and the registrations request decides access:
+
+```diff
+-    Promise.all([api<EventPayload>(`/events/${id}`), api<{ registrations: Row[] }>(`/events/${id}/registrations`)])
+-      .then(([e, r]) => {
+-        setEvent(e);
+-        setRows(r.registrations);
+-      })
+-      .catch((err) => setError(err as ApiError));
++    // AC-69: wait for both answers; the registrations request decides access, so its error wins over the event's 404.
++    Promise.allSettled([api<EventPayload>(`/events/${id}`), api<{ registrations: Row[] }>(`/events/${id}/registrations`)]).then(
++      ([e, r]) => {
++        if (r.status === 'rejected') return setError(r.reason as ApiError);
++        if (e.status === 'rejected') return setError(e.reason as ApiError);
++        setEvent(e.value);
++        setRows(r.value.registrations);
++      },
++    );
+```
+
+- **Green and suites:** 69 / E2E 16 on `c54d10a` (D.1). PR #179 (author A, reviewer B), CI success on `4a85925` (run 45853689487), merged as `14d0e72`. B's review is quoted in D.1.
+- **Est retest:** PASS at 00:21:35, with 10 of 10 loads showing the 403 message (D.4).
+
+### #141 (minor): a very long title, location or description breaks the layout (L6-13, AC-65, TEST-65)
+
+- **Red** on `820b97e`, 2026-11-26 17:19, `npm run test:e2e -- e2e/long-text.spec.ts` (E-D-L613-red): `Error: My events scrolls sideways at 1280 px`, `Expected: <= 0`, `Received: 1783`, 1 failed.
+- **Fix** `4ca4d1a` (`client/src/styles.css`, +8): `overflow-wrap: break-word` inside `main`, `min-width: 0` on the grid children, and `max-width` caps on table cells.
+- **Follow-up:** red `74965b4` at 1024 px (received 94) and fix `d7b89b0`, merged through PR #171 (D.1 notes).
+- **Green and suites:** 69 / E2E 6 on `4ca4d1a`. PR #162 (author B, reviewer A), CI success on `ead1f8f` (run 45807865240), merged as `0cb4d67`. A's review is quoted in D.1.
+- **Est retest:** PASS in the 02:15 to 02:46 round (D.4).
+
 ## D.2 Integration before release
 
 `lab6-staging` at `14d0e72` (all fixes merged), Node v24.16.0, 2026-11-26, by B: `npm run build` OK; `npm test` 14 files, 69 passed, 0 failed, 0 skipped; `npm run test:e2e` 19 passed, 0 failed, 0 skipped. Output: `docs/labs/lab-06/evidence/l6-06/integration-14d0e72/` (build, `npm test`, E2E, each with the commit hash).
@@ -170,6 +278,22 @@ Corrections recorded honestly: #132 was first posted to Est as PASS and correcte
 A's half (PR #187, `docs/labs/lab-06/evidence/l6-07b-a/`, by hand, 2026-11-27 01:40 to 01:51): UAT-01 (order #15), UAT-03 (all six steps), UAT-05 PASS; #122, #124, #125 re-checked by hand during the cases: PASS.
 
 **#132 after Est's fix release.** A retested at 03:05 on `163fdb7`: still FAIL (fix merged on Est's `lab6` but not deployed; PR #191). Est deployed `39bda5e` (their PR #181), revision `food-order-00009-jd9`, 03:19 to 03:24. #132 then PASS: A at 03:32 (PR #191) and B at 03:34 (PR #192): 7 headers, all `scope="col"`, over 7 cells per row, left edges equal. B's regression run of all 9 accepted defects on `39bda5e` (03:42 to 03:43): all PASS (#124 by its dedicated rerun). UAT cases were not re-run on `39bda5e`: the only app files changed since `163fdb7` are `QueuePage.tsx` and `styles.css`.
+
+**Selected retest evidence (automated, headless Chromium; account labels only):**
+
+| ID | Action | Expected | Actual | Time, version |
+|---|---|---|---|---|
+| R-123 | CUSTOMER-A at 375 × 812, one item in the cart, menu scrolled to the bottom | Basil Chicken Rice's name, price and **+** fully visible above the cart bar (Est AC-F02-06) | the whole card, including **+**, sits above the "1 item · ฿65.00 · View cart" bar | 2026-11-27 00:18 to 00:20, `163fdb7` / `food-order-00008-v6c` |
+| R2-132 | OPERATOR at 1280 × 800, `/operator/orders` | 7 column headers, each over its own column | Order, Status, Customer, Items, Placed, Total, Action above 7 cells per row; Status is over the PLACED pills | 2026-11-27 03:34:54, `39bda5e` / `food-order-00009-jd9` |
+
+![R-123: Est's phone menu at 375 × 812 on 163fdb7, last item fully visible above the cart bar (major defect #123, PASS)](evidence/l6-07b/R-123-phone-bottom.png)
+
+**Figure R-123.** Est's phone menu at 375 × 812 on `163fdb7`; the last item is fully visible above the cart bar (major defect #123, PASS).
+
+![R2-132: Est's desktop order queue on 39bda5e, 7 headers aligned with 7 cells per row (#132, PASS after the second fix)](evidence/l6-07b/39bda5e/R2-132-queue-headers.png)
+
+**Figure R2-132.** Est's desktop order queue on `39bda5e`; 7 headers aligned with 7 cells per row (#132, PASS after the second fix).
+
 
 Our decision for Est's Sprint 1 release: **Accepted** on `39bda5e` / `food-order-00009-jd9` (9 of 9 defects PASS, #123 major PASS, UAT-01, 03, 04, 05 PASS, nothing BLOCKED, no open defect; #130, #131, #133 are enhancements Est deferred to Sprint 3). B signed off on #129 (2026-11-27 03:51 UTC+7), A at 04:09; the decision block was sent to Est for their `retest-handoff.md`. Evidence: PRs #186, #187, #191, #192.
 
