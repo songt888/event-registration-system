@@ -193,6 +193,21 @@ How it meets the impact analysis: the check sits inside the existing D-10 transa
 
 Same tests on the green code (`npm test -w server -- src/registrations.conflict.int.test.ts`, Node 24.19.0, Vitest 3.2.7): **4 passed (4)**, 0 failed. TEST-61 (E2E, `e2e/time-conflict.spec.ts`, `5a2197b` and `4d51c76`) signs in as Participant 1, who holds the seeded Career talk, opens an event created 60 minutes after it, presses Register, and expects the alert text above with the places text unchanged ("5 of 5 places left").
 
+**Event page before and after the change** (E7-B2 UI, automated capture of the TEST-61 scenario on a local build, 2026-11-27 17:01; `docs/labs/lab-07/evidence/l7-04/E7-B2-ui-before-after.md`):
+
+| Commit | Participant One presses Register on an event 60 minutes after the Career talk they hold | Registrations afterwards |
+|---|---|---|
+| `502d2a6` (pre-change) | "You are registered for this event.", 4 of 5 places left | 2 ACTIVE (the conflict is stored) |
+| `861f01f` (release) | alert with the BR-10 message, 5 of 5 places left | 1 ACTIVE (nothing stored) |
+
+![E7-B2 before](evidence/l7-04/E7-B2-before-502d2a6.png)
+
+**Figure E7-B2 before.** Pre-change code `502d2a6`: the conflicting registration is accepted.
+
+![E7-B2 after](evidence/l7-04/E7-B2-after-861f01f.png)
+
+**Figure E7-B2 after.** Release `861f01f`: the same request is refused with the `TIME_CONFLICT` message, and the places stay 5 of 5.
+
 ## B.3 Existing regression (E7-B3)
 
 Suite and why: the full API/DB suite (`npm test`) holds every Sprint 1 registration, capacity, duplicate, permission, ownership and session test that the change could affect (the preserved list in A.2); E2E (`npm run test:e2e`) covers the golden journey, the full-event message, the Lab 6 reload-after-409 (TEST-62) and the new alert. TEST-60 is run five times because it is a concurrency test.
@@ -283,7 +298,7 @@ Afterwards `GET /api/registrations/mine` and the My registrations page list only
 | Tool | Task |
 |---|---|
 | Claude Code (Claude Opus), for A | drafted CR-01, the green change, TEST-61, the release PR, the evidence files and these two parts on A's instructions; ran the release test suites; sent the production check requests from A's signed-in page (B.5). A reviewed every change and can explain it |
-| Claude Code, for B | drafted the revised contract from the CR on B's instruction (PR #185), and wrote and ran the red tests from the STS on B's instruction (PR #190); B checked them before review |
+| Claude Code, for B | drafted the revised contract from the CR on B's instruction (PR #185), and wrote and ran the red tests from the STS on B's instruction (PR #190); B checked them before review. Also ran the TEST-61 scenario on `502d2a6` and `861f01f` and captured the E7-B2 before/after figures (automated, local build) |
 
 ## Known limitations (Parts A and B)
 

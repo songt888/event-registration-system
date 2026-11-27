@@ -77,7 +77,10 @@ def render(text):
                 out.append("<blockquote>" + build_pdf.md(re.sub(r"^> ", "", part, flags=re.M)) + "</blockquote>")
             elif part:
                 out.append(build_pdf.md(part))
-    return "".join(out)
+    html = "".join(out)
+    # build_pdf.md leaves **bold** that wraps a `code` span unconverted; finish it outside <pre> blocks.
+    return "".join(s if s.startswith("<pre") else re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", s)
+                   for s in re.split(r"(<pre.*?</pre>)", html, flags=re.S))
 
 
 def main():
