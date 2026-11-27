@@ -4,7 +4,7 @@
 
 PR #128 (L6-01 #120), author A, reviewer B. Merged 2026-11-24 23:10 (UTC+7) as `f5089dc`.
 
-**B, CHANGES_REQUESTED, 2026-11-24 15:22 (UTC+7), at `d7f005d`:**
+**B, CHANGES_REQUESTED, 2026-11-24 15:22 (UTC+7),** at `d7f005d`:
 
 > dry-ran all 6 cases on the live URL bro, every step matched except the notes below. no app defects found.
 >
@@ -23,7 +23,7 @@ PR #128 (L6-01 #120), author A, reviewer B. Merged 2026-11-24 23:10 (UTC+7) as `
 > - CI will run once #119 merges (it adds `lab6-staging` to `ci-docker.yml`); update this branch after that.
 > - my dry-run data: UAT-NP-01-1505, UAT-NP-02-1510, UAT-NP-05-1512 (draft) under Organizer One.
 
-**B, APPROVED, 2026-11-24 23:10 (UTC+7), at `e22c20a`:**
+**B, APPROVED, 2026-11-24 23:10 (UTC+7),** at `e22c20a`:
 
 > rechecked e22c20a bro, all fixed, CI green. approving.
 

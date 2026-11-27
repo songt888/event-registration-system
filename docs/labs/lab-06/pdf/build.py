@@ -59,9 +59,24 @@ def source():
     return re.sub(r"^---$", "", text, flags=re.M)
 
 
+def render(text):
+    """Render review quotes without splitting fenced code blocks."""
+    out = []
+    for chunk in re.split(r"(^```.*?^```[ \t]*$)", text, flags=re.M | re.S):
+        if chunk.startswith("```"):
+            out.append(build_pdf.md(chunk))
+            continue
+        for part in re.split(r"((?:^>(?: .*)?\n?)+)", chunk, flags=re.M):
+            if part.startswith(">"):
+                out.append("<blockquote>" + build_pdf.md(re.sub(r"^> ?", "", part, flags=re.M)) + "</blockquote>")
+            elif part:
+                out.append(build_pdf.md(part))
+    return "".join(out)
+
+
 def main():
     section = sys.argv[1] if len(sys.argv) > 1 else "X"
-    body = build_pdf.md(source().replace("&lt;section&gt;", section))
+    body = render(source().replace("&lt;section&gt;", section)).replace("&lt;br&gt;", "<br>")
     out = HERE / "build"
     out.mkdir(exist_ok=True)
     page = out / "lab6.html"
