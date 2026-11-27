@@ -26,7 +26,7 @@ States and the operations that move between them:
 | DRAFT | allowed while not started | 409 `EVENT_NOT_PUBLISHED` | → CANCELLED | → PUBLISHED |
 | PUBLISHED | allowed while not started | → CLOSED | → CANCELLED | 409 `ALREADY_PUBLISHED` |
 | CLOSED | 409 `EVENT_NOT_EDITABLE` | 409 `ALREADY_CLOSED` | → CANCELLED | 409 `ALREADY_PUBLISHED` |
-| CANCELLED | 409 `EVENT_NOT_EDITABLE` | 409 `EVENT_NOT_PUBLISHED` | 409 `ALREADY_CANCELLED` | 409 `EVENT_NOT_EDITABLE` |
+| CANCELLED | 409 `EVENT_NOT_EDITABLE` | 409 `EVENT_NOT_PUBLISHED` | 409 `ALREADY_CANCELLED` | 409 `ALREADY_PUBLISHED` (unchanged F-02 rule) |
 
 Cancel has no time limit (D-34): an event can be cancelled before or after its start.
 
@@ -85,7 +85,7 @@ Lock order: the event row is always locked first (D-10). An edit or cancel and a
 | Cancel an event that has started (`startsAt <= now`) | 200, its ACTIVE registrations become CANCELLED (AC-100) |
 | Register for a CANCELLED event | 404 `EVENT_NOT_FOUND`, nothing stored (AC-99) |
 | A registration and a cancel at the same time | no ACTIVE registration remains on the CANCELLED event (AC-101) |
-| Publish a CANCELLED DRAFT | 409 `EVENT_NOT_EDITABLE` (AC-104) |
+| Owner publishes a CANCELLED or CLOSED future event | 409 `ALREADY_PUBLISHED` (unchanged F-02 rule), nothing changes (AC-104) |
 | Unexpected failure | 500 `INTERNAL_ERROR`, no stack trace |
 
 When several rules fail at once, the first failing step in section 2 decides the code: for example, a started CLOSED event gets `EVENT_STARTED` on edit, and a CANCELLED event gets `ALREADY_CANCELLED` on cancel.
@@ -147,13 +147,13 @@ New codes for system SDS 4.2 (409): `EVENT_NOT_EDITABLE`, `EVENT_HAS_REGISTRATIO
 
 ## 9. Dependencies on other contracts
 - F-01: `requireSession`, `requireRole`, the error handler.
-- F-02: create, publish, the event payload and My events; publish of a CANCELLED event changes from `ALREADY_PUBLISHED` to `EVENT_NOT_EDITABLE` (AC-104, F-02 revision row in the same PR).
-- F-03: the list and detail visibility of CLOSED and CANCELLED events (section 2).
-- F-04: `registerForEvent` step 2 becomes: missing, DRAFT or CANCELLED → 404; then `EVENT_STARTED`; then CLOSED → `EVENT_CLOSED` (D-35 order). F-04 gets a revision row in the same PR.
+- F-02: create, the event payload, detail visibility and My events (F-02 1.6 in the same PR). Publish does not change: the owner publishing any non-DRAFT event, CLOSED or CANCELLED included, keeps 409 `ALREADY_PUBLISHED` (AC-36 rule); AC-104 checks that a CANCELLED event can never be published again.
+- F-03: the list includes CLOSED events and never CANCELLED ones (F-03 1.3 in the same PR).
+- F-04: `registerForEvent` step 2 becomes: missing, DRAFT or CANCELLED → 404; then `EVENT_STARTED`; then CLOSED → `EVENT_CLOSED` (D-35 order). F-04 1.8 in the same PR updates section 2, the failure table and the API errors.
 - F-07 (A): the meaning of a CANCELLED registration and `cancelledAt`; event cancel uses the same values.
 - F-09 (A): `registrationDeadline` in the PATCH body and its rules, and the deadline re-check when `startsAt` changes.
 - F-05: shows CANCELLED registrations; no query change.
-- F-06: the roster's visibility check treats CANCELLED like DRAFT (404 for a non-owner, AC-109); F-06 gets a revision row in the same PR.
+- F-06: the roster's visibility check treats CANCELLED like DRAFT (404 for a non-owner, AC-109) and CLOSED like PUBLISHED (403); F-05/F-06 1.3 in the same PR updates section 2 and the tables.
 
 ## 10. Acceptance criteria
 - **AC-90** The owner edits title, description and location of their DRAFT and of their PUBLISHED event that has not started; 200, the stored row has the new values, and the fields not sent are unchanged.
@@ -170,7 +170,7 @@ New codes for system SDS 4.2 (409): `EVENT_NOT_EDITABLE`, `EVENT_HAS_REGISTRATIO
 - **AC-101** A registration and a cancel of the same event sent at the same time never leave an ACTIVE registration on a CANCELLED event.
 - **AC-102** A participant gets 403 on all three routes for any event ID; another organizer gets 403 for a PUBLISHED or CLOSED event and 404 for a DRAFT, CANCELLED or missing event; nothing changes.
 - **AC-103** All three routes give 401 `UNAUTHENTICATED` with no cookie, an unknown token, an expired session and a logged-out session; nothing changes.
-- **AC-104** Publishing a CANCELLED DRAFT gets 409 `EVENT_NOT_EDITABLE`; publishing a CLOSED event still gets 409 `ALREADY_PUBLISHED`; nothing changes.
+- **AC-104** The owner publishing their CANCELLED (former DRAFT) or CLOSED future event gets 409 `ALREADY_PUBLISHED`, as F-02 does for any non-DRAFT event; the status and `publishedAt` do not change.
 - **AC-105** In the UI the owner opens Edit from My events, changes the title and the capacity and saves; My events shows the new values, also after a reload.
 - **AC-106** In the UI the owner closes one event and cancels another (with the in-page confirmation); My events shows CLOSED and CANCELLED; a participant sees the closed event with "This event is closed." and no Register button, and no longer sees the cancelled event in the Events list.
 - **AC-107** In the UI a capacity below the registered count shows "Capacity cannot be lower than the number of registered participants." and keeps the typed values.
@@ -196,7 +196,7 @@ API tests use Vitest and Supertest on the real PostgreSQL test database (`DATABA
 | TEST-101 | API + DB, concurrent | PUBLISHED event; `Promise.all` of cancel and P1 registering; run 5 times | each run: cancel 200; P1 gets 201 (then cancelled by the cancel) or 404; no ACTIVE row on the event |
 | TEST-102 | API + DB | P1 calls PATCH, close, cancel on a DRAFT, a PUBLISHED and a missing ID; O2 calls them on O's PUBLISHED, CLOSED, DRAFT, CANCELLED and a missing ID | P1: 403 for all; O2: 403, 403, 404, 404, 404; nothing changes |
 | TEST-103 | API | each route with no cookie, unknown token, expired and logged-out session | 401 `UNAUTHENTICATED` for all; nothing changes |
-| TEST-104 | API + DB | publish a CANCELLED DRAFT; publish a CLOSED event | 409 `EVENT_NOT_EDITABLE`; 409 `ALREADY_PUBLISHED`; nothing changes |
+| TEST-104 | API + DB | O publishes their CANCELLED former DRAFT and their CLOSED event, both at `T` | 409 `ALREADY_PUBLISHED` twice; status and `publishedAt` unchanged |
 | TEST-105 | E2E | Organizer One opens Edit on a seeded future event, changes title and capacity, saves, reloads My events | the row shows the new title and capacity after the reload |
 | TEST-106 | E2E | Organizer One closes event X and cancels event Y (Cancel event, then Confirm cancel); Participant 3 opens X and the Events list | My events shows CLOSED and CANCELLED; X shows "This event is closed." with no Register button; Y is not in the list |
 | TEST-107 | E2E | an event with 2 ACTIVE registrations; Organizer One sets capacity 1 in Edit and saves | the alert shows the `CAPACITY_BELOW_ACTIVE` message; the form keeps capacity 1 and the other values |
@@ -206,8 +206,8 @@ API tests use Vitest and Supertest on the real PostgreSQL test database (`DATABA
 Red: TEST-90 to TEST-104 and TEST-108, TEST-109 are committed alone and run on the code after S2-02 (the schema exists, the routes do not), so they fail on the missing behavior (404 route or wrong code), not on a compile error. TEST-105 to TEST-107 are E2E and are red against the same code.
 
 ## 12. Definition of Done (F-08)
-- This contract merged into `sprint-2-staging` before any F-08 test (#200), with the F-02, F-04 and F-06 revision rows and the new codes in system SDS 4.2.
-- Red PR into `feature/s2-04-manage-event`, approved by A, with the failing output recorded on the red commit; then the green PR into `sprint-2-staging`, reviewed by A, with `test-and-docker` passing (plan section 2).
+- This contract merged into `sprint-2-staging` before any F-08 test (#200), with the F-02, F-03, F-04 and F-05/F-06 revisions and the new codes in system SDS 4.2.
+- Red PR into `feature/s2-04-manage-event`, reviewed and approved by A (the student, not an agent; plan section 2), with the failing output recorded on the red commit; then the green PR into `sprint-2-staging`, reviewed by A, with `test-and-docker` passing (plan section 2).
 - All AC-90 to AC-109 pass; the full `npm test` and `npm run test:e2e` pass with counts and the tested commit recorded; TEST-92 and TEST-101 run 5 times.
 - Sprint 1 and Lab 7 tests still pass unchanged (capacity, BR-10, ownership).
 - Traceability rows for FR-10 and AC-90 to AC-109 filled with the actual test and result.
