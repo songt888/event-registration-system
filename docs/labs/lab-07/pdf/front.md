@@ -20,11 +20,11 @@ No password, token, cookie, connection string or key appears in this PDF or its 
 
 | Part | Content | Author / checker | Pages | Evidence IDs |
 |---|---|---|---|---|
-| A | Change impact and updated contract | A / B | PAGES_A | E7-A1, E7-A2 |
-| B | Implementation and regression-safe delivery | A / B | PAGES_B | E7-B1 to E7-B5 |
-| C | Objective engineering metrics | B / A | PAGES_C | E7-C1 to E7-C5 |
-| D | Release readiness and retrospective | B / A | PAGES_D | E7-D1 |
-| Appendices | A1 CR-01 as reviewed, B1 test file, B2 red output | | PAGES_APP | E7-A1, E7-B1 |
+| A | Change impact and updated contract | A / B | 3–7 | E7-A1, E7-A2 |
+| B | Implementation and regression-safe delivery | A / B | 8–12 | E7-B1 to E7-B5 |
+| C | Objective engineering metrics | B / A | 13–15 | E7-C1 to E7-C5 |
+| D | Release readiness and retrospective | B / A | 16–19 | E7-D1 |
+| Appendices | A1 CR-01 as reviewed, B1 test file, B2 red output | | 20–26 | E7-A1, E7-B1 |
 
 ## Version table
 

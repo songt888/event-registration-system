@@ -68,11 +68,15 @@ def source():
 def render(text):
     """build_pdf.md has no blockquotes: render each run of '> ' lines (review quotes) inside <blockquote>."""
     out = []
-    for part in re.split(r"((?:^> .*\n?)+)", text, flags=re.M):
-        if part.startswith("> "):
-            out.append("<blockquote>" + build_pdf.md(re.sub(r"^> ", "", part, flags=re.M)) + "</blockquote>")
-        elif part:
-            out.append(build_pdf.md(part))
+    for chunk in re.split(r"(^```.*?^```[ \t]*$)", text, flags=re.M | re.S):
+        if chunk.startswith("```"):
+            out.append(build_pdf.md(chunk))
+            continue
+        for part in re.split(r"((?:^> .*\n?)+)", chunk, flags=re.M):
+            if part.startswith("> "):
+                out.append("<blockquote>" + build_pdf.md(re.sub(r"^> ", "", part, flags=re.M)) + "</blockquote>")
+            elif part:
+                out.append(build_pdf.md(part))
     return "".join(out)
 
 
