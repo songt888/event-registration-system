@@ -67,6 +67,7 @@ The browser formats this instant in local time on My events, event detail, the p
 
 - Owner authorization, event existence/visibility, allowed event states, and the general PATCH shape are defined by B's F-08 contract.
 - If the request body omits `registrationDeadline`, leave its stored value unchanged and do not reject the request merely because that stored deadline has passed.
+- If PATCH changes `startsAt` and omits `registrationDeadline`, reject the update with 400 `INVALID_DEADLINE` when the stored non-null deadline is later than the new start (F-08 AC-94 / TEST-94).
 - If the field is null, clear the stored value. If it is a non-null zoned datetime, validate `now < registrationDeadline <= startsAt` and store the normalized UTC instant.
 - A non-null value at or before `now`, after `startsAt`, or otherwise outside the D-35 boundary returns 400 `INVALID_DEADLINE` without a write. Malformed field shape returns 400 `VALIDATION_ERROR`.
 - A successful event response contains the persisted nullable `registrationDeadline`; the UI displays it in local time.
@@ -156,7 +157,7 @@ API/DB tests use Vitest and Supertest with `DATABASE_URL_TEST`; E2E uses Playwri
 | TEST-88 | AC-88 | API + DB integration | Prepare separate fixtures for hidden/missing, started, closed, deadline-reached, duplicate, BR-10 conflict, and full. Include pairwise collisions: started+deadline, deadline+duplicate, deadline+time conflict, deadline+full, and duplicate+time conflict. | Each response uses the first applicable condition in D-35 order. In particular, deadline beats duplicate, `TIME_CONFLICT`, and full; started/closed beat deadline. No rejected request stores a Registration. |
 | TEST-89 | AC-89 | E2E (Playwright, `DATABASE_URL_E2E`) | Organizer creates and edits a future event with a local-time deadline, saves and reloads. In the isolated E2E database, prepare a second PUBLISHED event with a future `startsAt` and a `registrationDeadline` already in the past; sign in as an otherwise eligible participant, open its detail page, and attempt registration through the UI. | Organizer sees the saved local time and the response carries the corresponding UTC instant. For the expired-deadline fixture, the real API returns 409 `REGISTRATION_CLOSED`; the participant sees its readable error without a success state or changed places text. TEST-83 is the deterministic backend check at just before, exactly at, and just after the deadline. |
 
-Test names start with the IDs, for example `TEST-83 AC-83 closes registration at the exact deadline`. The two questions in section 11 do not have assigned AC/TEST IDs and must be resolved before adding tests for them.
+Test names start with the IDs, for example `TEST-83 AC-83 closes registration at the exact deadline`. F-08 AC-94 / TEST-94 covers the stored-deadline check in section 11.
 
 ## 10. Definition of Done (F-09)
 
@@ -169,12 +170,10 @@ The shared Sprint 2 Definition of Done applies. In addition:
 - Update the shared SRS, system SDS, and traceability to reflect planned contract status without claiming tests are verified before execution.
 - B reviews the green PR; no feature is complete until the required review, checks, and merge are verified.
 
-## 11. Open cross-review decisions — do not add ACs or tests until agreed
+## 11. Cross-review decisions
 
-| Question | Source / proposal | Current treatment |
-|---|---|---|
-| A PATCH changes `startsAt` without including `registrationDeadline`, and the stored deadline would then be later than the new `startsAt` | B raised this edge case in the #200 discussion. D-35 only says an omitted deadline does not fail just because the stored deadline passed; D-34 allows `startsAt` changes when there are no ACTIVE registrations. | Not decided here. Do not add a validation/rejection rule for this case until A and B agree how to preserve `registrationDeadline <= startsAt`. |
-| Publishing an event after its saved deadline has passed | B proposed rejecting publication with 400 `INVALID_DEADLINE`; D-35 defines deadline validation for create and PATCH and registration eligibility, not publish. | Not added to this contract. F-02/D-12 still governs publish unless A and B explicitly revise the contract/decision. |
+- If PATCH moves `startsAt` earlier than the stored non-null deadline and omits `registrationDeadline`, return 400 `INVALID_DEADLINE` without changing the event. F-08 step 8 and AC-94 / TEST-94 define the check and its precedence.
+- Publishing after the saved deadline has passed follows F-02/D-12. F-09 adds no publish-time deadline check. An owner may update the deadline through PATCH while the event is editable.
 
 Other F-08-specific proposals in the #200 discussion remain B-owned and are not adopted here. The proposed exact messages in section 4 also need review in the shared SDS. No new event-state, publish, or edit rule is inferred from F-09.
 
@@ -183,3 +182,4 @@ Other F-08-specific proposals in the #200 discussion remain B-owned and are not 
 | Version | Date | Change | Author | Reviewer |
 |---|---|---|---|---|
 | Draft 0.1 | 2026-11-27 | First F-09 contract draft from FR-11, BR-06, D-35, and the F-02/F-04 conventions. Proposes AC-81–89 and TEST-81–89; local-time copy and two cross-feature behavior questions remain open for review. | A (songt888) | Pending B (stickkersz) |
+| Draft 0.2 | 2026-11-27 | Record the PATCH deadline check and publication scope from the #221 cross-review. | A (songt888) | Pending B (stickkersz) |
