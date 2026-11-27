@@ -2,7 +2,7 @@
 
 Event Registration and Attendance System, CPE 334 group project, Theme 3.
 Covers the whole product; Sprint 1 parts are marked **S1**, later parts **S2** or **S3**.
-Requirement IDs (FR, BR, NFR) come from `docs/srs.md`; decisions (D-xx) from `docs/decisions.md`; features (F-xx) from `docs/features.md`. Detailed endpoint behavior belongs to each feature contract in `docs/sprints/sprint-1/`.
+Requirement IDs (FR, BR, NFR) come from `docs/srs.md`; decisions (D-xx) from `docs/decisions.md`; features (F-xx) from `docs/features.md`. Detailed endpoint behavior belongs to the feature contract in `docs/sprints/sprint-1/` or, for Sprint 2, `docs/sprints/sprint-2/`.
 
 ## 1. Architecture and stack
 
@@ -19,7 +19,7 @@ flowchart LR
 |---|---|---|
 | UI | Screens, forms, client-side input hints, loading/empty/error states. Holds no business rules and no authority over identity or role. | React 18, TypeScript, Vite, React Router |
 | API routes | HTTP mapping, request validation (zod), authentication and role guards, JSON error shape. | Express 4, TypeScript, zod |
-| Service layer | All business rules (BR-01..BR-09), record ownership, state transitions, transactions and row locks. | TypeScript modules, one per feature area |
+| Service layer | All business rules (BR-01..BR-10), record ownership, state transitions, transactions and row locks. | TypeScript modules, one per feature area |
 | Data access | Typed queries, migrations, seed. | Prisma 5 |
 | Database | Durable storage and last-line integrity: foreign keys, CHECK constraints, unique and partial unique indexes. | PostgreSQL 16 |
 
@@ -47,7 +47,7 @@ The UI may hide controls a user cannot use, but hiding is only a convenience; ev
 
 ## 2. Data model
 
-### 2.1 Entities (S1)
+### 2.1 Entities (S1 baseline; S2 additions planned)
 ```mermaid
 erDiagram
   User ||--o{ Session : "has"
@@ -80,6 +80,7 @@ erDiagram
     EventStatus status
     timestamptz createdAt
     timestamptz publishedAt
+    timestamptz registrationDeadline "nullable; S2 (D-35)"
   }
   Registration {
     uuid id PK
@@ -87,6 +88,7 @@ erDiagram
     uuid participantId FK
     RegistrationStatus status
     timestamptz createdAt
+    timestamptz cancelledAt "nullable; S2 (D-33)"
   }
 ```
 
@@ -94,8 +96,8 @@ erDiagram
 |---|---|---|
 | User | `email` unique, lowercase; `passwordHash` bcrypt, never returned by the API (NFR-02); `role` enum `PARTICIPANT` or `ORGANIZER`, one per account (D-09) | itself |
 | Session | `tokenHash` = SHA-256 of the cookie token, unique; `expiresAt` = creation + 1 h (D-08); index on `expiresAt`; cascade delete with its user | its user |
-| Event | `title` 1..120 chars, `location` 1..120, `description` 0..2000; `capacity` integer, CHECK 1..10000 (D-03); `startsAt` timestamptz; `status` enum `DRAFT`, `PUBLISHED` (S1), `CLOSED`, `CANCELLED` (S2); `publishedAt` set on publish | `ownerId` = organizer who created it |
-| Registration | `status` enum `ACTIVE` (S1), `CANCELLED` (S2); partial unique index on `(eventId, participantId) WHERE status = 'ACTIVE'` (D-02) | `participantId` = participant who registered; the event owner may read it |
+| Event | `title` 1..120 chars, `location` 1..120, `description` 0..2000; `capacity` integer, CHECK 1..10000 (D-03); `startsAt` timestamptz; nullable `registrationDeadline` timestamptz (S2, D-35); `status` enum `DRAFT`, `PUBLISHED` (S1), `CLOSED`, `CANCELLED` (S2); `publishedAt` set on publish | `ownerId` = organizer who created it |
+| Registration | `status` enum `ACTIVE` (S1), `CANCELLED` (S2); nullable `cancelledAt` timestamptz (S2, D-33); partial unique index on `(eventId, participantId) WHERE status = 'ACTIVE'` (D-02) | `participantId` = participant who registered; the event owner may read it |
 
 Derived value: `remainingPlaces = capacity - count(Registration WHERE eventId = e AND status = 'ACTIVE')`. It is computed on read, never stored, so it cannot drift from the registrations.
 
@@ -104,10 +106,12 @@ Foreign keys from Event and Registration use `ON DELETE RESTRICT`: S1 has no del
 ### 2.2 Later sprints (planned)
 | Sprint | Change | For |
 |---|---|---|
-| S2 | Registration `CANCELLED` status and `cancelledAt`; Event `registrationDeadline`; Event `CLOSED`, `CANCELLED` | F-07, F-08, F-09 |
+| S2 (planned; contracts under #200) | Registration `CANCELLED` status and `cancelledAt`; Event `registrationDeadline`; Event `CLOSED`, `CANCELLED` | F-07, F-08, F-09 |
 | S3 | Check-in record per ACTIVE registration (`checkedInAt`, `checkedInById`), unique per registration | F-10, F-11, F-12 |
 
 Each change is a new Prisma migration; existing migrations are never edited.
+
+Planned S2 lifecycle transitions from D-33/D-34: an Event moves `DRAFT` to `PUBLISHED` through the existing publish operation, then `PUBLISHED` to `CLOSED`; an owner may move `DRAFT`, `PUBLISHED`, or `CLOSED` to final `CANCELLED`. `CLOSED` remains listed and cannot reopen; `CANCELLED` is omitted from normal browse and its ACTIVE registrations become CANCELLED. An F-07 cancellation changes an owned Registration from `ACTIVE` to `CANCELLED` and retains the row; re-registration creates a separate ACTIVE row. These transitions are planned only and their detailed checks belong to F-07/F-08/F-09 contracts.
 
 ### 2.3 Migrations and seed
 - Schema lives in `server/prisma/schema.prisma`; migrations in `server/prisma/migrations/`, created with `prisma migrate dev` and applied in deployment with `prisma migrate deploy`.
@@ -143,13 +147,20 @@ The header shows the signed-in user's name and role (from `GET /api/me`) and a L
 | Submitting | The submit button is disabled while its request is pending, so a double click cannot send twice |
 | Success | A short confirmation, and the list or detail reloads from the API so the screen shows saved data |
 
+### 3.3 Sprint 2 additions (planned; contracts pending cross-review)
+| Screen | Planned addition | Feature |
+|---|---|---|
+| My registrations | Show a Cancel control only for the participant's ACTIVE registrations; retain a cancelled row with its status after reload. | F-07 (A) |
+| My events / event management | Allow an organizer to edit, close or cancel only their own events according to the F-08 state contract. | F-08 (B) |
+| Create/edit event and event detail | Enter and display an optional registration deadline in the browser's local time; show the API's registration-closed message when a registration is refused. | F-09 (A), F-08 owns event PATCH |
+
 ## 4. API conventions
 
 ### 4.1 Rules
 - REST over HTTPS, JSON bodies, prefix `/api`, plural nouns, camelCase fields.
 - IDs are UUIDs. Times are ISO 8601 in UTC (`2026-11-20T09:00:00.000Z`); the UI shows local time.
 - Every request body is validated with a zod schema before the service is called. Unknown fields are rejected.
-- State-changing requests are `POST` with `Content-Type: application/json`; other content types get 400.
+- State-changing requests use `POST` or, for the F-08 event-edit operation, `PATCH`; each requires `Content-Type: application/json`, and other content types get 400.
 - Responses never contain `passwordHash`, session tokens or token hashes.
 - Lists are small in S1 and not paginated. NFR-05 (S3) revisits this.
 
@@ -161,11 +172,11 @@ The header shows the signed-in user's name and role (from `GET /api/me`) and a L
 
 | Status | Codes | When |
 |---|---|---|
-| 400 | `VALIDATION_ERROR`, `INVALID_START_TIME` | body or parameter invalid; start time not strictly in the future |
+| 400 | `VALIDATION_ERROR`, `INVALID_START_TIME`, `INVALID_DEADLINE` (S2) | body or parameter invalid; start time not strictly in the future; or a supplied non-null registration deadline is not later than now or is later than `startsAt` (D-35) |
 | 401 | `UNAUTHENTICATED`, `INVALID_CREDENTIALS` | no valid session; wrong email or password (one generic message) |
 | 403 | `FORBIDDEN` | wrong role on a role-restricted route (for any event ID), or a non-owner organizer on an owner-only operation of a PUBLISHED event |
-| 404 | `NOT_FOUND`, `EVENT_NOT_FOUND` | record missing, a DRAFT requested by anyone except its owner (when the caller has the route's role), or another participant's registration |
-| 409 | `EVENT_FULL`, `ALREADY_REGISTERED`, `EVENT_STARTED`, `TIME_CONFLICT`, `ALREADY_PUBLISHED` | a business rule rejects the request; nothing is stored |
+| 404 | `NOT_FOUND`, `EVENT_NOT_FOUND` | record missing, a DRAFT requested by anyone except its owner (when the caller has the route's role), a hidden CANCELLED event, or another participant's registration |
+| 409 | `EVENT_FULL`, `ALREADY_REGISTERED`, `EVENT_STARTED`, `TIME_CONFLICT`, `ALREADY_PUBLISHED`, `ALREADY_CANCELLED`, `CAPACITY_BELOW_ACTIVE`, `EVENT_HAS_REGISTRATIONS`, `EVENT_CLOSED`, `REGISTRATION_CLOSED` (S2) | a business rule rejects the request; the F-07/F-08/F-09 contracts define each state check and precedence before implementation |
 | 500 | `INTERNAL_ERROR` | unexpected failure; generic message, details logged on the server only, no stack trace |
 
 ### 4.3 Endpoint inventory (S1)
@@ -187,6 +198,19 @@ The feature contracts define request, response and error details. This table fix
 | `GET /api/events/:id/registrations` | registrations of an event | owning organizer | F-06 | AC-19..AC-21 |
 
 Express route order: `/api/events/mine` is declared before `/api/events/:id`.
+
+### 4.4 Sprint 2 endpoint additions (planned; contracts pending cross-review)
+
+| Method and path | Purpose | Role | Feature | Main AC |
+|---|---|---|---|---|
+| `PATCH /api/events/:id` | Edit an owner's event; F-09 supplies the optional `registrationDeadline` field and its validation rules | owning organizer | F-08 route; F-09 field rules | F-08 proposed AC-90..AC-109; F-09 proposed AC-82, AC-84..AC-87 |
+| `POST /api/events/:id/close` | Move an eligible PUBLISHED event to CLOSED | owning organizer | F-08 | F-08 proposed AC-90..AC-109 |
+| `POST /api/events/:id/cancel` | Cancel an eligible event and its ACTIVE registrations in one transaction | owning organizer | F-08 | F-08 proposed AC-90..AC-109 |
+| `POST /api/registrations/:id/cancel` | Cancel the caller's own ACTIVE registration | participant | F-07 | AC-73..AC-79 |
+| `POST /api/events` | Add the optional `registrationDeadline` field to event creation | organizer | F-02 route; F-09 field rules | F-09 proposed AC-81..AC-82, AC-84, AC-87 |
+| `POST /api/events/:id/registrations` | Apply the deadline check in the existing registration flow | participant | F-04 route; F-09 deadline rule | F-09 proposed AC-83, AC-88 |
+
+Every Event response from `POST /api/events`, `GET /api/events/mine`, `GET /api/events/:id`, `GET /api/events`, and `PATCH /api/events/:id` includes `registrationDeadline` as a UTC ISO 8601 instant or `null`, for My events, detail, browse, and edit screens. F-02 owns create, My events, and detail; F-03 owns the published list; F-08 owns PATCH; F-09 defines only the deadline field semantics. These are planned contract changes, not implemented behavior or verified results.
 
 ## 5. Roles and permissions
 
@@ -211,14 +235,20 @@ Columns: **Anon** = no session; **Part** = participant; **Org own** = organizer 
 Check order on every protected route: session (401), then role (403), then existence and ownership (404 for a DRAFT or a foreign registration, 403 for a non-owner on a PUBLISHED event). So a participant who calls an organizer-only route gets 403 for every event ID, DRAFT or not, as AC-21 expects; the same answer for every ID reveals nothing. The DRAFT 404 rule applies to organizers who do not own the event (D-13).
 
 ### 5.2 Record access
-| Record | Who can read it | Who can change it (S1) |
+| Record | Who can read it | Who can change it |
 |---|---|---|
 | User | the user (via `/api/me`); the owning organizer sees registrants' name and email only | nobody (seeded) |
-| Event (DRAFT) | its owner | its owner (publish) |
-| Event (PUBLISHED) | every signed-in user | nobody in S1 (edit, close, cancel are S2) |
-| Registration | its participant; the event's owner | created by its participant; cancel is S2 |
+| Event (DRAFT) | its owner | its owner (publish in S1; edit/cancel rules are S2) |
+| Event (PUBLISHED) | every signed-in user | nobody in S1; owner edit/close/cancel rules are S2 (F-08) |
+| Event (CLOSED/CANCELLED) | CLOSED remains listed; CANCELLED is omitted from normal browse and remains in its owner's My events list (D-34) | owner lifecycle rules are S2 (F-08) |
+| Registration | its participant; the event's owner | created by its participant in S1; F-07 may cancel the participant's own ACTIVE row in S2 |
 
 Identity and role always come from the session on the server. The API never accepts a user ID or role from the client for authorization.
+
+### 5.3 Sprint 2 authorization notes (planned)
+- F-07 cancellation requires a PARTICIPANT session and scopes the row to that session user. A foreign or unknown registration ID has the same 404 result; an ORGANIZER receives 403 (D-13, D-33).
+- F-08 event management is owner-only and takes identity from the session. The F-08 contract supplies operation-specific state and D-13 ownership precedence before implementation.
+- F-09 does not add a role or permission; deadline checks are part of the existing F-04 registration and F-02/F-08 event-write operations.
 
 ## 6. Authentication and session lifecycle (D-08)
 
@@ -245,14 +275,14 @@ Identity and role always come from the session on the server. The API never acce
 ## 8. Configuration and secrets
 | Variable | Used by | Example in `.env.example` | Secret |
 |---|---|---|---|
-| `DATABASE_URL` | server, Prisma | `postgresql://app:app@localhost:5432/eventreg` | yes in production |
-| `DATABASE_URL_TEST` | integration tests (D-14) | `postgresql://app:app@localhost:5432/eventreg_test` | no (local only) |
-| `DATABASE_URL_E2E` | Playwright E2E (D-14) | `postgresql://app:app@localhost:5432/eventreg_e2e` | no (local only) |
+| `DATABASE_URL` | server, Prisma | local PostgreSQL connection from `.env.example` (value omitted) | yes in production |
+| `DATABASE_URL_TEST` | integration tests (D-14) | local test database connection from `.env.example` (value omitted) | no (local only) |
+| `DATABASE_URL_E2E` | Playwright E2E (D-14) | local E2E database connection from `.env.example` (value omitted) | no (local only) |
 | `PORT` | server | `3000` | no |
 | `NODE_ENV` | server | `development` | no |
 | `SESSION_TTL_MINUTES` | session lifetime | `60` | no |
 | `COOKIE_SECURE` | cookie `Secure` flag | `false` (local), `true` (production) | no |
-| `SEED_PASSWORD` | seed script | `change-me` | yes |
+| `SEED_PASSWORD` | seed script | local-only placeholder (value omitted) | yes |
 
 - Only `.env.example`, with placeholder values, is committed; `.env` and `.env.*` are gitignored.
 - No secret is placed in client code, docs, screenshots or the PDF.
@@ -287,13 +317,13 @@ flowchart LR
 ## 11. NFR design mapping
 | NFR | Design element | Section |
 |---|---|---|
-| NFR-01 unauthenticated → 401, no private data | `requireSession` on every protected route | 1.3, 6 |
+| NFR-01 unauthenticated → 401, no private data | `requireSession` on every protected route | 1.3, 5.3, 6 |
 | NFR-02 bcrypt cost ≥ 10, hash never returned | bcrypt cost 12; response mappers omit `passwordHash` | 2.1, 6 |
-| NFR-03 backend role and ownership checks | `requireRole` + service ownership checks; matrix | 1.3, 5 |
+| NFR-03 backend role and ownership checks | `requireRole` + service ownership checks; S1 matrix and S2 authorization notes | 1.3, 5 |
 | NFR-04 20 parallel requests, capacity 5 → exactly 5 ACTIVE | row lock transaction (D-10); verified by TEST-37 | 1.3, 9 |
 | NFR-05 list p95 < 500 ms with 1,000 events (S3) | indexed `status`, `startsAt`; pagination if needed | 4.1 |
 | NFR-06 data survives restart | PostgreSQL volume locally, Cloud SQL in production | 8, 10 |
-| NFR-07 server validation, uniform errors, no stack traces | zod at routes, one error handler | 4.2, 7 |
+| NFR-07 server validation, uniform errors, no stack traces | zod at routes, one error handler | 4.2, 4.4, 7 |
 | NFR-08 runs from README in ≤ 10 commands | docker compose + npm scripts | 2.3, 8 |
 | NFR-09 loading, empty, error states | shared UI behavior | 3.2 |
 
@@ -303,3 +333,4 @@ flowchart LR
 | 1.0 | 2026-11-07 | First System-Level SDS for Deliverable 1 (Issue #15) | B (stickkersz) | A (songt888) |
 | 1.1 | 2026-11-07 | PR #49 review: `/api/me` fields match FR-03; check order and D-13 precedence made explicit; NFR-04 verified by TEST-37 | B (stickkersz) | A (songt888) |
 | 1.2 | 2026-11-27 | Lab 7 CR-01 (#134): BR-10 row in 1.3 with the lock order event row, then participant row (extends D-10); `TIME_CONFLICT` in the 4.2 409 codes; TEST-60 in 9 | B (stickkersz), with Claude Code | A (songt888) |
+| 1.3 draft | 2026-11-27 | Issue #200 contract preparation: mark S2 data additions, API error codes, endpoint additions, Event response fields and authorization as planned from D-33..D-35. F-07/F-09 are A's drafts; F-08 remains B-owned. Configuration examples omit connection credentials and seed-password values. No S2 behavior is implemented or verified. | A (songt888) | Pending B (stickkersz) |
