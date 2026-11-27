@@ -93,8 +93,8 @@ NFR-04 is a separate capacity-5 scenario; it must not replace the competing-last
 - One account has one fixed role for the S1 scope. Broader organizer authority and account administration are not assumed.
 - The application uses persistent PostgreSQL; registration counts refer to ACTIVE registrations. Future statuses do not silently change S1 counting rules.
 - Current time is checked by the backend. D-12 specifies controlled service time for boundary tests. Proposed D-35 stores registration deadlines in UTC, takes/displays them in browser-local time and closes registration at equality; B must cross-review the draft before implementation.
-- S2 contracts are being prepared under Issue #200 before test or code work. D-33 and D-35 have draft F-07/F-09 contracts from A; F-08 is owned by B. Unresolved cross-contract questions (including PATCHing `startsAt` while a stored deadline exists and publishing after a deadline has passed) remain open; no behavior beyond D-33..D-35 is agreed by this draft.
-- Later-sprint details still to agree: permitted edit/close/cancel transitions under F-08; event check-in window; the point at which no-shows are counted; performance sampling parameters. These do not remove FR-09..14 or BR-06..08 from the baseline.
+- S2 contracts are being prepared under Issue #200 before test or code work. D-33 and D-35 have draft F-07/F-09 contracts from A; F-08 is owned by B. Agreed on #200: a PATCH that moves `startsAt` before a stored deadline gets 400 `INVALID_DEADLINE`, and publishing after a passed deadline stays outside the contracts. F-08 adds result codes only for the refused moves D-34 leaves unnamed; no behavior beyond D-33..D-35 is added.
+- Later-sprint details still to agree: event check-in window; the point at which no-shows are counted; performance sampling parameters. These do not remove FR-09..14 or BR-06..08 from the baseline.
 - NFR-08's command-count convention and prerequisites must be explicit in the foundation README. Do not claim that a clean-clone setup has been verified before the teammate actually runs it.
 
 ## 7. Confirmed decisions

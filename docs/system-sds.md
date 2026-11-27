@@ -176,7 +176,7 @@ The header shows the signed-in user's name and role (from `GET /api/me`) and a L
 | 401 | `UNAUTHENTICATED`, `INVALID_CREDENTIALS` | no valid session; wrong email or password (one generic message) |
 | 403 | `FORBIDDEN` | wrong role on a role-restricted route (for any event ID), or a non-owner organizer on an owner-only operation of a PUBLISHED event |
 | 404 | `NOT_FOUND`, `EVENT_NOT_FOUND` | record missing, a DRAFT requested by anyone except its owner (when the caller has the route's role), a hidden CANCELLED event, or another participant's registration |
-| 409 | `EVENT_FULL`, `ALREADY_REGISTERED`, `EVENT_STARTED`, `TIME_CONFLICT`, `ALREADY_PUBLISHED`, `ALREADY_CANCELLED`, `CAPACITY_BELOW_ACTIVE`, `EVENT_HAS_REGISTRATIONS`, `EVENT_CLOSED`, `REGISTRATION_CLOSED` (S2) | a business rule rejects the request; the F-07/F-08/F-09 contracts define each state check and precedence before implementation |
+| 409 | `EVENT_FULL`, `ALREADY_REGISTERED`, `EVENT_STARTED`, `TIME_CONFLICT`, `ALREADY_PUBLISHED`, `ALREADY_CANCELLED`, `CAPACITY_BELOW_ACTIVE`, `EVENT_HAS_REGISTRATIONS`, `EVENT_NOT_EDITABLE`, `EVENT_NOT_PUBLISHED`, `ALREADY_CLOSED`, `EVENT_CLOSED`, `REGISTRATION_CLOSED` (S2) | a business rule rejects the request; the F-07/F-08/F-09 contracts define each state check and precedence before implementation |
 | 500 | `INTERNAL_ERROR` | unexpected failure; generic message, details logged on the server only, no stack trace |
 
 ### 4.3 Endpoint inventory (S1)
@@ -203,9 +203,9 @@ Express route order: `/api/events/mine` is declared before `/api/events/:id`.
 
 | Method and path | Purpose | Role | Feature | Main AC |
 |---|---|---|---|---|
-| `PATCH /api/events/:id` | Edit an owner's event; F-09 supplies the optional `registrationDeadline` field and its validation rules | owning organizer | F-08 route; F-09 field rules | F-08 proposed AC-90..AC-109; F-09 proposed AC-82, AC-84..AC-87 |
-| `POST /api/events/:id/close` | Move an eligible PUBLISHED event to CLOSED | owning organizer | F-08 | F-08 proposed AC-90..AC-109 |
-| `POST /api/events/:id/cancel` | Cancel an eligible event and its ACTIVE registrations in one transaction | owning organizer | F-08 | F-08 proposed AC-90..AC-109 |
+| `PATCH /api/events/:id` | Edit an owner's event; F-09 supplies the optional `registrationDeadline` field and its validation rules | owning organizer | F-08 route; F-09 field rules | F-08 AC-90..AC-96, AC-102, AC-103, AC-105, AC-107; F-09 proposed AC-82, AC-84..AC-87 |
+| `POST /api/events/:id/close` | Move an eligible PUBLISHED event to CLOSED | owning organizer | F-08 | F-08 AC-97, AC-98, AC-102, AC-103, AC-106 |
+| `POST /api/events/:id/cancel` | Cancel an eligible event and its ACTIVE registrations in one transaction | owning organizer | F-08 | F-08 AC-99..AC-103, AC-106, AC-108, AC-109 |
 | `POST /api/registrations/:id/cancel` | Cancel the caller's own ACTIVE registration | participant | F-07 | AC-73..AC-79 |
 | `POST /api/events` | Add the optional `registrationDeadline` field to event creation | organizer | F-02 route; F-09 field rules | F-09 proposed AC-81..AC-82, AC-84, AC-87 |
 | `POST /api/events/:id/registrations` | Apply the deadline check in the existing registration flow | participant | F-04 route; F-09 deadline rule | F-09 proposed AC-83, AC-88 |
@@ -247,7 +247,7 @@ Identity and role always come from the session on the server. The API never acce
 
 ### 5.3 Sprint 2 authorization notes (planned)
 - F-07 cancellation requires a PARTICIPANT session and scopes the row to that session user. A foreign or unknown registration ID has the same 404 result; an ORGANIZER receives 403 (D-13, D-33).
-- F-08 event management is owner-only and takes identity from the session. The F-08 contract supplies operation-specific state and D-13 ownership precedence before implementation.
+- F-08 event management is owner-only and takes identity from the session. A participant gets 403; another organizer gets 403 for a PUBLISHED or CLOSED event and 404 for a DRAFT, CANCELLED or missing event (D-13, F-08 section 5).
 - F-09 does not add a role or permission; deadline checks are part of the existing F-04 registration and F-02/F-08 event-write operations.
 
 ## 6. Authentication and session lifecycle (D-08)
@@ -334,3 +334,4 @@ flowchart LR
 | 1.1 | 2026-11-07 | PR #49 review: `/api/me` fields match FR-03; check order and D-13 precedence made explicit; NFR-04 verified by TEST-37 | B (stickkersz) | A (songt888) |
 | 1.2 | 2026-11-27 | Lab 7 CR-01 (#134): BR-10 row in 1.3 with the lock order event row, then participant row (extends D-10); `TIME_CONFLICT` in the 4.2 409 codes; TEST-60 in 9 | B (stickkersz), with Claude Code | A (songt888) |
 | 1.3 draft | 2026-11-27 | Issue #200 contract preparation: mark S2 data additions, API error codes, endpoint additions, Event response fields and authorization as planned from D-33..D-35. F-07/F-09 are A's drafts; F-08 remains B-owned. Configuration examples omit connection credentials and seed-password values. No S2 behavior is implemented or verified. | A (songt888) | Pending B (stickkersz) |
+| 1.4 draft | 2026-11-27 | F-08 contract (#200): 409 codes `EVENT_NOT_EDITABLE`, `EVENT_NOT_PUBLISHED`, `ALREADY_CLOSED`; F-08 AC per endpoint in 4.4; F-08 permissions in 5.3. Planned only, nothing implemented. | B (stickkersz) | Pending A (songt888) |
