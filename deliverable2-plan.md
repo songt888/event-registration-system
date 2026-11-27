@@ -34,21 +34,21 @@ Migrations only add (D-20): enum values `CLOSED`, `CANCELLED` (Event) and `CANCE
 
 ## 2. Issues (label `sprint-2` or `sprint-3`)
 
-Same Kanban (Backlog → Specified → Started → PR Review → Fixing → Done) on a new board "Event Registration - Sprint 2/3". Every feature: contract PR merged first → red commit → green commit → evidence → PR reviewed by the other student → merged into staging. Test names carry IDs: `TEST-73 AC-73 ...`. New IDs continue from AC-72 / TEST-72.
+Same Kanban (Backlog → Specified → Started → PR Review → Fixing → Done) on the board "Event Registration - Sprint 2/3" (https://github.com/users/songt888/projects/7). Every feature: contract PR merged first → red commit → green commit → evidence → PR reviewed by the other student → merged into staging. Test names carry IDs: `TEST-73 AC-73 ...`. New IDs continue from AC-72 / TEST-72.
 
 | Issue | Work | Author | Reviewer | Branch | Done when |
 |---|---|---|---|---|---|
-| S2-00 | this plan, D-32 to D-38, `sprint-2-staging`, CI trigger, ruleset | A | B | `docs/s2-00-plan` | merged; staging protected; CI ran |
-| S2-01 | **Contracts F-07, F-08, F-09**: feature SDS, workflow, UI/API/data, validation and errors, permissions, AC, STS, DoD, version rows; SRS/system SDS/traceability rows | A: F-07, F-09. B: F-08 | cross | `docs/s2-01-contracts` | merged **before** any S2 test commit |
-| S2-02 | Migration: enum values, `cancelledAt`, `registrationDeadline` (no behavior change); `prisma migrate dev` shows no drift and keeps the ACTIVE partial index | A | B | `feature/s2-02-schema` | migration runs on test DB and in CI; 73 old tests pass |
-| S2-03 | **F-07 Cancel registration**: red API tests (own, foreign 404, twice, started, re-register, place freed, BR-10 slot freed), green service + route, My registrations Cancel button, E2E | B red, A green | each reviews the other's half | `feature/s2-03-cancel` | AC green; E2E green |
-| S2-04 | **F-08 Manage event**: edit, capacity floor under the lock, close, cancel (cascades registrations), owner-only, UI on My events / event page | B | A | `feature/s2-04-manage-event` | AC green; E2E green |
-| S2-05 | **F-09 Registration deadline**: create/edit field, boundary before/at/after, null = old rule, check order, UI field and message | A | B | `feature/s2-05-deadline` | AC green |
-| S2-06 | Sprint 2 integration and release: full suite, E2E, cross-feature checks, release PR → `main`, tag `v0.3.0-sprint2`, deploy, post-deploy checks | A | B | release PR | deployed; evidence |
-| S3-01 | **Contracts F-10 to F-13** (all remaining features, enough UI/API/data detail; D-36 to D-38) | B: F-10, F-11. A: F-12, F-13 | cross | `docs/s3-01-contracts` | merged before the F-10 red commit |
-| S3-02 | **F-10 Check-in** (the implemented Sprint 3 rule): `CheckIn` table, red API tests (window boundaries, repeat, cancelled, foreign owner, participant), green, check-in button on the organizer registrations page | B | A | `feature/s3-02-checkin` | AC green; E2E or API journey |
-| S3-03 | Release candidate: `sprint-3-staging` → `main`, tag `v0.4.0-rc1`, deploy, regression, post-deploy checks | A | B | release PR | submitted version deployed |
-| S3-04 | D2 PDF | A: Parts B, D (35 pts). B: Parts A, C, E (35 pts) | cross-check | `docs/s3-04-pdf` | one PDF, submitted |
+| S2-00 (#199) | this plan, D-32 to D-38, `sprint-2-staging`, CI trigger, ruleset | A | B | `docs/s2-00-plan` | merged; staging protected; CI ran |
+| S2-01 (#200) | **Contracts F-07, F-08, F-09**: feature SDS, workflow, UI/API/data, validation and errors, permissions, AC, STS, DoD, version rows; SRS/system SDS/traceability rows | A: F-07, F-09. B: F-08 | cross | `docs/s2-01-contracts` | merged **before** any S2 test commit |
+| S2-02 (#201) | Migration: enum values, `cancelledAt`, `registrationDeadline` (no behavior change); `prisma migrate dev` shows no drift and keeps the ACTIVE partial index | A | B | `feature/s2-02-schema` | migration runs on test DB and in CI; 73 old tests pass |
+| S2-03 (#202) | **F-07 Cancel registration**: red API tests (own, foreign 404, twice, started, re-register, place freed, BR-10 slot freed), green service + route, My registrations Cancel button, E2E | B red, A green | each reviews the other's half | `feature/s2-03-cancel` | AC green; E2E green |
+| S2-04 (#203) | **F-08 Manage event**: edit, capacity floor under the lock, close, cancel (cascades registrations), owner-only, UI on My events / event page | B | A | `feature/s2-04-manage-event` | AC green; E2E green |
+| S2-05 (#204) | **F-09 Registration deadline**: create/edit field, boundary before/at/after, null = old rule, check order, UI field and message | A | B | `feature/s2-05-deadline` | AC green |
+| S2-06 (#205) | Sprint 2 integration and release: full suite, E2E, cross-feature checks, release PR → `main`, tag `v0.3.0-sprint2`, deploy, post-deploy checks | A | B | release PR | deployed; evidence |
+| S3-01 (#206) | **Contracts F-10 to F-13** (all remaining features, enough UI/API/data detail; D-36 to D-38) | B: F-10, F-11. A: F-12, F-13 | cross | `docs/s3-01-contracts` | merged before the F-10 red commit |
+| S3-02 (#207) | **F-10 Check-in** (the implemented Sprint 3 rule): `CheckIn` table, red API tests (window boundaries, repeat, cancelled, foreign owner, participant), green, check-in button on the organizer registrations page | B | A | `feature/s3-02-checkin` | AC green; E2E or API journey |
+| S3-03 (#208) | Release candidate: `sprint-3-staging` → `main`, tag `v0.4.0-rc1`, deploy, regression, post-deploy checks | A | B | release PR | submitted version deployed |
+| S3-04 (#209) | D2 PDF | A: Parts B, D (35 pts). B: Parts A, C, E (35 pts) | cross-check | `docs/s3-04-pdf` | one PDF, submitted |
 | later (by 13 Dec) | F-11 attendance report, F-12 dashboard, F-13 hardening, NFR-05, final UAT retests, video, final release | see section 5 | | | |
 
 F-10 also needs F-07 (a cancelled registration cannot check in) and F-08 (a cancelled event), so S3-02 starts after S2-03 and S2-04 are merged.
