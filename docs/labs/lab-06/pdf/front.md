@@ -22,11 +22,11 @@ No password, token, cookie, connection string or key appears in this PDF or its 
 
 | Part | Content | Author / checker | Pages | Evidence IDs |
 |---|---|---|---|---|
-| A | UAT preparation and handoff (our product, Product Team role) | A / B | PAGES_A | E-A1 to E-A3 |
-| B | Independent execution (Est's product, UAT Team role) | A / B | PAGES_B | E-B01-1 to E-B06-2 |
-| C | Reports, triage and corrections | B / A | PAGES_C | E-C141 to E-C154, E-C-B (l6-05); Est's report screenshots on Est #121 to #133; l6-03-explore x02 to x09 |
-| D | Retest and final acceptance decisions | B / A | PAGES_D | E-D-L606 to E-D-L620; B retest R-121 to R-132, R2-132 (l6-07b); A retest E-R-122 to E-R-U05 (l6-07b-a) |
-| Appendices | A1 cases, A2 handoff, A3 review text, A4 Est's decision, B1 execution record | | PAGES_APP | |
+| A | UAT preparation and handoff (our product, Product Team role) | A / B | 3–4 | E-A1 to E-A3 |
+| B | Independent execution (Est's product, UAT Team role) | A / B | 5–11 | E-B01-1 to E-B06-2 |
+| C | Reports, triage and corrections | B / A | 12–14 | E-C141 to E-C154, E-C-B (l6-05); Est's report screenshots on Est #121 to #133; l6-03-explore x02 to x09 |
+| D | Retest and final acceptance decisions | B / A | 15–22 | E-D-L606 to E-D-L620; B retest R-121 to R-132, R2-132 (l6-07b); A retest E-R-122 to E-R-U05 (l6-07b-a) |
+| Appendices | A1 cases, A2 handoff, A3 review text, A4 Est's decision, B1 execution record | | 23–37 | |
 
 ## Version table
 
