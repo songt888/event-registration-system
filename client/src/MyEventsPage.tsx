@@ -8,6 +8,7 @@ export type EventPayload = {
   description: string;
   location: string;
   startsAt: string;
+  registrationDeadline: string | null;
   capacity: number;
   remainingPlaces: number;
   status: 'DRAFT' | 'PUBLISHED';
