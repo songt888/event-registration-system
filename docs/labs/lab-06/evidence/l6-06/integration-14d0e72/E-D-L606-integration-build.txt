@@ -1,0 +1,9 @@
+commit: 14d0e72598b885e61b4ade475e07e60b02b24e3c
+date: 2026-11-26T16:00:07Z
+node: v24.16.0
+$ npm run build
+computing gzip size...
+dist/index.html                   0.40 kB │ gzip:  0.27 kB
+dist/assets/index-DM5hmvTK.css   14.67 kB │ gzip:  4.45 kB
+dist/assets/index-CcXia3Aw.js   190.50 kB │ gzip: 62.00 kB
+✓ built in 389ms
