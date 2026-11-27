@@ -3,6 +3,7 @@ import { AppError, forbidden } from './lib/errors.js';
 import { prisma } from './lib/prisma.js';
 
 const notFound = () => new AppError(404, 'EVENT_NOT_FOUND', 'Event not found.');
+const registrationNotFound = () => new AppError(404, 'NOT_FOUND', 'Registration not found.');
 const started = () => new AppError(409, 'EVENT_STARTED', 'This event has already started.');
 const alreadyRegistered = () => new AppError(409, 'ALREADY_REGISTERED', 'You are already registered for this event.');
 const full = () => new AppError(409, 'EVENT_FULL', 'This event has no places left.');
@@ -95,6 +96,31 @@ export function listMyRegistrations(participantId: string) {
 // Unknown ID and another participant's row give the same 404 (D-13).
 export async function getMyRegistration(participantId: string, id: string) {
   const r = await prisma.registration.findFirst({ where: { id, participantId }, select: mineSelect });
-  if (!r) throw new AppError(404, 'NOT_FOUND', 'Registration not found.');
+  if (!r) throw registrationNotFound();
   return r;
+}
+
+export function cancelRegistration(participantId: string, id: string, now: Date) {
+  return prisma.$transaction(async (tx) => {
+    // D-10: serialize with registration and event cancellation on the same event.
+    const [event] = await tx.$queryRaw<{ startsAt: Date }[]>`
+      SELECT e."startsAt" FROM "Event" e
+      JOIN "Registration" r ON r."eventId" = e.id
+      WHERE r.id = ${id}::uuid AND r."participantId" = ${participantId}::uuid
+      FOR UPDATE OF e`;
+    if (!event) throw registrationNotFound();
+
+    const registration = await tx.registration.findFirst({ where: { id, participantId }, select: { status: true } });
+    if (!registration) throw registrationNotFound();
+    if (registration.status === 'CANCELLED') {
+      throw new AppError(409, 'ALREADY_CANCELLED', 'This registration has already been cancelled.');
+    }
+    if (event.startsAt.getTime() <= now.getTime()) throw started();
+
+    return tx.registration.update({
+      where: { id, participantId },
+      data: { status: 'CANCELLED', cancelledAt: now },
+      select: { ...mineSelect, cancelledAt: true },
+    });
+  }, { maxWait: 15000, timeout: 15000 });
 }
