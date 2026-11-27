@@ -94,10 +94,10 @@ Plan: `lab7-plan.md` (Issues #132 to #140). Handout: `CPE334 Lab 7` (in the user
 - IDs continue from BR-10, AC-57 to AC-61, TEST-57 to TEST-61; further Lab 7 IDs take the next free number. AC-56/TEST-56, AC-62 to AC-72 and D-26 to D-29 belong to Lab 6.
 - Existing data is never migrated or cancelled for CR-01; production is never reset (D-20). Post-deployment checks use uniquely named synthetic events.
 
-## Deliverable 2 (Sprint 2 completion and Sprint 3 progress): rules that apply to Sprint 2/3 work
-Plan: `deliverable2-plan.md` (Issues S2-00 to S3-04, decisions D-32 to D-38). Handout: `project_deliverable_2_v1` (in the user's Downloads). Everything above still applies.
-- Sprint 2 integrates on `sprint-2-staging` and releases to `main` as `v0.3.0-sprint2`; Sprint 3 progress integrates on `sprint-3-staging` and the D2 candidate is `v0.4.0-rc1` (D-32). Branches `feature/s2-NN-topic` / `feature/s3-NN-topic` (also `docs/`, `fix/`); labels `sprint-2`, `sprint-3`. Lab work stays in its own Issues and PRs.
-- The rules in D-33 to D-38 go into the feature contracts before any test; do not invent other rules in code. Contract PR merged first, then a red commit, then green.
+## Deliverable 2 (Sprint 2): rules that apply to Sprint 2 work
+Plan: `deliverable2-plan.md` (Issues S2-00 to S2-07, decisions D-32 to D-35; D-36 to D-38 are deferred to Sprint 3). Handout: `project_deliverable_2_v1` (in the user's Downloads). Everything above still applies.
+- Sprint 2 integrates on `sprint-2-staging` and releases to `main` as `v0.3.0-sprint2`, which is also the D2 candidate (D-32). Branches `feature/s2-NN-topic` (also `docs/`, `fix/`); label `sprint-2`. Sprint 3 is planned later; do not start Sprint 3 work from this plan. Lab work stays in its own Issues and PRs.
+- The rules in D-33 to D-35 go into the feature contracts before any test; do not invent other rules in code. Contract PR merged first, then a red commit, then green.
 - Migrations only add (D-20): new enum values, nullable columns, new tables. Production data is never reset.
 - New AC/TEST IDs continue from AC-73 / TEST-73.
 - An unfinished Sprint 2 feature is reported as incomplete in the Sprint 2 completion table; it is never moved to Sprint 3 to look complete.
