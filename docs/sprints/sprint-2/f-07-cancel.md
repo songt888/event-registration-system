@@ -16,7 +16,7 @@ Sources: `docs/srs.md` (FR-09, BR-03, BR-05, BR-07, NFR-01, NFR-03, NFR-07, NFR-
 | NFR-03 | The caller is derived from the session. The request cannot choose a participant ID or role. |
 | NFR-07 | Inputs are validated by the API; errors use the system SDS envelope and contain no stack trace. |
 | NFR-09 | My registrations shows the registration status and readable API errors; the Cancel control is available only for an ACTIVE row. |
-| D-10 | The existing registration transaction locks the event row before its capacity and duplicate checks. B proposed reusing the event-row lock for cancellation so a concurrent registration sees the committed active count; confirm the cancellation sequence in section 12 before RED. |
+| D-10 | Cancellation locks the event row first so a concurrent registration sees the committed active count. |
 | D-13 | A caller with the wrong role receives 403 before record lookup; a participant receives the same 404 for a foreign or unknown registration. |
 | D-33 | Only the session participant's ACTIVE registration can be cancelled, and only while `startsAt > now`; the row is retained with `status = CANCELLED` and `cancelledAt` set. A started event returns 409 `EVENT_STARTED`; an already-cancelled row returns 409 `ALREADY_CANCELLED`; an organizer receives 403. Cancelled rows do not count for capacity, duplicates, or BR-10. |
 
@@ -56,7 +56,7 @@ F-08 owns event cancellation and its transactional cancellation of ACTIVE regist
 | Re-register after cancellation, all F-04 conditions satisfied | F-04 registration succeeds with a new ACTIVE row; the prior CANCELLED row remains. |
 | Unexpected server or database failure | 500 `INTERNAL_ERROR`; generic message, no stack trace, transaction makes no partial cancellation. |
 
-When the registration is already CANCELLED and its event has also started, D-33 names both 409 codes but does not define which one takes precedence. B proposed `ALREADY_CANCELLED` before `EVENT_STARTED` in the #200 discussion. This combined-condition result remains pending cross-review; TEST-76 covers the two conditions separately until A and B agree.
+For an owned CANCELLED registration on an event that has already started, return 409 `ALREADY_CANCELLED` before checking `EVENT_STARTED` (#200).
 
 ## 5. Permissions
 
@@ -78,7 +78,7 @@ Ownership is enforced in the service from the session user. The UI hiding a cont
 
 - Auth: session cookie required. Role: `PARTICIPANT`.
 - Request: UUID path parameter; empty JSON object `{}`; no participant or status fields.
-- Success proposal from B's #200 comment: HTTP 200 with `{ "registration": { ... } }`, using the My registrations row fields plus `status: "CANCELLED"` and `cancelledAt`. Confirm the exact fields and status with B before finalizing the contract.
+- Success: HTTP 200 with `{ "registration": { ... } }`, using the My registrations row fields plus `status: "CANCELLED"` and `cancelledAt`.
 - Errors: 400 `VALIDATION_ERROR`; 401 `UNAUTHENTICATED`; 403 `FORBIDDEN`; 404 `NOT_FOUND`; 409 `ALREADY_CANCELLED` or `EVENT_STARTED`; 500 `INTERNAL_ERROR`.
 - All errors use `{ "error": { "code": "...", "message": "..." } }`; 400 validation may add `details` as specified in system SDS 4.2. Responses never include a stack trace or another participant's registration.
 
@@ -89,7 +89,7 @@ Ownership is enforced in the service from the session user. The UI hiding a cont
 | `FORBIDDEN` | "You do not have access to this." (system SDS 4.2) |
 | `NOT_FOUND` | "Registration not found." (F-05/F-06 contract) |
 | `EVENT_STARTED` | "This event has already started." (F-04 contract) |
-| `ALREADY_CANCELLED` | Proposed: "This registration has already been cancelled." Final text must be confirmed in the shared system SDS before the RED commit. |
+| `ALREADY_CANCELLED` | "This registration has already been cancelled." |
 
 ## 8. Data and integrity
 
@@ -99,16 +99,16 @@ Ownership is enforced in the service from the session user. The UI hiding a cont
 - `remainingPlaces = capacity - count(ACTIVE registrations)`. The value is derived from the active count; no counter column is introduced.
 - `cancelledAt` is null for ACTIVE rows and set to the server time for a row changed to CANCELLED by F-07. If F-08 cancels an event and its registrations, that feature's contract defines its transaction.
 
-## 9. Acceptance criteria (proposed ID allocation)
+## 9. Acceptance criteria
 
-The allocation below follows the #200 discussion: A's F-07/F-09 work uses AC/TEST-73–89, with F-07 assigned 73–80 and F-09 reserved 81–89; B proposed 90–109 for F-08. The allocation remains proposed until cross-review. No IDs are assigned to F-08 in this file.
+The agreed #200 allocation is AC/TEST-73–80 for F-07, 81–89 for F-09, and 90–109 for F-08.
 
 | ID | Acceptance criterion | Linked |
 |---|---|---|
-| AC-73 | For the signed-in participant's own ACTIVE registration, cancellation before `startsAt` returns the proposed HTTP 200 response from section 7, retains the same registration row with status CANCELLED and non-null `cancelledAt`, and the following My registrations read still shows that row as CANCELLED. The exact response fields await cross-review. | FR-09, BR-03, BR-05, BR-07, D-33 |
+| AC-73 | For the signed-in participant's own ACTIVE registration, cancellation before `startsAt` returns the HTTP 200 response from section 7, retains the same registration row with status CANCELLED and non-null `cancelledAt`, and the following My registrations read still shows that row as CANCELLED. | FR-09, BR-03, BR-05, BR-07, D-33 |
 | AC-74 | Requests with no cookie, an unknown token, an expired session, or a revoked/logged-out session return 401 `UNAUTHENTICATED`. An organizer receives 403 `FORBIDDEN` for a valid or malformed registration ID. A participant's non-UUID ID returns 400 `VALIDATION_ERROR`. No case changes a registration; guard order is session, role, then UUID validation. | NFR-01, NFR-03, NFR-07, D-13 |
 | AC-75 | A participant's request for a foreign or unknown UUID returns the same 404 `NOT_FOUND`, with no registration data and no change to the foreign row. | FR-09, BR-05, D-13 |
-| AC-76 | An owned CANCELLED row returns 409 `ALREADY_CANCELLED`; an owned ACTIVE row whose `startsAt` is equal to or earlier than `now` returns 409 `EVENT_STARTED`. Each rejection leaves stored data unchanged. The combined already-cancelled-and-started precedence is not asserted until A and B agree. | FR-09, BR-07, D-33 |
+| AC-76 | An owned CANCELLED row returns 409 `ALREADY_CANCELLED`; an owned ACTIVE row whose `startsAt` is equal to or earlier than `now` returns 409 `EVENT_STARTED`. Each rejection leaves stored data unchanged. An owned CANCELLED row on a started event returns 409 `ALREADY_CANCELLED`. | FR-09, BR-07, D-33 |
 | AC-77 | After a successful cancellation, if the event remains eligible and all F-04 rules hold, the participant can register again. The result is a new ACTIVE row while the original CANCELLED row remains. | FR-09, BR-03, BR-07, D-33 |
 | AC-78 | Cancelling an ACTIVE row frees one capacity place. A different eligible participant can take that place; the ACTIVE count does not exceed capacity and the cancelled row remains stored. | BR-02, BR-07, D-10, D-33 |
 | AC-79 | A participant's CANCELLED row does not trigger BR-10 `TIME_CONFLICT`; with no other conflicting ACTIVE registration and all F-04 rules satisfied, registration for an event less than 120 minutes away can succeed. | BR-10, D-33 |
@@ -120,10 +120,10 @@ All API/DB tests use Vitest and Supertest with `DATABASE_URL_TEST` and isolated 
 
 | TEST | AC | Level | Setup and steps | Expected result |
 |---|---|---|---|---|
-| TEST-73 | AC-73 | API + DB integration | Create participant P, organizer O, future PUBLISHED event E with capacity 2, and P's ACTIVE registration R. Log in as P and POST `/api/registrations/R/cancel`; then GET `/api/registrations/mine`. | Proposed HTTP 200 and response registration identify R as CANCELLED; list identifies R as CANCELLED; DB retains R with the same ID and non-null `cancelledAt`; active count falls by one. Freeze `now`; no partial or deleted row. |
+| TEST-73 | AC-73 | API + DB integration | Create participant P, organizer O, future PUBLISHED event E with capacity 2, and P's ACTIVE registration R. Log in as P and POST `/api/registrations/R/cancel`; then GET `/api/registrations/mine`. | HTTP 200 returns the My registrations row for R with status CANCELLED and a non-null `cancelledAt`; list identifies R as CANCELLED; DB retains R with the same ID and non-null `cancelledAt`; active count falls by one. Freeze `now`; no partial or deleted row. |
 | TEST-74 | AC-74 | API + DB integration | Create separate valid, unknown, expired and revoked session cases for P; call the cancel route without a cookie, with an unknown token, with an expired token, and with the cookie retained after logout. Also call with organizer O using a valid ID and a malformed ID, and with P using a malformed ID. | The four invalid-session cases return 401 `UNAUTHENTICATED`; O receives 403 `FORBIDDEN` before ID lookup for both IDs; P's malformed ID returns 400 `VALIDATION_ERROR`. Assert the registration row is unchanged after every call. |
 | TEST-75 | AC-75 | API + DB integration | Create P and P2 with ACTIVE rows R and R2 on future events. Log in as P; call cancel for R2 and for an unknown UUID. | Both return identical 404 `NOT_FOUND`; body contains only `error`; R2 remains ACTIVE with null `cancelledAt`. |
-| TEST-76 | AC-76 | API + DB integration | Create an owned CANCELLED row on a future event and an owned ACTIVE row on an event with `startsAt = now`; repeat with `startsAt < now`. | CANCELLED row returns 409 `ALREADY_CANCELLED`; started ACTIVE rows return 409 `EVENT_STARTED`; all stored rows and timestamps remain unchanged. Do not combine CANCELLED status with a started event until precedence is agreed. |
+| TEST-76 | AC-76 | API + DB integration | Create owned CANCELLED rows on a future and a started event, and an owned ACTIVE row on an event with `startsAt = now`; repeat with `startsAt < now`. | Both CANCELLED rows return 409 `ALREADY_CANCELLED`; started ACTIVE rows return 409 `EVENT_STARTED`; all stored rows and timestamps remain unchanged. |
 | TEST-77 | AC-77 | API + DB integration | Create future PUBLISHED event E and P's ACTIVE row R. Cancel R, then register P for E under otherwise-valid F-04 conditions. | Cancellation succeeds; registration succeeds as a different ACTIVE row ID; database contains one CANCELLED row R with `cancelledAt` and one new ACTIVE row; the partial unique ACTIVE index is satisfied. |
 | TEST-78 | AC-78 | API + DB integration | Create future PUBLISHED event E at capacity 1 with P's single ACTIVE row. P cancels; eligible participant P2 registers for E. | Cancel succeeds; P2 receives the F-04 success; database retains P's CANCELLED row, has P2's ACTIVE row, and ACTIVE count is exactly capacity (1), never over it. |
 | TEST-79 | AC-79 | API + DB integration | Create future events A and B less than 120 minutes apart. P has an ACTIVE registration on A, cancels it, then registers for B; all other F-04 conditions hold. | Cancellation succeeds and registration for B succeeds; P has no ACTIVE row on A and exactly one ACTIVE row on B. The cancelled A row remains and is not treated as a BR-10 conflict. |
@@ -141,15 +141,11 @@ The shared Sprint 2 Definition of Done applies. In addition:
 - Migration work is owned by #201; no schema work is folded into this feature without review.
 - The red test work is independently reviewed as specified in the Sprint 2 red/green PR handoff; the green PR is reviewed by B and merged to `sprint-2-staging` with required checks passing.
 
-## 12. Open cross-review decisions — resolve before RED
+## 12. Cross-review decisions
 
-| Question | Current source / proposal | Required decision |
-|---|---|---|
-| Success status and exact response fields for `POST /api/registrations/:id/cancel` | B proposed 200 with the My registrations row shape, `status: CANCELLED`, and `cancelledAt` in the #200 discussion. | Confirm with B; then align this contract and system SDS 4.3. |
-| Cancellation lock sequence under D-10 when a registration and competing registration request run concurrently | B proposed locking the event row first in the #200 discussion. | Confirm a transaction/lock sequence with B and record the exact integrity test before the red commit. |
-| Error precedence if the row is already CANCELLED and the event has started | D-33 names both errors; B proposed `ALREADY_CANCELLED` before `EVENT_STARTED` in the #200 discussion. | Confirm with B before adding a combined-condition expectation. |
-
-The proposed AC/TEST allocation is F-07 73–80, F-09 81–89, and F-08 90–109. B's separate proposed rules for event editing/closing/cancelling and deadline checks belong to the F-08/F-09 cross-review; they are not silently added to F-07.
+- Return HTTP 200 with the My registrations row shape, `status: CANCELLED` and `cancelledAt` in the `registration` envelope.
+- Lock the event row first in the cancellation transaction (D-10).
+- Check `ALREADY_CANCELLED` before `EVENT_STARTED`, including when both conditions apply.
 
 ## 13. Version history
 

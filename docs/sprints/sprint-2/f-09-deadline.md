@@ -125,9 +125,9 @@ Exact copy for new deadline errors is pending the shared SDS review in section 4
 - The event API exposes the persisted deadline as a UTC ISO 8601 timestamp or null. UI formatting is local and does not change the stored instant.
 - `remainingPlaces` remains derived from capacity minus ACTIVE registrations; the deadline does not reserve or free a place.
 
-## 8. Acceptance criteria (proposed ID allocation)
+## 8. Acceptance criteria
 
-This draft reserves AC/TEST-81–89 for F-09 within A's proposed 73–89 range. The range remains proposed pending cross-review with B; it does not assign or renumber F-08's IDs.
+The agreed #200 allocation is AC/TEST-81–89 for F-09, 73–80 for F-07, and 90–109 for F-08.
 
 | ID | Acceptance criterion | Linked |
 |---|---|---|
