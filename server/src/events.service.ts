@@ -10,6 +10,12 @@ const createSchema = z
     description: z.string().max(2000),
     location: z.string().trim().min(1).max(120),
     startsAt: z.string().datetime({ offset: true }).transform((s) => new Date(s)),
+    // F-09, D-35: omitted or null stores no deadline (the old open-until-start rule).
+    registrationDeadline: z
+      .string()
+      .datetime({ offset: true })
+      .transform((s) => new Date(s))
+      .nullish(),
     capacity: z.number().int().min(1).max(10000),
   })
   .strict();
@@ -17,6 +23,8 @@ const createSchema = z
 export type CreateEventInput = z.infer<typeof createSchema>;
 
 const invalidStart = () => new AppError(400, 'INVALID_START_TIME', 'The start time must be in the future.');
+const invalidDeadline = () =>
+  new AppError(400, 'INVALID_DEADLINE', 'Registration deadline must be after now and no later than the event start time.');
 const notFound = () => new AppError(404, 'EVENT_NOT_FOUND', 'Event not found.');
 const alreadyPublished = () => new AppError(409, 'ALREADY_PUBLISHED', 'This event is already published.');
 
@@ -24,8 +32,18 @@ const alreadyPublished = () => new AppError(409, 'ALREADY_PUBLISHED', 'This even
 const withActiveCount = { _count: { select: { registrations: { where: { status: 'ACTIVE' as const } } } } };
 
 function toPayload(e: Event & { _count: { registrations: number } }) {
-  const { id, title, description, location, startsAt, capacity, status } = e;
-  return { id, title, description, location, startsAt, capacity, remainingPlaces: capacity - e._count.registrations, status };
+  const { id, title, description, location, startsAt, capacity, status, registrationDeadline } = e;
+  return {
+    id,
+    title,
+    description,
+    location,
+    startsAt,
+    capacity,
+    registrationDeadline,
+    remainingPlaces: capacity - e._count.registrations,
+    status,
+  };
 }
 
 export function parseCreateEvent(body: unknown): CreateEventInput {
@@ -36,7 +54,10 @@ export function parseCreateEvent(body: unknown): CreateEventInput {
 
 export async function createEvent(db: Db, ownerId: string, input: CreateEventInput, now: Date) {
   if (input.startsAt <= now) throw invalidStart();
-  return toPayload(await db.event.create({ data: { ...input, ownerId }, include: withActiveCount }));
+  // F-09, D-35: a non-null deadline must satisfy now < deadline <= startsAt (BR-06).
+  const registrationDeadline = input.registrationDeadline ?? null;
+  if (registrationDeadline && (registrationDeadline <= now || registrationDeadline > input.startsAt)) throw invalidDeadline();
+  return toPayload(await db.event.create({ data: { ...input, ownerId, registrationDeadline }, include: withActiveCount }));
 }
 
 export async function listPublishedEvents(db: Db) {

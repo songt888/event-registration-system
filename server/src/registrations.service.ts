@@ -5,16 +5,22 @@ import { prisma } from './lib/prisma.js';
 const notFound = () => new AppError(404, 'EVENT_NOT_FOUND', 'Event not found.');
 const registrationNotFound = () => new AppError(404, 'NOT_FOUND', 'Registration not found.');
 const started = () => new AppError(409, 'EVENT_STARTED', 'This event has already started.');
+const registrationClosed = () => new AppError(409, 'REGISTRATION_CLOSED', 'Registration for this event is closed.');
 const alreadyRegistered = () => new AppError(409, 'ALREADY_REGISTERED', 'You are already registered for this event.');
 const full = () => new AppError(409, 'EVENT_FULL', 'This event has no places left.');
 
-// BR-04: only a PUBLISHED event that starts strictly after now (D-12) is registrable.
-export function assertRegistrable(event: { status: string; startsAt: Date }, now: Date) {
+// BR-04, D-35 order: 404 hidden -> EVENT_STARTED -> EVENT_CLOSED (F-08) -> REGISTRATION_CLOSED -> duplicate -> conflict -> full.
+export function assertRegistrable(
+  event: { status: string; startsAt: Date; registrationDeadline?: Date | null },
+  now: Date,
+) {
   if (event.status !== 'PUBLISHED') throw notFound();
   if (event.startsAt.getTime() <= now.getTime()) throw started();
+  // F-08 inserts the EVENT_CLOSED check here (D-35 step 3); at equality the deadline closes registration (BR-06).
+  if (event.registrationDeadline && event.registrationDeadline.getTime() <= now.getTime()) throw registrationClosed();
 }
 
-type LockedEvent = { status: string; startsAt: Date; capacity: number };
+type LockedEvent = { status: string; startsAt: Date; registrationDeadline: Date | null; capacity: number };
 
 // BR-05, D-13: a foreign DRAFT looks like a missing event; a foreign PUBLISHED event is forbidden.
 export async function listEventRegistrations(organizerId: string, eventId: string) {
@@ -36,7 +42,7 @@ export async function registerForEvent(participantId: string, eventId: string, n
     return await prisma.$transaction(
       async (tx) => {
         const [event] = await tx.$queryRaw<LockedEvent[]>`
-          SELECT status::text AS status, "startsAt", capacity FROM "Event" WHERE id = ${eventId}::uuid FOR UPDATE`;
+          SELECT status::text AS status, "startsAt", "registrationDeadline", capacity FROM "Event" WHERE id = ${eventId}::uuid FOR UPDATE`;
         if (!event) throw notFound();
         assertRegistrable(event, now);
 

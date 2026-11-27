@@ -7,6 +7,8 @@ const FIELDS = [
   { name: 'description', label: 'Description', type: 'textarea' },
   { name: 'location', label: 'Location', type: 'text' },
   { name: 'startsAt', label: 'Starts at (your local time)', type: 'datetime-local' },
+  // F-09, D-35: optional; empty means no deadline (the old open-until-start rule).
+  { name: 'registrationDeadline', label: 'Registration deadline (your local time)', type: 'datetime-local' },
   { name: 'capacity', label: 'Capacity', type: 'number' },
 ] as const;
 
@@ -14,7 +16,7 @@ type Form = Record<(typeof FIELDS)[number]['name'], string>;
 
 export function CreateEventPage() {
   const navigate = useNavigate();
-  const [form, setForm] = useState<Form>({ title: '', description: '', location: '', startsAt: '', capacity: '' });
+  const [form, setForm] = useState<Form>({ title: '', description: '', location: '', startsAt: '', registrationDeadline: '', capacity: '' });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -34,6 +36,8 @@ export function CreateEventPage() {
           ...form,
           // datetime-local is the browser's local time; toISOString sends that instant in UTC with a zone.
           startsAt: form.startsAt ? new Date(form.startsAt).toISOString() : '',
+          // F-09, D-35: an empty deadline is sent as null (no deadline), not as ''.
+          registrationDeadline: form.registrationDeadline ? new Date(form.registrationDeadline).toISOString() : null,
           capacity: Number(form.capacity),
         },
       });
