@@ -1,7 +1,7 @@
 <!-- Lab 6 PDF, Parts C and D (L6-08 #127). Author: B (Nattakit Prasertsak). Checker: A. Draft. -->
 <!-- Parts A and B (A) are in part-a-b.md; the shared cover, contents, version table, contribution table, AI use and limitations are assembled with both files. -->
 
-# Part C: Defect reporting and triage
+# Part C: Reports, triage and corrections
 
 ## C.1 As UAT Team: our reports on Est's app
 
@@ -25,8 +25,10 @@ Est (EN-033), "Campus Café Pre-order", commit `b71cdb2` on `vienggd/Food-order`
 | EX-06 | #129 | Phone top bar has no café brand | defect / minor | accepted defect, minor |
 | EX-01 | #130 | Cart does not move keyboard focus | feature request / minor | enhancement (Sprint 3) |
 | EX-03 | #131 | Sign in field errors not linked to fields | feature request / minor | enhancement (Sprint 3) |
-| EX-05 | #132 | Desktop queue hides column labels from assistive technology | feature request / minor | enhancement, then **reclassified as accepted defect** (their F-04 says the queue is a table); fixed RED `d1bf95c`, GREEN `2e291c8` |
+| EX-05 | #132 | Desktop queue hides column labels from assistive technology | feature request / minor | enhancement, then **reclassified as accepted defect** (their F-04 says the queue is a table); first fix RED `d1bf95c`, GREEN `2e291c8` (in `163fdb7`) still failed our retest; second fix their PR #174 (`b5bddb9`, test `63beafe`), deployed in `39bda5e`, passed (Part D.5) |
 | EX-07 | #133 | Email error stays after the email is corrected | feature request / minor | enhancement (Sprint 3) |
+
+Evidence: the screenshots attached to each Est Issue; five exploratory screenshots are also in `docs/labs/lab-06/evidence/l6-03-explore/` (x02, x04, x06, x07, x09).
 
 Totals: 12 reports, Est accepted 9 as defects (1 major) and 3 as enhancements. Food-order #127 first bundled six findings in one checklist; on review (PR #131) it was split into #128 to #133 and closed as replaced. Notified through GitHub Issues (Est's handoff allows this) and Discord.
 
@@ -73,11 +75,11 @@ Totals: 3 accepted defects (1 major), 1 duplicate, 9 enhancements, 0 not-a-defec
 
 > Triage (team EN-009_P3): **Accepted defect, minor** (you proposed major: sideways scrolling still reaches Publish, so the task can be completed). Owner: Nattakit Prasertsak (B). Reproduced on `04e8590`, and your 768/812 px follow-up is confirmed. Fix in #161 / PR #162 (AC-65): long text wraps, Publish stays on screen at 1280 px, and below that a list that is still too wide scrolls inside its own box, so no page scrolls sideways at any width. Ships in `v0.1.3-lab6`; we will tell you on Discord before we deploy, with the new revision, so you can retest it.
 
-Full reasons with the contract line, cause and reproduction evidence per finding: `docs/labs/lab-06/triage.md`.
+Full reasons with the contract line, cause and reproduction evidence per finding: `docs/labs/lab-06/triage.md`. Reproduction evidence: `docs/labs/lab-06/evidence/l6-05/` (E-C141 to E-C154, E-C-B repro log).
 
 ---
 
-# Part D: Resolution and retest
+# Part D: Retest and final acceptance decisions
 
 ## D.1 Fix chain per finding
 
@@ -169,4 +171,35 @@ A's half (PR #187, `docs/labs/lab-06/evidence/l6-07b-a/`, by hand, 2026-11-27 01
 
 **#132 after Est's fix release.** A retested at 03:05 on `163fdb7`: still FAIL (fix merged on Est's `lab6` but not deployed; PR #191). Est deployed `39bda5e` (their PR #181), revision `food-order-00009-jd9`, 03:19 to 03:24. #132 then PASS: A at 03:32 (PR #191) and B at 03:34 (PR #192): 7 headers, all `scope="col"`, over 7 cells per row, left edges equal. B's regression run of all 9 accepted defects on `39bda5e` (03:42 to 03:43): all PASS (#124 by its dedicated rerun). UAT cases were not re-run on `39bda5e`: the only app files changed since `163fdb7` are `QueuePage.tsx` and `styles.css`.
 
-Our decision for Est's Sprint 1 release: **Accepted** on `39bda5e` / `food-order-00009-jd9` (9 of 9 defects PASS, #123 major PASS, UAT-01, 03, 04, 05 PASS, nothing BLOCKED, no open defect; #130, #131, #133 are enhancements Est deferred to Sprint 3). B signed off on #129 (2026-11-27 03:51 UTC+7), A at 04:08; the decision block was sent to Est for their `retest-handoff.md`. Evidence: PRs #186, #187, #191, #192.
+Our decision for Est's Sprint 1 release: **Accepted** on `39bda5e` / `food-order-00009-jd9` (9 of 9 defects PASS, #123 major PASS, UAT-01, 03, 04, 05 PASS, nothing BLOCKED, no open defect; #130, #131, #133 are enhancements Est deferred to Sprint 3). B signed off on #129 (2026-11-27 03:51 UTC+7), A at 04:09; the decision block was sent to Est for their `retest-handoff.md`. Evidence: PRs #186, #187, #191, #192.
+
+## D.6 Limitations (Parts C and D)
+
+- D.1 suite counts come from the evidence file saved at each GREEN commit. For this document they were spot-checked (L6-09, L6-13, L6-17, L6-18, L6-20), not re-run; the full suites were re-run once on the release tree (D.2).
+- B's retests of Est (on `163fdb7` and `39bda5e`) were AI-executed Playwright runs, not clicked by hand. The script's first verdicts were wrong three times: #132 PASS from header names only (corrected to FAIL), #121 and #124 FAIL from the script (rerun and screenshots show PASS). Every verdict in D.5 rests on the screenshot or a dedicated rerun, not on the script line.
+- Est's retest of our app was AI-assisted (Playwright Chromium, stated by Est); the #141 to #148 round had a tester signing in by hand.
+- UAT cases were not re-run on Est's `39bda5e`; they passed on `163fdb7`, and `39bda5e` changes only the queue table files (D.5).
+- Est listed two non-blocking observations on our release: at 641 to 735 px the taskbar wraps Logout (#151, AC-72 covers 768 px and wider, F-01 1.6), and a label ellipsis noted at 320 px (#147). Neither is fixed in `v0.1.3-lab6`.
+- Production test data stays: our retest orders #12 to #17 on Est's app and Est's test data on ours (no reset, D-20).
+
+## Contribution (Parts C and D)
+
+| Work | A (Kirakit) | B (Nattakit) |
+|---|---|---|
+| Reports on Est's app (L6-04 #123) | found EX-01 to EX-07 (run by Codex Computer Use, first sent as Est #127, closed as replaced); posted Est #121 to #126 | found and wrote EX-08 to EX-13; cross-checked EX-01 to EX-07 and split #127 into Est #128 to #133 |
+| Triage of Est's findings (L6-05 #124) | owner of `triage.md`; replied on #142, #143, #145, #146, #152, #153, #155 | replied on #141, #144, #147, #148, #151, #154; reviewed |
+| Fixes L6-09 to L6-20 | #142/#152, #143, #146, #145, #153, #155, #151 (author); reviewed B's | #141, #144, #147, #148, #154 (author); reviewed A's |
+| Integration and release (L6-06 #125) | release PR #181, tag, deploy notice, smoke check | integration run on `14d0e72`, review and merge of #181, live check |
+| Est's retest of us (L6-07 #126) | sent the version and findings, coordinated | checked the record |
+| Our retest of Est (L6-07b #129) | UAT-01, 03, 05 and #122, #124, #125 by hand; #132 on `163fdb7` and `39bda5e`; sign-off | all 9 accepted defects and UAT-04 on `163fdb7`; #132 and the regression on `39bda5e`; sign-off |
+| PDF Parts C and D (L6-08 #127) | checks | wrote |
+
+## AI use (Parts C and D)
+
+| Tool | Task |
+|---|---|
+| Claude Code (B) | drafted B's reports, triage replies and fix PRs on B's instructions; wrote and ran the Playwright retest scripts on Est's app (AI-executed, labelled in D.5 and in each evidence file); drafted this part from the repo, GitHub and the evidence files, with B checking each value |
+| Claude Code (Claude Opus) (A) | drafted A's triage, fix PRs and release PR on A's instructions, as stated in each PR |
+| Codex Computer Use (A) | the exploratory run that found EX-01 to EX-07 (labelled in Est #127 and Part B) |
+| Est's own AI-assisted Playwright run | Est's retest of our release (D.4), as stated by Est |
+
