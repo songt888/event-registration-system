@@ -23,9 +23,9 @@ No password, token, cookie, connection string or key appears in this PDF or its 
 | Part | Content | Author / checker | Pages | Evidence IDs |
 |---|---|---|---|---|
 | A | UAT preparation and handoff (our product, Product Team role) | A / B | PAGES_A | E-A1 to E-A3 |
-| B | Independent execution of Est's cases (UAT Team role) | A / B | PAGES_B | E-B01-1 to E-B06-2 |
-| C | Reports, triage and corrections | B / A | PAGES_C | E-C… (Part C) |
-| D | Retest and final acceptance decisions | B / A | PAGES_D | E-D… (Part D) |
+| B | Independent execution (Est's product, UAT Team role) | A / B | PAGES_B | E-B01-1 to E-B06-2 |
+| C | Reports, triage and corrections | B / A | PAGES_C | E-C141 to E-C154, E-C-B (l6-05); Est's report screenshots on Est #121 to #133; l6-03-explore x02 to x09 |
+| D | Retest and final acceptance decisions | B / A | PAGES_D | E-D-L606 to E-D-L620; B retest R-121 to R-132, R2-132 (l6-07b); A retest E-R-122 to E-R-U05 (l6-07b-a) |
 | Appendices | A1 cases, A2 handoff, A3 review text, A4 Est's decision, B1 execution record | | PAGES_APP | |
 
 ## Version table
@@ -36,7 +36,7 @@ No password, token, cookie, connection string or key appears in this PDF or its 
 |---|---|---|
 | Sprint 1 baseline | tag `v0.1.0-sprint1`, `12dcd3c` | the accepted-for-test contract |
 | Release under UAT | tag `v0.1.2-lab5`, `04e8590`, revision `s47a6b53b-00005-5l7` | Lab 5 deployment changes only (Docker, CI/CD, Express serves the UI); no Sprint 1 behavior change (D-27) |
-| Defective and test commits | per finding in Part C | each fix: contract commit, RED test commit (run on the pre-change code), GREEN commit, evidence; Issues L6-09 to L6-20 (#156 to #177) |
+| Defective and test commits | per finding in Part D (D.1) | each fix: contract commit, RED test commit (run on the pre-change code), GREEN commit, evidence; Issues L6-09 to L6-20 (#156 to #177) |
 | Corrected release | release PR #181 `lab6-staging` → `main`, merge commit `502d2a6`, tag `v0.1.3-lab6` | client and E2E changes only; no server, schema or migration change |
 | Deployed revision | `s47a6b53b-00006-7bv` | deployed 2026-11-26 23:25 (UTC+7); production data not reset (D-20) |
 | Merge commits | every change reached `lab6-staging` through a reviewed PR; `main` only through the release PR | later Lab 7 commits on `main` are outside this lab |
