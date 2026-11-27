@@ -63,8 +63,10 @@ test('TEST-106 AC-106 closes one event and cancels another from My events', asyn
 
   const participant = await (await browser.newContext()).newPage();
   await signIn(participant, 'participant3@example.com');
+  const closedLink = participant.getByRole('link', { name: closedTitle });
+  await expect(closedLink).toBeVisible();
   await expect(participant.getByRole('link', { name: cancelledTitle })).toHaveCount(0);
-  await participant.getByRole('link', { name: closedTitle }).click();
+  await closedLink.click();
   await expect(participant.getByText('This event is closed.')).toBeVisible();
   await expect(participant.getByRole('button', { name: 'Register' })).toHaveCount(0);
 });

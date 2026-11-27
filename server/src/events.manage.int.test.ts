@@ -288,6 +288,11 @@ describe('F-08 manage event API', () => {
       expect(cancelled.status).toBe(200);
       expect([201, 404]).toContain(reg.status);
       if (reg.status === 404) expectError(reg, 404, 'EVENT_NOT_FOUND');
+      if (reg.status === 201) {
+        const stored = await registration(reg.body.registration.id);
+        expect(stored.status).toBe('CANCELLED');
+        expect(stored.cancelledAt).not.toBeNull();
+      }
       expect(await activeCount(e.id)).toBe(0);
       expect((await event(e.id)).status).toBe('CANCELLED');
     }
