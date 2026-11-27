@@ -8,18 +8,19 @@ const started = () => new AppError(409, 'EVENT_STARTED', 'This event has already
 const alreadyRegistered = () => new AppError(409, 'ALREADY_REGISTERED', 'You are already registered for this event.');
 const full = () => new AppError(409, 'EVENT_FULL', 'This event has no places left.');
 
-// BR-04: only a PUBLISHED event that starts strictly after now (D-12) is registrable.
+// BR-04: only a PUBLISHED event that starts strictly after now (D-12) is registrable; D-35 order.
 export function assertRegistrable(event: { status: string; startsAt: Date }, now: Date) {
-  if (event.status !== 'PUBLISHED') throw notFound();
+  if (event.status !== 'PUBLISHED' && event.status !== 'CLOSED') throw notFound();
   if (event.startsAt.getTime() <= now.getTime()) throw started();
+  if (event.status === 'CLOSED') throw new AppError(409, 'EVENT_CLOSED', 'This event is closed.');
 }
 
 type LockedEvent = { status: string; startsAt: Date; capacity: number };
 
-// BR-05, D-13: a foreign DRAFT looks like a missing event; a foreign PUBLISHED event is forbidden.
+// BR-05, D-13: a foreign DRAFT or CANCELLED event looks like a missing event; a foreign PUBLISHED or CLOSED event is forbidden.
 export async function listEventRegistrations(organizerId: string, eventId: string) {
   const event = await prisma.event.findUnique({ where: { id: eventId } });
-  if (!event || (event.status === 'DRAFT' && event.ownerId !== organizerId)) throw notFound();
+  if (!event || ((event.status === 'DRAFT' || event.status === 'CANCELLED') && event.ownerId !== organizerId)) throw notFound();
   if (event.ownerId !== organizerId) throw forbidden();
 
   const rows = await prisma.registration.findMany({
@@ -86,6 +87,7 @@ const mineSelect = {
   id: true,
   status: true,
   createdAt: true,
+  cancelledAt: true,
   event: { select: { id: true, title: true, location: true, startsAt: true } },
 } as const;
 
