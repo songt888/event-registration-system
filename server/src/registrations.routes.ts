@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { requireRole, requireSession } from './auth/middleware.js';
 import { jsonBody } from './lib/body.js';
 import { asyncHandler, validationError, zodDetails } from './lib/errors.js';
-import { getMyRegistration, listEventRegistrations, listMyRegistrations, registerForEvent } from './registrations.service.js';
+import { cancelRegistration, getMyRegistration, listEventRegistrations, listMyRegistrations, registerForEvent } from './registrations.service.js';
 
 const idSchema = z.string().uuid();
 const emptyBody = z.object({}).strict();
@@ -44,6 +44,22 @@ registrationsRouter.get(
   asyncHandler(async (req, res) => {
     if (!idSchema.safeParse(req.params.id).success) throw validationError([{ field: 'id', message: 'Invalid registration ID' }]);
     res.json({ registration: await getMyRegistration(res.locals.user.id, req.params.id) });
+  }),
+);
+
+registrationsRouter.post(
+  '/registrations/:id/cancel',
+  requireSession,
+  requireRole('PARTICIPANT'),
+  jsonBody,
+  asyncHandler(async (req, res) => {
+    const details = [];
+    if (!idSchema.safeParse(req.params.id).success) details.push({ field: 'id', message: 'Invalid registration ID' });
+    const body = emptyBody.safeParse(req.body);
+    if (!body.success) details.push(...zodDetails(body.error));
+    if (details.length) throw validationError(details);
+
+    res.json({ registration: await cancelRegistration(res.locals.user.id, req.params.id, new Date()) });
   }),
 );
 
