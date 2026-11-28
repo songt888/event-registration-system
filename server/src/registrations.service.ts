@@ -8,6 +8,9 @@ const started = () => new AppError(409, 'EVENT_STARTED', 'This event has already
 const registrationClosed = () => new AppError(409, 'REGISTRATION_CLOSED', 'Registration for this event is closed.');
 const alreadyRegistered = () => new AppError(409, 'ALREADY_REGISTERED', 'You are already registered for this event.');
 const full = () => new AppError(409, 'EVENT_FULL', 'This event has no places left.');
+const notActive = () => new AppError(409, 'REGISTRATION_NOT_ACTIVE', 'Only an active registration can be checked in.');
+const alreadyCheckedIn = () => new AppError(409, 'ALREADY_CHECKED_IN', 'This participant is already checked in.');
+const outsideWindow = () => new AppError(409, 'OUTSIDE_CHECKIN_WINDOW', 'Check-in is open from 60 minutes before the start until 6 hours after it.');
 
 // BR-04, D-35 order: 404 hidden -> EVENT_STARTED -> EVENT_CLOSED -> REGISTRATION_CLOSED -> duplicate -> conflict -> full.
 export function assertRegistrable(
@@ -29,13 +32,21 @@ export async function listEventRegistrations(organizerId: string, eventId: strin
   if (!event || ((event.status === 'DRAFT' || event.status === 'CANCELLED') && event.ownerId !== organizerId)) throw notFound();
   if (event.ownerId !== organizerId) throw forbidden();
 
-  const rows = await prisma.registration.findMany({
-    where: { eventId },
-    orderBy: { createdAt: 'asc' },
-    select: { id: true, status: true, createdAt: true, participant: { select: { name: true, email: true } } },
-  });
-  return { registrations: rows };
+  const rows = await prisma.registration.findMany({ where: { eventId }, orderBy: { createdAt: 'asc' }, select: rosterSelect });
+  return { registrations: rows.map(rosterItem) };
 }
+
+// F-06 roster item; F-10 adds checkedInAt (null without a check-in), after createdAt.
+const rosterSelect = {
+  id: true,
+  status: true,
+  createdAt: true,
+  checkIn: { select: { checkedInAt: true } },
+  participant: { select: { name: true, email: true } },
+} as const;
+
+type RosterRow = { id: string; status: string; createdAt: Date; checkIn: { checkedInAt: Date } | null; participant: { name: string; email: string } };
+const rosterItem = ({ id, status, createdAt, checkIn, participant }: RosterRow) => ({ id, status, createdAt, checkedInAt: checkIn?.checkedInAt ?? null, participant });
 
 // D-10: one transaction; the event row is locked first, so parallel requests for the last place run one after another.
 export async function registerForEvent(participantId: string, eventId: string, now: Date) {
@@ -124,6 +135,10 @@ export function cancelRegistration(participantId: string, id: string, now: Date)
       throw new AppError(409, 'ALREADY_CANCELLED', 'This registration has already been cancelled.');
     }
     if (event.startsAt.getTime() <= now.getTime()) throw started();
+    // D-36 (F-10): a checked-in registration cannot be cancelled; checked after ALREADY_CANCELLED and EVENT_STARTED.
+    if (await tx.checkIn.findUnique({ where: { registrationId: id }, select: { id: true } })) {
+      throw new AppError(409, 'ALREADY_CHECKED_IN', 'A checked-in registration cannot be cancelled.');
+    }
 
     return tx.registration.update({
       where: { id, participantId },
@@ -131,4 +146,37 @@ export function cancelRegistration(participantId: string, id: string, now: Date)
       select: { ...mineSelect, cancelledAt: true },
     });
   }, { maxWait: 15000, timeout: 15000 });
+}
+
+const CHECKIN_OPENS_MS = 60 * 60 * 1000;
+const CHECKIN_CLOSES_MS = 6 * 60 * 60 * 1000;
+
+// F-10 (D-36): the event owner checks in an ACTIVE registration once, while startsAt - 60 min <= now < startsAt + 6 h.
+// Order: 404 unknown registration, event row lock (D-10), 403 another organizer's event, REGISTRATION_NOT_ACTIVE,
+// ALREADY_CHECKED_IN, OUTSIDE_CHECKIN_WINDOW. The unique registrationId is the backstop for parallel requests.
+export async function checkInRegistration(organizerId: string, id: string, now: Date) {
+  try {
+    return await prisma.$transaction(
+      async (tx) => {
+        const found = await tx.registration.findUnique({ where: { id }, select: { eventId: true } });
+        if (!found) throw registrationNotFound();
+        const [event] = await tx.$queryRaw<{ ownerId: string; startsAt: Date }[]>`
+          SELECT "ownerId"::text AS "ownerId", "startsAt" FROM "Event" WHERE id = ${found.eventId}::uuid FOR UPDATE`;
+        if (event.ownerId !== organizerId) throw forbidden();
+
+        const registration = await tx.registration.findUniqueOrThrow({ where: { id }, select: { status: true, checkIn: { select: { id: true } } } });
+        if (registration.status !== 'ACTIVE') throw notActive();
+        if (registration.checkIn) throw alreadyCheckedIn();
+        const start = event.startsAt.getTime();
+        if (now.getTime() < start - CHECKIN_OPENS_MS || now.getTime() >= start + CHECKIN_CLOSES_MS) throw outsideWindow();
+
+        await tx.checkIn.create({ data: { registrationId: id, checkedInAt: now, checkedInById: organizerId } });
+        return { registration: rosterItem(await tx.registration.findUniqueOrThrow({ where: { id }, select: rosterSelect })) };
+      },
+      { maxWait: 15000, timeout: 15000 },
+    );
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') throw alreadyCheckedIn();
+    throw err;
+  }
 }

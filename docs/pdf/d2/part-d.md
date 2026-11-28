@@ -12,7 +12,7 @@ Part D states the requirements the product implements, the features that cover t
 |---|---|---|
 | Foundation and journeys | FR-01..FR-08 and FR-15 (F-01, F-02, F-03, F-04, F-05, F-06) | S1, verified; regressed green through every Sprint 2 merge |
 | Maintenance change | FR-06 with BR-10 `TIME_CONFLICT` (CR-01, Lab 7) | S1 maintenance, verified at `861f01f` |
-| Sprint 2 slice | FR-09 cancel (BR-03/05/07), FR-10 manage/close/cancel events, FR-11 registration deadline (BR-06), D-33..D-35 | S2, implemented and tested; released as `v0.3.0-sprint2` [S2-06] |
+| Sprint 2 slice | FR-09 cancel (BR-03/05/07), FR-10 manage/close/cancel events, FR-11 registration deadline (BR-06), D-33..D-35 | S2, implemented and tested; released as `v0.3.0-sprint2` (`7e34f1b`, revision `s47a6b53b-00008-qrx`) |
 | Sprint 3 slice | FR-12 check-in (BR-08, D-36), FR-13 attendance (D-37), FR-14 organizer summary | S3, contracts drafted (#224, #234), implementation planned (F-10 by B before the candidate; F-11..13 by 5-8 Dec) |
 
 ## D.2 Features (features inventory, `docs/features.md`)
@@ -48,6 +48,6 @@ Sections 1-3 (architecture, data, UI) describe the shipped system: React + TypeS
 ## D.5 Gaps, stated plainly
 
 - Every Sprint 2 AC is implemented, tested and passed; none is moved to Sprint 3 to look complete.
-- The Sprint 3 contracts (F-10..F-13) are drafted and in review as PRs #224 and #234 (both approved, held as drafts until `sprint-3-staging` exists after this release, then retargeted and merged); no Sprint 3 code, test or migration exists yet.
-- Known limitations carried from Lab 6 (taskbar wrap between 641 and 735 px; the #147 label ellipsis) and the D7-1 documentation sync remain open, owned and dated in Part C.3 — they are limitations, not missing requirements.
-- The release-dependent rows are marked [S2-06] here and in Part B until the release run records them.
+- The Sprint 3 contracts (F-10..F-13) are merged into `sprint-3-staging` (#224, #234); F-10 is in its red and green handoff (#240), F-11..F-13 follow after D2.
+- Known limitations carried from Lab 6 (taskbar wrap between 641 and 735 px; the #147 label ellipsis) remain open, owned and dated in Part C.3 - they are limitations, not missing requirements; the D7-1 documentation sync was resolved by #238 on `sprint-3-staging`.
+- The release-dependent rows are filled: the release is `v0.3.0-sprint2` at `7e34f1b`, deployed as revision `s47a6b53b-00008-qrx` (deploy run 46125000564); the post-deployment journeys are recorded in Part A and Part B B.5.
