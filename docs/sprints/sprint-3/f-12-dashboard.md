@@ -57,7 +57,7 @@ There is no foreign-data case to hide: the query is scoped to the session user (
 | Screen | Route | Behavior |
 |---|---|---|
 | Navigation (organizer) | header/nav | A **Summary** link to `/organizer/summary`, visible only to organizers. |
-| Summary | `/organizer/summary` | Heading. A counts line: Registered, Checked in, Not yet checked in, No-show, Cancelled (the `totals`). A table "Events": title, status, start time in local time, remaining places, registered, checked in, not yet checked in, no-show — one row per own event, in the API order. Loading: "Loading..." while pending. Empty: "No events yet." when `events` is empty. Error: the API `error.message` in an alert; 401 redirects to `/login`; a participant opening the URL sees "You do not have access to this" (as AC-69 does). |
+| Summary | `/organizer/summary` | Heading. A counts line: Registered, Checked in, Not yet checked in, No-show, Cancelled (the `totals`). A table "Events": title, status, start time in local time, remaining places, registered, checked in, not yet checked in, no-show, cancelled — one row per own event, in the API order. Loading: "Loading..." while pending. Empty: "No events yet." when `events` is empty. Error: the API `error.message` in an alert; 401 redirects to `/login`; a participant opening the URL sees "You do not have access to this" (as AC-69 does). |
 
 The UI renders the counts the API returns; it never counts or filters itself.
 
@@ -73,7 +73,7 @@ The UI renders the counts the API returns; it never counts or filters itself.
   "events": [
     { "id": "3f1c2a9e-0000-4000-8000-000000000001", "title": "Intro to Git workshop", "status": "PUBLISHED",
       "startsAt": "2026-12-05T09:00:00.000Z", "capacity": 5, "remainingPlaces": 2,
-      "registered": 3, "checkedIn": 1, "notYetCheckedIn": 2, "noShow": 0 }
+      "registered": 3, "checkedIn": 1, "notYetCheckedIn": 2, "noShow": 0, "cancelled": 1 }
   ]
 }
 ```
@@ -136,3 +136,4 @@ Red: TEST-130, TEST-131, TEST-132, TEST-133, TEST-135 and TEST-136 are committed
 | Version | Date | Change | Author | Reviewer |
 |---|---|---|---|---|
 | 1.0 | 2026-11-28 | First F-12 contract (#206): organizer summary route with D-37 counting across own events and the per-event D-36 window, Summary screen; AC-130 to AC-136, TEST-130 to TEST-136; TEST-134 disclosed as added after F-11 | A (songt888) | Pending B (stickkersz) |
+| 1.1 | 2026-11-28 | B's review: each event row carries its own `cancelled` count (D-37, consistent with `totals` and the F-11 report cross-check); system SDS 2.4 added | A (songt888) | B (stickkersz) on #234 |

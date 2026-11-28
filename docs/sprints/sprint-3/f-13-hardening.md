@@ -32,7 +32,8 @@ Sources: `docs/srs.md` (FR-01, NFR-05, NFR-07, NFR-09), `docs/features.md` (F-13
 | Case | Result |
 |---|---|
 | 9 failed attempts for one email inside the window | each 401 `UNAUTHENTICATED`; no lock yet (AC-137) |
-| 10th failed attempt inside the window | 429 `TOO_MANY_ATTEMPTS`; no session created (AC-137) |
+| 10th failed attempt inside the window | 401 `UNAUTHENTICATED`; the email is now locked (AC-137) |
+| 11th attempt inside the window, any password | 429 `TOO_MANY_ATTEMPTS`; no session created (AC-137) |
 | Any further attempt for that email inside the window, wrong password | 429 `TOO_MANY_ATTEMPTS` (AC-138) |
 | Further attempt with the correct password during the lock | 429 `TOO_MANY_ATTEMPTS`, no session row (AC-138) |
 | Attempt for another email during the lock | evaluated normally: 200 on success, 401 on failure (AC-139) |
@@ -89,9 +90,9 @@ No other endpoint changes.
 
 ## 10. Acceptance criteria
 
-- **AC-137** With a fixed service time, 9 failed logins for one email each return 401 `UNAUTHENTICATED`, and the 10th failed attempt inside the 15-minute window returns 429 `TOO_MANY_ATTEMPTS`; no session exists for the locked attempts.
+- **AC-137** With a fixed service time, 10 failed logins for one email inside the 15-minute window each return 401 `UNAUTHENTICATED`, and the 11th attempt for that email returns 429 `TOO_MANY_ATTEMPTS`; no session exists for the locked attempts.
 - **AC-138** During the lock, an attempt with the correct password returns 429 and creates no session; at `anchor + 15 min + 1 ms` a login for that email is evaluated normally again, and a new failure anchors a fresh window.
-- **AC-139** A successful login before the lock resets that email's count (9 failures, success, then 9 failures still pass; the next failure is only the 10th of the new count); another email's attempts are never affected by the lock.
+- **AC-139** A successful login before the lock resets that email's count (9 failures, success, then 10 failures each return 401; only the next attempt gets 429); another email's attempts are never affected by the lock.
 - **AC-140** The committed measurement run on 1,000 seeded events (20 warm-up, 200 measured requests at concurrency 10) records p95 < 500 ms with the script output in the evidence.
 - **AC-141** The NFR-09 checklist over the new screens (My events controls, Event registrations Check-in column, Attendance, Summary) records loading, empty and error behavior per screen, and every gap found is either fixed or recorded as a limitation.
 
@@ -101,13 +102,13 @@ API tests use Vitest and Supertest with `DATABASE_URL_TEST`; time is injected th
 
 | TEST | AC | Level | Inputs and preconditions | Expected result |
 |---|---|---|---|---|
-| TEST-137 | AC-137 | API + DB | fixed `now`; 10 failed logins for one email with a wrong password | attempts 1–9: 401; attempt 10: 429 `TOO_MANY_ATTEMPTS`; no new session rows for that email after the lock starts |
+| TEST-137 | AC-137 | API + DB | fixed `now`; 11 logins for one email with a wrong password | attempts 1 to 10: 401; attempt 11: 429 `TOO_MANY_ATTEMPTS`; no new session rows for that email after the lock starts |
 | TEST-138 | AC-138 | API + DB | continue TEST-137: a correct-password attempt, a malformed body, and an attempt for a second email; then one attempt at `anchor + 15 min + 1 ms` | correct password: 429, no session; malformed: 429; second email: evaluated normally; after the window: normal evaluation (200/401 as the password decides) |
-| TEST-139 | AC-139 | API + DB | 9 failures, a successful login, then 9 failures, then one more | after the reset the 10th new failure locks (429); the second email's attempts run normally throughout |
+| TEST-139 | AC-139 | API + DB | 9 failures, a successful login, then 10 failures, then one more | the 10 failures after the reset: 401; the next attempt: 429; the second email's attempts run normally throughout |
 | TEST-140 | AC-140 | Measurement script | `npm run bench` on a disposable database with 1,000 seeded events | recorded output with p95 < 500 ms; non-zero exit if the rule fails (added in the green commit; a procedure, not red — it measures, it does not gate behavior) |
 | TEST-141 | AC-141 | Manual QA | the checklist of section 2.4 over the new screens | recorded per-screen results; gaps fixed or recorded as limitations (manual, like the Sprint 1 NFR-09 run) |
 
-Red: TEST-137 and TEST-138's during-lock cases are committed alone on the F-13 red branch and run before the implementation — the login route currently has no limit, so the 429 assertions fail against 401/200, never on a compile, import or fixture error. TEST-139's reset behavior passes on the pre-change code (nothing to reset yet) and is kept as a regression pin that turns real after green; TEST-140 and TEST-141 are procedures added with the implementation, disclosed here.
+Red: TEST-137, TEST-138's during-lock cases and TEST-139 are committed alone on the F-13 red branch and run before the implementation: the login route currently has no limit, so the 429 assertions fail against 401/200, never on a compile, import or fixture error. TEST-140 and TEST-141 are procedures added with the implementation, disclosed here.
 
 ## 12. Definition of Done (F-13)
 
@@ -122,4 +123,5 @@ Red: TEST-137 and TEST-138's during-lock cases are committed alone on the F-13 r
 
 | Version | Date | Change | Author | Reviewer |
 |---|---|---|---|---|
-| 1.0 | 2026-11-28 | First F-13 contract (#206): D-38 login rate limit (per-email 15-minute window, 429 `TOO_MANY_ATTEMPTS`), NFR-05 measurement procedure, NFR-09 checklist for the new screens; AC-137 to AC-141, TEST-137 to TEST-141; the reset-pin and procedure cases disclosed | A (songt888) | Pending B (stickkersz) |
+| 1.0 | 2026-11-28 | First F-13 contract (#206): D-38 login rate limit (per-email 15-minute window, 429 `TOO_MANY_ATTEMPTS`), NFR-05 measurement procedure, NFR-09 checklist for the new screens; AC-137 to AC-141, TEST-137 to TEST-141; the procedure cases disclosed | A (songt888) | Pending B (stickkersz) |
+| 1.1 | 2026-11-28 | B's review: the lock starts after 10 failures (the 10th failure itself is a 401; the 11th attempt is the first 429), per D-38's wording; TEST-139 is red like TEST-137 (its 429 assertion fails before the implementation); system SDS 2.4 and the FR-01 traceability row added | A (songt888) | B (stickkersz) on #234 |

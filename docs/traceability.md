@@ -15,7 +15,7 @@ This matrix maps the whole-product [SRS](srs.md) to [features](features.md), com
 
 | Requirement | Feature or responsibility | Sprint | Existing planned AC | Existing planned TEST | Coverage / remaining work |
 |---|---|---|---|---|---|
-| FR-01 Login | F-01 | S1 | AC-01, AC-02; AC-24 UI | TEST-01, TEST-02; TEST-24 | Verified: listed AC pass at `c1ee1ce` ([results](evidence/ac-test-results.md)). |
+| FR-01 Login | F-01; F-13 rate limit | S1; S3 | AC-01, AC-02; AC-24 UI; S3 draft AC-137, AC-138, AC-139 | TEST-01, TEST-02; TEST-24; S3 draft TEST-137, TEST-138, TEST-139 | Verified: listed S1 AC pass at `c1ee1ce` ([results](evidence/ac-test-results.md)). S3: D-38 login rate limit drafted in #206 (`docs/sprints/sprint-3/f-13-hardening.md`); planned only; no test has run. |
 | FR-02 Logout/revocation | F-01 | S1 | AC-04; AC-24 UI | TEST-04; TEST-24 | Replayed cookie rejected after logout (D-08). Verified: listed AC pass at `c1ee1ce` ([results](evidence/ac-test-results.md)). |
 | FR-03 Current-user identity | F-01 | S1 | AC-03 (no session); AC-01 returns login user; AC-39 authenticated current user | TEST-03; TEST-01; TEST-39 | Exact id/name/role response. Verified: listed AC pass at `c1ee1ce` ([results](evidence/ac-test-results.md)). |
 | FR-04 Create DRAFT/publish own event | F-02 | S1 | AC-06, AC-07, AC-08, AC-09, AC-25, AC-26, AC-29, AC-30, AC-35, AC-36; AC-50 | TEST-06, TEST-07, TEST-08, TEST-09, TEST-25, TEST-26, TEST-29, TEST-30, TEST-35, TEST-36; TEST-50 | Verified: listed AC pass at `c1ee1ce` ([results](evidence/ac-test-results.md)). |
