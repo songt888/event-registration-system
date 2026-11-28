@@ -8,7 +8,7 @@ The submitted candidate is `v0.4.0-rc1` on `main` (D-32, #208): it is released f
 
 | Item | Value |
 |---|---|
-| Sprint 2 release | `v0.3.0-sprint2`, merge commit [S2-06] (release PR [S2-06]) |
+| Sprint 2 release | `v0.3.0-sprint2` [S2-06], merge commit `7e34f1b` (release PR #235, merged 2026-11-28 15:15); deploy run 46125000564 (success, 15:16 to 15:17); revision `s47a6b53b-00008-qrx`, 100 percent of traffic; smoke 3 of 3 PASS |
 | Candidate tag and commit | `v0.4.0-rc1`, merge commit [S3-03] (release PR [S3-03]) |
 | CI on the release PR head | `test-and-docker` run [S3-03]; `e2e` run [S3-03] |
 | Deploy run | "Deploy to Google Cloud" run [S3-03], push of the merge commit |
@@ -98,7 +98,7 @@ docker compose up --build        # whole app in one container on :3000 (root .en
 
 **Deployment:** every push to `main` runs `.github/workflows/deploy.yml`: build and push the image tagged with the commit SHA, run the migration job (`migrate deploy` and `seed:demo`), then `gcloud run deploy` to the Cloud Run service `s47a6b53b`. Sign-in is keyless (Workload Identity Federation); Actions are pinned to commit SHAs. Check a deploy with `python3 deploy/smoke_test.py <URL>`. Roll back by sending traffic to an earlier revision or redeploying an earlier release image, never by resetting the database.
 
-**Known gap in the repository docs:** the final deployment guide (`docs/labs/lab-05/deployment.md` version 0.2, with the cloud resources and the release and rollback procedure) and the Lab 6 post-release docs are on `lab5-staging` and `lab6-staging`, not on `main`, which still has version 0.1 (D7-1 in Part A). The sync into `sprint-2-staging` is planned before S2-06, so the candidate carries it [S3-03].
+**Known gap in the repository docs:** the final deployment guide (`docs/labs/lab-05/deployment.md` version 0.2, with the cloud resources and the release and rollback procedure) and the Lab 6 post-release docs are on `lab5-staging` and `lab6-staging`, not on `main`, which still has version 0.1 (D7-1 in Part A). The sync was not in `v0.3.0-sprint2`; it goes into `sprint-3-staging` before S3-03, so the candidate carries it [S3-03].
 
 ## E.6 Readiness of the candidate
 
@@ -120,7 +120,7 @@ Final examinations run from 1 to 11 December. Dates are targets agreed in `deliv
 | Item | Owner | Target | Depends on |
 |---|---|---|---|
 | Finish any Sprint 2 or Sprint 3 AC still missing at D2 [S3-03] | A and B | [date agreed with A at S3-03] | candidate |
-| D7-1 sync PR `lab6-staging` → `sprint-2-staging`, and `deployment.md` 0.2 onto `main` | A | before S2-06 | Lab 6 PDF final (done) |
+| D7-1 sync PR into `sprint-3-staging` (F-01 1.6, `deployment.md` 0.2) | B (offered), A reviews | before S3-03 | `sprint-3-staging` exists |
 | S3-01 contracts F-10, F-11 (B, #224) and F-12, F-13 (A) | A and B | before S3-02 (F-10, F-11) and S3-03 (F-12, F-13) | D-36 to D-38 (active since #223) |
 | S3-02 F-10 check-in (the implemented Sprint 3 rule) | B | before S3-03 | S3-01, Sprint 2 release |
 | F-11 attendance record and report | B | 5 Dec | F-10 |

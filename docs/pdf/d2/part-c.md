@@ -36,7 +36,7 @@ Status terms: **planned** (only requirement and feature rows), **drafted** (cont
 | F-12 Organizer summary dashboard | planned | contract and implementation | A; 5 Dec |
 | F-13 Hardening, UX and regression | planned; E2E already a required check | login rate limit (D-38), NFR-05 measurement, NFR-09 checklist for the new screens, full regression | A; 8 Dec |
 | Lab 6 limitations (taskbar wrap at 641 to 735 px, #147 label ellipsis) | accepted, remaining (Part A.3) | recheck with the F-13 UI checks; fix or keep as documented limitations | B; 8 Dec |
-| D7-1 documentation sync | open (Part A.3) | sync PR `lab6-staging` → `sprint-2-staging` (F-01 1.6) and `deployment.md` 0.2 from `lab5-staging` | A; before S2-06 |
+| D7-1 documentation sync | open (Part A.3); not in `v0.3.0-sprint2` | sync PR into `sprint-3-staging`: F-01 1.6 from `lab6-staging` and `deployment.md` 0.2 from `lab5-staging` | B (offered on #205, #235), A reviews; before S3-03 |
 | UAT retest of the new features with Est, final regression | not started | send Est the candidate with the new features; record their retest | A and B; 11 Dec |
 | Final release `v1.0.0`, video, final PDF | not started | release, deploy, post-deployment checks, video, final PDF | A and B; 13 Dec |
 
