@@ -10,7 +10,7 @@ Team EN-009_P3, section &lt;section&gt;. Theme 3: Event Registration and Attenda
 | Repository | https://github.com/songt888/event-registration-system |
 | Accepted Sprint 1 baseline | tag `v0.1.0-sprint1`, commit `12dcd3c` |
 | Sprint 2 release | tag `v0.3.0-sprint2` on merge commit `7e34f1b` (release PR #235, 2026-11-28 15:15), Cloud Run revision `s47a6b53b-00008-qrx` |
-| Submitted candidate | tag `v0.4.0-rc1` on merge commit `2d24701` (release PR #243, 2026-11-28 17:47 UTC+7) |
+| Submitted candidate | tag `v0.4.0-rc1` on merge commit `d2b5087` (release PR #243, head `2d24701`, 2026-11-28 17:47 UTC+7) |
 | Deployed URL and version | https://s47a6b53b-4d7hbszvwq-as.a.run.app, revision `s47a6b53b-00009-txn` |
 
 No password, token, cookie, connection string or key appears in this PDF or its figures. Accounts are named by label only; all data is synthetic.

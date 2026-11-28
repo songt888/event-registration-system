@@ -9,7 +9,7 @@ The submitted candidate is `v0.4.0-rc1` on `main` (D-32, #208): it is released f
 | Item | Value |
 |---|---|
 | Sprint 2 release | tag `v0.3.0-sprint2` on merge commit `7e34f1b` (release PR #235, merged 2026-11-28 15:15); deploy run 46125000564 (success, 15:16 to 15:17); revision `s47a6b53b-00008-qrx`, 100 percent of traffic; smoke 3 of 3 PASS |
-| Candidate tag and commit | `v0.4.0-rc1`, merge commit `2d24701` (release PR #243, merged 2026-11-28 17:47 UTC+7) |
+| Candidate tag and commit | `v0.4.0-rc1`, merge commit `d2b5087` (release PR #243, head `2d24701`, merged 2026-11-28 17:47 UTC+7) |
 | CI on the release PR head | `test-and-docker` run 46134292242 (pass); `e2e` run 46134292242 (pass) |
 | Deploy run | "Deploy to Google Cloud" run 46136809321 (success), push of the merge commit |
 | Deployed URL and revision | https://s47a6b53b-4d7hbszvwq-as.a.run.app, revision `s47a6b53b-00009-txn`, 100 percent of traffic |
@@ -21,7 +21,7 @@ The submitted candidate is `v0.4.0-rc1` on `main` (D-32, #208): it is released f
 | Command | Result on the candidate commit |
 |---|---|
 | `npm run build` | succeeds - server `prisma generate && tsc`, client `tsc -b && vite build` (B on `b758793`; the Docker image build in CI run 46134292242 on the candidate) |
-| `npm test` (Vitest + Supertest, real PostgreSQL) | 153 passed, 0 failed, 0 skipped on `2d24701`; baseline before Sprint 2: 73 passed, 0 failed, 0 skipped on `861f01f` |
+| `npm test` (Vitest + Supertest, real PostgreSQL) | 153 passed, 0 failed, 0 skipped on `2d24701`, the #243 head; the merge commit `d2b5087` has the same tree; baseline before Sprint 2: 73 passed, 0 failed, 0 skipped on `861f01f` |
 | `npm run test:e2e` (Playwright, Chromium; also the CI job `e2e`, D-39) | 28 passed, 0 failed on `2d24701`; baseline before Sprint 2: 20 passed, 0 failed, 0 skipped |
 | `bash deploy/tests/test_deploy_stub.sh` (TEST-54), `bash deploy/tests/test_release_stub.sh` (TEST-55) | 6/6 and 10/10 on the release recheck (`5d365c0`, B); the scripts are unchanged on the candidate |
 
@@ -119,7 +119,7 @@ Final examinations run from 1 to 11 December. Dates are targets agreed in `deliv
 
 | Item | Owner | Target | Depends on |
 |---|---|---|---|
-| Finish any Sprint 2 or Sprint 3 AC still missing at D2 | A and B | [date agreed with A at submission] | candidate |
+| Finish any Sprint 2 or Sprint 3 AC still missing at D2 | A and B | none missing at D2 | candidate |
 | S3-01 contracts F-10 to F-13 | A and B | done 2026-11-28 (#224, #234 merged into `sprint-3-staging`) | D-36 to D-38 |
 | S3-02 F-10 check-in (the implemented Sprint 3 rule) | B | before S3-03 | S3-01, Sprint 2 release |
 | F-11 attendance record and report | B | 5 Dec | F-10 |
