@@ -122,6 +122,17 @@ Planned S2 lifecycle transitions from D-33/D-34: an Event moves `DRAFT` to `PUBL
   - organizer 2: one PUBLISHED event (for the cross-owner checks).
 - Every seeded `startsAt` is relative to the time the seed runs (for example now + 7 days), never a fixed date, so seeded events stay registrable (D-14).
 
+### 2.4 Sprint 3 summary and hardening (planned; F-12 and F-13 contract drafts in #206)
+Detailed behavior is in `docs/sprints/sprint-3/f-12-dashboard.md` and `f-13-hardening.md`. Nothing here is implemented or verified. #224 adds the F-10/F-11 rows as a section at the same place; the two sections are numbered 2.4/2.5 when both land.
+
+| Item | Planned design | Feature |
+|---|---|---|
+| Endpoint | `GET /api/organizer/summary`, ORGANIZER, 200; `totals` and per-own-event counts registered, checkedIn, notYetCheckedIn, noShow, cancelled under D-37 with each event's D-36 window end; order 401, 403 role, 400 | F-12 |
+| Screen | Summary page `/organizer/summary`, linked from the organizer navigation | F-12 |
+| Rule | Login limit per email (D-38): after 10 failed attempts within 15 minutes from the first counted failure, 429 `TOO_MANY_ATTEMPTS` for every attempt for that email, also with the correct password, and no session is created; the counter is in-process and a restart clears it | F-13 |
+| New 429 code | `TOO_MANY_ATTEMPTS` | F-13 |
+| Measurement | `npm run bench`: 1,000 seeded events, 20 warm-up, 200 measured `GET /api/events` requests at concurrency 10, p95 < 500 ms (NFR-05) | F-13 |
+
 ## 3. UI structure
 
 ### 3.1 Screens and navigation (S1)
