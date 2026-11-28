@@ -1,12 +1,13 @@
 import request, { type Test } from 'supertest';
 import { describe, expect, it } from 'vitest';
 import { createApp } from './app';
+import { checkInRegistration } from './registrations.service';
 import { prisma } from '../test/setup-db';
 import { PASSWORD, createUser, errorBody, insertSession, sidFrom } from '../test/fixtures';
 
 // F-10 (S3-02, #207): TEST-110, TEST-111, TEST-113, TEST-114 (a), TEST-115 to TEST-118 from
 // docs/sprints/sprint-3/f-10-checkin.md section 11. TEST-112 and TEST-114 (b) call the check-in service
-// with a fixed `now` and are added in the green commit (contract section 11).
+// with a fixed `now` and are added in the green commit (contract section 11); they are the last two tests below.
 // The `CheckIn` table is added by the green migration, so these tests never use a Prisma `checkIn` model:
 // they create check-ins through the API and count them with raw SQL after the status assertion.
 const app = createApp();
@@ -205,6 +206,38 @@ describe('F-10 check-in API', () => {
       expectError(await checkIn(r, cookie), 401, 'UNAUTHENTICATED');
     }
     expect(await checkInCount()).toBe(0);
+  });
+
+  it('TEST-112 AC-112 accepts the window bounds and refuses just outside them, with a fixed service time', async () => {
+    const o = await createUser('ORGANIZER', 'o@example.com');
+    const startsAt = new Date(Math.floor((Date.now() + DAY) / MIN) * MIN);
+    const cases = [
+      { now: new Date(startsAt.getTime() - 60 * MIN), ok: true },
+      { now: new Date(startsAt.getTime() + 6 * HOUR - 1), ok: true },
+      { now: new Date(startsAt.getTime() - 60 * MIN - 1), ok: false },
+      { now: new Date(startsAt.getTime() + 6 * HOUR), ok: false },
+    ];
+    for (const [i, { now, ok }] of cases.entries()) {
+      const p = await createUser('PARTICIPANT', `p${i}@example.com`);
+      const e = await seedEvent(o.id, startsAt);
+      const r = await hold(e.id, p.id);
+      const call = checkInRegistration(o.id, r.id, now);
+      if (ok) await expect(call).resolves.toMatchObject({ registration: { id: r.id, checkedInAt: now } });
+      else await expect(call).rejects.toMatchObject({ status: 409, code: 'OUTSIDE_CHECKIN_WINDOW' });
+      expect(await checkInRows(r.id)).toHaveLength(ok ? 1 : 0);
+    }
+  });
+
+  it('TEST-114 (b) AC-114 refuses a second check-in after the window and keeps the first one', async () => {
+    const o = await signIn('ORGANIZER', 'o@example.com');
+    const p = await createUser('PARTICIPANT', 'p1@example.com');
+    const e = await seedEvent(o.user.id, new Date(Date.now() - 7 * HOUR));
+    const r = await hold(e.id, p.id);
+    await checkInRegistration(o.user.id, r.id, new Date(e.startsAt.getTime() + HOUR)); // inside the window, with a fixed `now`
+    const [first] = await checkInRows(r.id);
+
+    expectError(await checkIn(r.id, o.cookie), 409, 'ALREADY_CHECKED_IN');
+    expect(await checkInRows(r.id)).toEqual([first]);
   });
 
   it('TEST-118 AC-118 refuses to cancel a registration that was checked in before the start', async () => {

@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { requireRole, requireSession } from './auth/middleware.js';
 import { jsonBody } from './lib/body.js';
 import { asyncHandler, validationError, zodDetails } from './lib/errors.js';
-import { cancelRegistration, getMyRegistration, listEventRegistrations, listMyRegistrations, registerForEvent } from './registrations.service.js';
+import { cancelRegistration, checkInRegistration, getMyRegistration, listEventRegistrations, listMyRegistrations, registerForEvent } from './registrations.service.js';
 
 const idSchema = z.string().uuid();
 const emptyBody = z.object({}).strict();
@@ -60,6 +60,23 @@ registrationsRouter.post(
     if (details.length) throw validationError(details);
 
     res.json({ registration: await cancelRegistration(res.locals.user.id, req.params.id, new Date()) });
+  }),
+);
+
+// F-10: the organizer's check-in; the service decides ownership, state and the D-36 window.
+registrationsRouter.post(
+  '/registrations/:id/check-in',
+  requireSession,
+  requireRole('ORGANIZER'),
+  jsonBody,
+  asyncHandler(async (req, res) => {
+    const details = [];
+    if (!idSchema.safeParse(req.params.id).success) details.push({ field: 'id', message: 'Invalid registration ID' });
+    const body = emptyBody.safeParse(req.body);
+    if (!body.success) details.push(...zodDetails(body.error));
+    if (details.length) throw validationError(details);
+
+    res.status(201).json(await checkInRegistration(res.locals.user.id, req.params.id, new Date()));
   }),
 );
 

@@ -36,6 +36,7 @@ model User {
   sessions      Session[]
   events        Event[]
   registrations Registration[]
+  checkIns      CheckIn[]
 }
 
 model Session {
@@ -74,6 +75,17 @@ model Registration {
   status        RegistrationStatus @default(ACTIVE)
   createdAt     DateTime           @default(now()) @db.Timestamptz(3)
   cancelledAt   DateTime?          @db.Timestamptz(3)
+  checkIn       CheckIn?
 
   @@index([eventId, status])
+}
+
+// F-10 (D-36): one CheckIn per registration; rows are never deleted.
+model CheckIn {
+  id             String       @id @default(uuid()) @db.Uuid
+  registrationId String       @unique @db.Uuid
+  registration   Registration @relation(fields: [registrationId], references: [id], onDelete: Restrict)
+  checkedInAt    DateTime     @db.Timestamptz(3)
+  checkedInById  String       @db.Uuid
+  checkedInBy    User         @relation(fields: [checkedInById], references: [id], onDelete: Restrict)
 }
