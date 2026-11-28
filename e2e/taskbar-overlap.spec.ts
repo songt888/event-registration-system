@@ -7,7 +7,7 @@ const ROLES = [
   { email: 'participant1@example.com', path: '/events' },
 ];
 
-test('TEST-72 AC-72 the taskbar never covers the page, and from 641 px it keeps Logout on one row (L6-20)', async ({ browser }) => {
+test('TEST-72 AC-72 the taskbar never covers the page, and at 768 and 812 px it keeps Logout on one row (L6-20)', async ({ browser }) => {
   for (const { email, path } of ROLES) {
     for (const [width, height] of SIZES) {
       const page = await (await browser.newContext({ viewport: { width, height } })).newPage();
@@ -37,7 +37,7 @@ test('TEST-72 AC-72 the taskbar never covers the page, and from 641 px it keeps 
       const at = `${email.split('@')[0]} at ${width}x${height}`;
       // (a) after scrolling to the end, the lowest content of the page (for the organizer: Save draft) is above the taskbar
       expect.soft(m.pageBottom, `${at}: page bottom vs taskbar top ${m.headerTop}`).toBeLessThanOrEqual(m.headerTop);
-      // (b) above the 640 px layout the taskbar is a single row: Logout sits on the same row as Events
+      // (b) at the wider sizes checked here (768 and 812 px) the taskbar is a single row: Logout sits on the same row as Events
       if (width > 640) expect.soft(Math.abs(m.logoutTop - m.eventsTop), `${at}: Logout row vs Events row`).toBeLessThanOrEqual(8);
       await page.context().close();
     }
