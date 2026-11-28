@@ -33,7 +33,7 @@ Progress recorded before the candidate (B's merge rechecks, each in a clean work
 |---|---|---|---|
 | `acb3e86` (#225, merged as `a94ef4d`) | S2-02 migration | 73 passed, 0 failed, 0 skipped | 20 passed |
 | `3b205c6` (#228, merged as `33f80e8`) | F-07 cancel registration (TEST-73 to TEST-80) | 80 passed, 0 failed, 0 skipped | 21 passed |
-| `a39258c` (#231, in review at this snapshot) | F-08 manage event (TEST-90 to TEST-109) | 98 passed, 0 failed, 0 skipped | 24 passed |
+| `a39258c` (#231, merged as `5a001f8`) | F-08 manage event (TEST-90 to TEST-109) | 98 passed, 0 failed, 0 skipped | 24 passed |
 
 ## E.3 Cross-feature regression
 
