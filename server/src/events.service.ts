@@ -39,8 +39,6 @@ const capacityBelowActive = conflict('CAPACITY_BELOW_ACTIVE', 'Capacity cannot b
 const notPublished = conflict('EVENT_NOT_PUBLISHED', 'Only a published event can be closed.');
 const alreadyClosed = conflict('ALREADY_CLOSED', 'This event is already closed.');
 const alreadyCancelled = conflict('ALREADY_CANCELLED', 'This event is already cancelled.');
-const invalidDeadline = () =>
-  new AppError(400, 'INVALID_DEADLINE', 'Registration deadline must be after now and no later than the event start time.');
 
 const hidden = (status: string) => status === 'DRAFT' || status === 'CANCELLED';
 
@@ -139,6 +137,12 @@ export function editEvent(db: PrismaClient, callerId: string, eventId: string, i
       if (e.registrationDeadline && e.registrationDeadline > startsAt) throw invalidDeadline();
     }
     if (input.capacity !== undefined && input.capacity < active) throw capacityBelowActive();
+    // F-09, D-35: only a PATCH that sends the deadline validates it (now < deadline <= the effective start,
+    // the changed start when both change). An omitted deadline preserves the stored value; null clears it.
+    const effectiveStart = startsAt ?? e.startsAt;
+    if (input.registrationDeadline && (input.registrationDeadline <= now || input.registrationDeadline > effectiveStart)) {
+      throw invalidDeadline();
+    }
     return save(tx, eventId, input);
   });
 }
