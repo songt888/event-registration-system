@@ -1,4 +1,4 @@
-<!-- Deliverable 2 PDF, Part A (S2-07 #209). Author: B (Nattakit Prasertsak). Checker: A. Draft: values marked [S2-06] are filled from the Sprint 2 release run. -->
+<!-- Deliverable 2 PDF, Part A (S3-04 #209). Author: B (Nattakit Prasertsak). Checker: A. Draft: values marked [S2-06] are filled from the Sprint 2 release run, values marked [S3-03] from the D2 candidate `v0.4.0-rc1`. -->
 
 # Part A: Sprint 1 continuity and change status
 
@@ -11,7 +11,7 @@ Part A shows that the accepted Sprint 1 slice still works after Labs 5 to 7 and 
 | Accepted Sprint 1 release | tag `v0.1.0-sprint1`, commit `12dcd3c` (2026-11-08), Deliverable 1. The tag has never moved (D-17). |
 | Sprint 1 scope | F-01 sign in and out, F-02 publish event, F-03 browse events, F-04 register, F-05 own registrations, F-06 organizer's registrations of an own event; AC-01 to AC-51 |
 | Original critical domain journey | an organizer creates and publishes an event; a participant browses it, registers, and sees the registration in My registrations; the organizer sees it in the event's registrations. Automated as **TEST-22** (`e2e/golden-journey.spec.ts`), with the full-event message as TEST-23 |
-| Releases since the baseline | `v0.1.1-lab5` `d9cf666` and `v0.1.2-lab5` `04e8590` (Lab 5), `v0.1.3-lab6` `502d2a6` (Lab 6), `v0.2.0-lab7` `861f01f` (Lab 7), candidate `v0.3.0-sprint2` [S2-06] |
+| Releases since the baseline | `v0.1.1-lab5` `d9cf666` and `v0.1.2-lab5` `04e8590` (Lab 5), `v0.1.3-lab6` `502d2a6` (Lab 6), `v0.2.0-lab7` `861f01f` (Lab 7), Sprint 2 release `v0.3.0-sprint2` [S2-06], D2 candidate `v0.4.0-rc1` [S3-03] (D-32) |
 
 ## A.2 The original journey on later versions
 
@@ -22,9 +22,11 @@ Part A shows that the accepted Sprint 1 slice still works after Labs 5 to 7 and 
 | `v0.2.0-lab7` `861f01f` (release commit) | `npm test` and `npm run test:e2e` on the release commit (automated, B, 2026-11-27 14:11) | 73 passed, 0 failed, 0 skipped; E2E 20 passed, 0 failed, 0 skipped, TEST-22 and TEST-23 among them | Lab 7 E7-C3 |
 | `v0.2.0-lab7`, revision `s47a6b53b-00007-mkk` | post-deployment checks on production (AI-executed requests on A's sign-in, 13:32 to 13:35): a repeat registration and a participant reading an organizer's list | 409 `ALREADY_REGISTERED` and 403 `FORBIDDEN`, as in Sprint 1 | Lab 7 E7-B5 |
 | `sprint-2-staging` `06284ce` (same app code as `861f01f`) | the new CI job `e2e` on PR #220 (D-39) | 20 passed, TEST-22 included (run 45988721835) | #219, #220 |
-| **Candidate `v0.3.0-sprint2`** [S2-06] | `npm run test:e2e` on the candidate commit and a post-deployment run of the journey on production with a uniquely named synthetic event | [S2-06] | [S2-06] |
+| `sprint-2-staging` `33f80e8` (after the S2-02 migration #225 and F-07 #228) | `npm test` and `npm run test:e2e` on the #228 head `3b205c6` (B's merge recheck, 2026-11-28 02:14) | 80 passed, 0 failed, 0 skipped; E2E 21 passed, TEST-22 and TEST-23 unchanged among them | #202, #228 |
+| Sprint 2 release `v0.3.0-sprint2` [S2-06] | `npm test` and `npm run test:e2e` on the release commit | [S2-06] | [S2-06] |
+| **D2 candidate `v0.4.0-rc1`** [S3-03] | `npm run test:e2e` on the candidate commit and a post-deployment run of the journey on production with a uniquely named synthetic event | [S3-03] | [S3-03] |
 
-The full API suite also runs unchanged on every pull request in `test-and-docker`: 73 tests, the 69 from Sprint 1 to Lab 6 plus CR-01's TEST-57 to TEST-60. Sprint 2 adds tests and never edits a Sprint 1 assertion; a changed expected result would need a contract revision first, as CR-01 did in Lab 7.
+The full API suite also runs on every pull request in `test-and-docker`: 73 tests on `861f01f` (the 69 from Sprint 1 to Lab 6 plus CR-01's TEST-57 to TEST-60), 80 on `33f80e8` after F-07's TEST-73 to TEST-79. Sprint 2 adds tests and never edits a Sprint 1 assertion (F-07 PRs #226 and #228 and the F-08 red PR #227 add new test files and change no Sprint 1 test file); a changed expected result would need a contract revision first, as CR-01 did in Lab 7.
 
 ## A.3 Change and defect register
 
@@ -51,7 +53,7 @@ The full API suite also runs unchanged on every pull request in `test-and-docker
 | L6-O2 | Lab 6: Est's retest note on #147 | F-01 window shell at 320 px | accepted limitation: the Restore label is cut with an ellipsis; the button stays inside the screen | **remaining** (known limitation) | none | non-blocking in Est's decision (#126) |
 | CR-01 | Lab 7 maintenance: approved change request (#133) | FR-06, new BR-10, F-04 1.7 | requirement change: 409 `TIME_CONFLICT` for two ACTIVE registrations less than 120 minutes apart | resolved | `v0.2.0-lab7` `861f01f` (PRs #183, #184, #185, #190, release #193) | TEST-57 to TEST-61 red on `502d2a6`, green on `861f01f`; production checks 5 of 5 PASS (E7-B5) |
 | D7-1 | Lab 7 readiness review (B) | documentation: F-01 contract on `main` | accepted documentation defect, minor: `main` still has F-01 1.5 ("one row from 641 px"); 1.6 exists only on `lab6-staging` | **remaining** | sync PR `lab6-staging` → `sprint-2-staging` before S2-06 (owner A) [S2-06] | [S2-06] |
-| TD-1 | Lab 7 metrics and readiness (B) | NFR process, D-23 | technical debt: E2E was outside the required check; fixed by the CI job `e2e` (D-39) | resolved on `sprint-2-staging`; ships in `v0.3.0-sprint2` | PR #220 (#219) | the job ran 20 passed on its own PR; making it a required check is #219's last step |
+| TD-1 | Lab 7 metrics and readiness (B) | NFR process, D-23 | technical debt: E2E was outside the required check; fixed by the CI job `e2e` (D-39) | resolved on `sprint-2-staging`; ships in `v0.3.0-sprint2` | PR #220 (#219, closed 2026-11-28) | the job ran 20 passed on its own PR; `e2e` is a required check of the ruleset next to `test-and-docker` since 2026-11-28 |
 
 Totals: 2 Lab 5 deployment findings (resolved), 13 Lab 6 UAT findings (3 accepted defects including 1 major, 1 duplicate, 9 enhancements; all resolved and retested by Est), 2 accepted Lab 6 limitations (remaining, non-blocking), 1 Lab 7 change (released), 1 open documentation defect and 1 resolved technical-debt item. No critical or major defect is open.
 
@@ -70,5 +72,6 @@ Decisions are never renumbered; a revised decision keeps its old text struck thr
 | F-01 1.1 to 1.5, F-02 1.1 to 1.4, F-03 1.2, F-04 1.6, F-05/F-06 1.2 | 2026-11-26 | new AC-56, AC-62 to AC-72 and their TEST rows for the Lab 6 findings, each committed before its red test | Est's UAT findings (A.3) | Lab 6 PDF Part D.1 |
 | F-01 1.6 | 2026-11-26 | AC-72 narrowed to 768 px and wider | found in A's release smoke check; on `lab6-staging` only (D7-1) | PR #182 |
 | D-31, CR-01: SRS FR-06 and BR-10, F-04 1.7, system SDS 1.2, F-02 1.5 | 2026-11-27 | `lab7-staging`; the time-conflict rule; TEST-65 fixture moved two weeks ahead (assertions unchanged) | approved change request CR-01 | #133, #134, PR #185, #190 |
-| D-32 to D-35 | 2026-11-27 | Sprint 2: `sprint-2-staging` and `v0.3.0-sprint2` (also the D2 candidate); cancellation, event lifecycle and deadline rules | rules fixed before the Sprint 2 contracts | #199, PRs #198, #216 |
-| D-36 to D-38 | 2026-11-27 | check-in window, attendance counting, hardening: deferred to the Sprint 3 plan | Sprint 2 first (PR #216) | #199 |
+| D-32 to D-35 | 2026-11-27 | Sprint 2: `sprint-2-staging` and the release `v0.3.0-sprint2`; Sprint 3 progress on `sprint-3-staging` with the D2 candidate `v0.4.0-rc1`; cancellation, event lifecycle and deadline rules | rules fixed before the Sprint 2 contracts | #199, PRs #198, #223 |
+| D2 scope, D-36 to D-38 | 2026-11-27, revised 2026-11-28 | PR #216 narrowed D2 to Sprint 2 and deferred D-36 to D-38; PR #223 (merged 2026-11-28 00:52) reverted that: D2 covers Sprint 2 completion and Sprint 3 progress again, D-36 to D-38 are active, Sprint 3 Issues #206 to #208 reopened. Both changes stay in the history | the D2 handout asks for Sprint 3 progress; A and B decided to restore it | PRs #216, #223 |
+| F-02 1.6, F-03 1.3, F-04 1.8, F-05/F-06 1.3 | 2026-11-27 | Sprint 1 contracts revised for F-08: CLOSED events listed, CANCELLED hidden from non-owners, `EVENT_CLOSED` in the registration order (D-35); Sprint 1 AC and tests unchanged | the Sprint 2 features change Sprint 1 visibility rules, so the contracts say so before any test | PR #221 (with #222) |
