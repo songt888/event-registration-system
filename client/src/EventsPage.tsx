@@ -53,6 +53,7 @@ export function EventsPage() {
               <p className="muted">{new Date(e.startsAt).toLocaleString()}</p>
               <p className="muted">{e.location}</p>
               <Places e={e} />
+              {e.status === 'CLOSED' && <p>Closed</p>}
             </li>
           ))}
         </ul>
@@ -107,6 +108,7 @@ export function EventDetailPage() {
           <p className="muted">{e.location}</p>
           <p className="muted">{new Date(e.startsAt).toLocaleString()}</p>
           <Places e={e} />
+          {e.status === 'CLOSED' && <p>This event is closed.</p>}
           {/* F-04: shown even when Full; the server decides (BR-01). */}
           {user?.role === 'PARTICIPANT' && e.status === 'PUBLISHED' && (
             <button onClick={() => register(e.id)} disabled={pending}>
