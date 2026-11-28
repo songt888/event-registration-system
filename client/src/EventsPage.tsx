@@ -51,6 +51,9 @@ export function EventsPage() {
                 <Link to={`/events/${e.id}`}>{e.title}</Link>
               </h2>
               <p className="muted">{new Date(e.startsAt).toLocaleString()}</p>
+              {e.registrationDeadline && (
+                <p className="muted">Registration deadline: {new Date(e.registrationDeadline).toLocaleString()}</p>
+              )}
               <p className="muted">{e.location}</p>
               <Places e={e} />
               {e.status === 'CLOSED' && <p>Closed</p>}
