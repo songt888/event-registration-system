@@ -120,8 +120,8 @@ Final examinations run from 1 to 11 December. Dates are targets agreed in `deliv
 | Item | Owner | Target | Depends on |
 |---|---|---|---|
 | Finish any Sprint 2 or Sprint 3 AC still missing at D2 [S3-03] | A and B | [date agreed with A at S3-03] | candidate |
-| D7-1 sync PR into `sprint-3-staging` (F-01 1.6, `deployment.md` 0.2) | B (offered), A reviews | before S3-03 | `sprint-3-staging` exists |
-| S3-01 contracts F-10, F-11 (B, #224) and F-12, F-13 (A) | A and B | before S3-02 (F-10, F-11) and S3-03 (F-12, F-13) | D-36 to D-38 (active since #223) |
+| D7-1 sync PR #238 into `sprint-3-staging` (F-01 1.6, `deployment.md` 0.2) | B, A reviews | before S3-03 | `sprint-3-staging` (exists since 2026-11-28) |
+| S3-01 contracts F-10 to F-13 | A and B | done 2026-11-28 (#224, #234 merged into `sprint-3-staging`) | D-36 to D-38 |
 | S3-02 F-10 check-in (the implemented Sprint 3 rule) | B | before S3-03 | S3-01, Sprint 2 release |
 | F-11 attendance record and report | B | 5 Dec | F-10 |
 | F-12 organizer summary dashboard | A | 5 Dec | F-11 |
