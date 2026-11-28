@@ -135,6 +135,17 @@ Detailed behavior is in `docs/sprints/sprint-3/f-10-checkin.md` and `f-11-attend
 | Screens | Event registrations gets a Check-in column with a Check in button (F-10); new Attendance page `/organizer/events/:id/attendance`, linked from My events and Event registrations (F-11) | F-10, F-11 |
 | New 409 codes | `REGISTRATION_NOT_ACTIVE`, `ALREADY_CHECKED_IN`, `OUTSIDE_CHECKIN_WINDOW` | F-10 |
 
+### 2.5 Sprint 3 summary and hardening (planned; F-12 and F-13 contract drafts in #206)
+Detailed behavior is in `docs/sprints/sprint-3/f-12-dashboard.md` and `f-13-hardening.md`. Nothing here is implemented or verified.
+
+| Item | Planned design | Feature |
+|---|---|---|
+| Endpoint | `GET /api/organizer/summary`, ORGANIZER, 200; `totals` and per-own-event counts registered, checkedIn, notYetCheckedIn, noShow, cancelled under D-37 with each event's D-36 window end; order 401, 403 role, 400 | F-12 |
+| Screen | Summary page `/organizer/summary`, linked from the organizer navigation | F-12 |
+| Rule | Login limit per email (D-38): after 10 failed attempts within 15 minutes from the first counted failure, 429 `TOO_MANY_ATTEMPTS` for every attempt for that email, also with the correct password, and no session is created; the counter is in-process and a restart clears it | F-13 |
+| New 429 code | `TOO_MANY_ATTEMPTS` | F-13 |
+| Measurement | `npm run bench`: 1,000 seeded events, 20 warm-up, 200 measured `GET /api/events` requests at concurrency 10, p95 < 500 ms (NFR-05) | F-13 |
+
 ## 3. UI structure
 
 ### 3.1 Screens and navigation (S1)
