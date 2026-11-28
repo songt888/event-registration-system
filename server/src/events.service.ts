@@ -134,7 +134,11 @@ export function editEvent(db: PrismaClient, callerId: string, eventId: string, i
     if (startsAt && startsAt.getTime() !== e.startsAt.getTime()) {
       if (active > 0) throw hasRegistrations();
       if (startsAt <= now) throw invalidStart();
-      if (e.registrationDeadline && e.registrationDeadline > startsAt) throw invalidDeadline();
+      // F-08 step 8: the stored-deadline check applies only to a PATCH that moves the start WITHOUT
+      // sending a deadline; a sent deadline is validated against the new start by the F-09 block below.
+      if (e.registrationDeadline && input.registrationDeadline === undefined && e.registrationDeadline > startsAt) {
+        throw invalidDeadline();
+      }
     }
     if (input.capacity !== undefined && input.capacity < active) throw capacityBelowActive();
     // F-09, D-35: only a PATCH that sends the deadline validates it (now < deadline <= the effective start,

@@ -167,6 +167,24 @@ it.each([0, 1])('TEST-85 AC-85 moves a past deadline and checks the new boundary
   expect(await prisma.registration.count()).toBe(boundary ? 0 : 1);
 });
 
+// F-08 step 8 (B's #233 review): the stored-deadline check applies only to a PATCH that moves the start
+// WITHOUT sending a deadline; a sent deadline is validated against the new start and replaces the stored one.
+it('TEST-85 AC-85 moves the start and the deadline together in one PATCH', async () => {
+  const owner = await login('ORGANIZER', 'organizer@example.com');
+  const now = new Date();
+  const event = await storedEvent(owner.id, new Date(+now + 2 * hour), new Date(+now + 90 * 60000));
+  const start = new Date(+now + hour);
+  const deadline = new Date(+now + 30 * 60000);
+  const result = await at(now, () => patch(event.id, owner.cookie, {
+    startsAt: start.toISOString(),
+    registrationDeadline: deadline.toISOString(),
+  }));
+  expect(result.status).toBe(200);
+  const stored = await prisma.event.findUniqueOrThrow({ where: { id: event.id } });
+  expect(stored.startsAt).toEqual(start);
+  expect(stored.registrationDeadline).toEqual(deadline);
+});
+
 it('TEST-86 AC-86 stores equal instants for create and PATCH with different offsets', async () => {
   const owner = await login('ORGANIZER', 'organizer@example.com');
   const now = new Date();
