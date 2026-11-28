@@ -10,6 +10,12 @@ const createSchema = z
     description: z.string().max(2000),
     location: z.string().trim().min(1).max(120),
     startsAt: z.string().datetime({ offset: true }).transform((s) => new Date(s)),
+    // F-09, D-35: omitted or null stores no deadline (the old open-until-start rule).
+    registrationDeadline: z
+      .string()
+      .datetime({ offset: true })
+      .transform((s) => new Date(s))
+      .nullish(),
     capacity: z.number().int().min(1).max(10000),
   })
   .strict();
@@ -21,6 +27,8 @@ const editSchema = createSchema.partial().refine((b) => Object.keys(b).length > 
 export type EditEventInput = z.infer<typeof editSchema>;
 
 const invalidStart = () => new AppError(400, 'INVALID_START_TIME', 'The start time must be in the future.');
+const invalidDeadline = () =>
+  new AppError(400, 'INVALID_DEADLINE', 'Registration deadline must be after now and no later than the event start time.');
 const notFound = () => new AppError(404, 'EVENT_NOT_FOUND', 'Event not found.');
 const alreadyPublished = () => new AppError(409, 'ALREADY_PUBLISHED', 'This event is already published.');
 const conflict = (code: string, message: string) => () => new AppError(409, code, message);
@@ -31,8 +39,6 @@ const capacityBelowActive = conflict('CAPACITY_BELOW_ACTIVE', 'Capacity cannot b
 const notPublished = conflict('EVENT_NOT_PUBLISHED', 'Only a published event can be closed.');
 const alreadyClosed = conflict('ALREADY_CLOSED', 'This event is already closed.');
 const alreadyCancelled = conflict('ALREADY_CANCELLED', 'This event is already cancelled.');
-const invalidDeadline = () =>
-  new AppError(400, 'INVALID_DEADLINE', 'Registration deadline must be after now and no later than the event start time.');
 
 const hidden = (status: string) => status === 'DRAFT' || status === 'CANCELLED';
 
@@ -40,8 +46,18 @@ const hidden = (status: string) => status === 'DRAFT' || status === 'CANCELLED';
 const withActiveCount = { _count: { select: { registrations: { where: { status: 'ACTIVE' as const } } } } };
 
 function toPayload(e: Event & { _count: { registrations: number } }) {
-  const { id, title, description, location, startsAt, capacity, status } = e;
-  return { id, title, description, location, startsAt, capacity, remainingPlaces: capacity - e._count.registrations, status };
+  const { id, title, description, location, startsAt, capacity, status, registrationDeadline } = e;
+  return {
+    id,
+    title,
+    description,
+    location,
+    startsAt,
+    capacity,
+    registrationDeadline,
+    remainingPlaces: capacity - e._count.registrations,
+    status,
+  };
 }
 
 export function parseCreateEvent(body: unknown): CreateEventInput {
@@ -52,7 +68,10 @@ export function parseCreateEvent(body: unknown): CreateEventInput {
 
 export async function createEvent(db: Db, ownerId: string, input: CreateEventInput, now: Date) {
   if (input.startsAt <= now) throw invalidStart();
-  return toPayload(await db.event.create({ data: { ...input, ownerId }, include: withActiveCount }));
+  // F-09, D-35: a non-null deadline must satisfy now < deadline <= startsAt (BR-06).
+  const registrationDeadline = input.registrationDeadline ?? null;
+  if (registrationDeadline && (registrationDeadline <= now || registrationDeadline > input.startsAt)) throw invalidDeadline();
+  return toPayload(await db.event.create({ data: { ...input, ownerId, registrationDeadline }, include: withActiveCount }));
 }
 
 export function parseEditEvent(body: unknown): EditEventInput {
@@ -115,9 +134,19 @@ export function editEvent(db: PrismaClient, callerId: string, eventId: string, i
     if (startsAt && startsAt.getTime() !== e.startsAt.getTime()) {
       if (active > 0) throw hasRegistrations();
       if (startsAt <= now) throw invalidStart();
-      if (e.registrationDeadline && e.registrationDeadline > startsAt) throw invalidDeadline();
+      // F-08 step 8: the stored-deadline check applies only to a PATCH that moves the start WITHOUT
+      // sending a deadline; a sent deadline is validated against the new start by the F-09 block below.
+      if (e.registrationDeadline && input.registrationDeadline === undefined && e.registrationDeadline > startsAt) {
+        throw invalidDeadline();
+      }
     }
     if (input.capacity !== undefined && input.capacity < active) throw capacityBelowActive();
+    // F-09, D-35: only a PATCH that sends the deadline validates it (now < deadline <= the effective start,
+    // the changed start when both change). An omitted deadline preserves the stored value; null clears it.
+    const effectiveStart = startsAt ?? e.startsAt;
+    if (input.registrationDeadline && (input.registrationDeadline <= now || input.registrationDeadline > effectiveStart)) {
+      throw invalidDeadline();
+    }
     return save(tx, eventId, input);
   });
 }
