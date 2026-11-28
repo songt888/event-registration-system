@@ -38,7 +38,7 @@ B reran every suite on the exact heads before approving (`665d5e2`: 142/142; `8f
 | F-08 manage event | AC-90..109 | TEST-90..109 | all pass on `5a001f8` (98/0/0; TEST-92 and TEST-101 run 5 times) | `v0.3.0-sprint2` |
 | F-09 deadline | AC-81..89 | TEST-81..89 | all pass on `8f12a48` (143/143; TEST-86 across two browser time zones) | `v0.3.0-sprint2` |
 
-No planned test was skipped or weakened; the two disclosed adjustments (the TEST-85 session fixture and the F-09 display scope) are recorded in the F-09 contract version history and PR #233. [S2-06] re-run on the release commit.
+No planned test was skipped or weakened; the two disclosed adjustments (the TEST-85 session fixture and the F-09 display scope) are recorded in the F-09 contract version history and PR #233. Release: tag `v0.3.0-sprint2` at `7e34f1b` (release PR #235, merged 2026-11-28 15:15 UTC+7), deployed as Cloud Run revision `s47a6b53b-00008-qrx` (deploy run 46125000564); the release head adds documentation only, so the recorded suites stand.
 
 ## B.4 Issue and PR chains (pair work)
 
@@ -48,7 +48,7 @@ No planned test was skipped or weakened; the two disclosed adjustments (the TEST
 
 ## B.5 Demonstrations
 
-Each demonstration is a scripted run against the recorded commit, kept as evidence in `docs/sprints/sprint-2/` [S2-06]:
+Each demonstration is a scripted run against the release head `7e34f1b` (production revision `s47a6b53b-00008-qrx` where noted), kept as evidence in `docs/sprints/sprint-2/` [S2-06]:
 
 1. **Cancel and re-register with persistence** (F-07, TEST-77/78/80): the participant cancels, reloads My registrations and sees the CANCELLED row with `cancelledAt`; a second participant takes the freed place; the first participant registers again and holds a new ACTIVE row while the CANCELLED row remains.
 2. **Capacity below ACTIVE rejected** (F-08, TEST-91/92): the owner lowers capacity to the ACTIVE count (allowed, equality) and one below it — 409 `CAPACITY_BELOW_ACTIVE` under the event row lock, with a concurrent last-place registration never exceeding the final capacity.
