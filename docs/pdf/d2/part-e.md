@@ -13,7 +13,7 @@ The submitted candidate is `v0.4.0-rc1` on `main` (D-32, #208): it is released f
 | CI on the release PR head | `test-and-docker` run 46134292242 (pass); `e2e` run 46134292242 (pass) |
 | Deploy run | "Deploy to Google Cloud" run 46136809321 (success), push of the merge commit |
 | Deployed URL and revision | https://s47a6b53b-4d7hbszvwq-as.a.run.app, revision `s47a6b53b-00009-txn`, 100 percent of traffic |
-| Running revision = candidate commit | image tagged with the full commit SHA of `2d24701`; the served client bundle name equals a local `npm run build` of the commit [S3-03] |
+| Running revision = candidate commit | image `asia-southeast1-docker.pkg.dev/cpe-se-course-2026/s47a6b53b/s47a6b53b:d2b5087d73da51ae6764047b44ccc291595090f6` (the merge commit's full SHA); the served bundles `index-C4SPMp4G.js` / `index-BQpnM-JE.css` equal a local `npm run build` of the commit (verified 2026-11-28) |
 | Migration | S2-02 (#201, merged `a94ef4d`) adds enum values and nullable columns only (D-20); S3-02 adds the `CheckIn` table (additive, F-10 contract section 8; verified applied with the ACTIVE partial index intact); the deploy's migration job ran in run 46136809321 with `migrate deploy` and the non-destructive `seed:demo`; production data is not reset |
 
 ## E.2 Build and automated suites on the candidate commit
@@ -55,11 +55,11 @@ Uniquely named synthetic events, never a reset (D-20, D-28). Evidence IDs E-E-1 
 
 | ID | Journey | Expected | Result |
 |---|---|---|---|
-| E-E-1 | Sprint 1 critical journey: create, publish, register, My registrations, roster | as Sprint 1 | [S3-03] |
-| E-E-2 | Persistence: cancel a registration, reload and sign in again | the CANCELLED row is still there | [S3-03] |
-| E-E-3 | Rule rejection: capacity below the ACTIVE count | 409 `CAPACITY_BELOW_ACTIVE` | [S3-03] |
-| E-E-4 | Backend protection: another organizer edits an event; a participant cancels another participant's registration | 403 / 404 from the API, nothing changed | [S3-03] |
-| smoke | `python3 deploy/smoke_test.py <URL>` | `/api/health` 200, `/` 200, `/api/me` 401 | [S3-03] |
+| E-E-1 | Sprint 1 critical journey: create, publish, register, My registrations, roster | as Sprint 1 | pass - 16/16 on `s47a6b53b-00009-txn` (2026-11-28 18:08 UTC+7, `evidence/e-e-rc1-20261128.txt`) |
+| E-E-2 | Persistence: cancel a registration, reload and sign in again | the CANCELLED row is still there | pass - CANCELLED + `cancelledAt` after a fresh sign-in |
+| E-E-3 | Rule rejection: capacity below the ACTIVE count | 409 `CAPACITY_BELOW_ACTIVE` | pass - capacity 1 < ACTIVE 2 |
+| E-E-4 | Backend protection: another organizer edits an event; a participant cancels another participant's registration | 403 / 404 from the API, nothing changed | pass - 403 foreign edit, 403 wrong-role cancel, 404 foreign cancel |
+| smoke | `python3 deploy/smoke_test.py <URL>` | `/api/health` 200, `/` 200, `/api/me` 401 | pass on `s47a6b53b-00009-txn` (smoke + the E-E-0 probe) |
 
 ## E.5 Setup summary
 
@@ -98,7 +98,7 @@ docker compose up --build        # whole app in one container on :3000 (root .en
 
 **Deployment:** every push to `main` runs `.github/workflows/deploy.yml`: build and push the image tagged with the commit SHA, run the migration job (`migrate deploy` and `seed:demo`), then `gcloud run deploy` to the Cloud Run service `s47a6b53b`. Sign-in is keyless (Workload Identity Federation); Actions are pinned to commit SHAs. Check a deploy with `python3 deploy/smoke_test.py <URL>`. Roll back by sending traffic to an earlier revision or redeploying an earlier release image, never by resetting the database.
 
-**Repository docs:** the final deployment guide (`docs/labs/lab-05/deployment.md` version 0.2, with the cloud resources and the release and rollback procedure) and F-01 1.6 were only on `lab5-staging` and `lab6-staging` and so not in `v0.3.0-sprint2` (D7-1 in Part A); #238 brought them to `sprint-3-staging` (merged `0e6627d`), so the candidate carries them [S3-03].
+**Repository docs:** the final deployment guide (`docs/labs/lab-05/deployment.md` version 0.2, with the cloud resources and the release and rollback procedure) and F-01 1.6 were only on `lab5-staging` and `lab6-staging` and so not in `v0.3.0-sprint2` (D7-1 in Part A); #238 brought them to `sprint-3-staging` (merged `0e6627d`), so the candidate carries them.
 
 ## E.6 Readiness of the candidate
 
@@ -108,10 +108,10 @@ docker compose up --build        # whole app in one container on :3000 (root .en
 | Sprint 3 progress | contracts merged (#224, #234); F-10 implemented and tested - AC-110..AC-119 pass on `2d24701` (Part C) |
 | Automated suites on the candidate | 153 passed (153) and E2E 28 passed (E.2) |
 | Cross-feature checks | all pass on `2d24701` (E.3) |
-| Deploy and post-deployment checks | deploy done (E.1); the E-E journey re-run on the candidate [S3-03] (E.4) |
+| Deploy and post-deployment checks | done (E.1, E.4: E-E-1..4 16 checks passed, 0 failed on `s47a6b53b-00009-txn`) |
 | Open defects | none critical or major; no Sprint 2 or Sprint 3 defect (Part A.3, #207/#204 close-outs) |
 | Known limitations | the 641 to 735 px taskbar wrap and the #147 label ellipsis (Lab 6, accepted) |
-| Decision | [S3-03]: READY or NOT READY for the candidate scope (Sprint 2 complete, Sprint 3 progress), with reasons and owners |
+| Decision | READY for the candidate scope - Sprint 2 complete (F-07/F-08/F-09 all AC pass, Part B.3) and Sprint 3 progress delivered (contracts F-10..F-13 merged; F-10 implemented and tested, AC-110..AC-119 pass on `2d24701`); no critical or major defect open; decided by A and B at submission |
 
 ## E.7 Plan to the final release (13 December)
 

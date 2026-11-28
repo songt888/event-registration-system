@@ -48,11 +48,11 @@ No planned test was skipped or weakened; the two disclosed adjustments (the TEST
 
 ## B.5 Demonstrations
 
-Each demonstration was recorded on 2026-11-28 against production revision `s47a6b53b-00008-qrx` with the E-E-1..4 checklist script (16 checks passed, 0 failed; unique synthetic event "E-E journey 20261128-162602", id `f36bafcc-c4f3-42c8-a46b-466fcf5362f3`; the script measures the HTTP status of every step):
+Each demonstration was re-recorded on 2026-11-28 (18:08 UTC+7) against the candidate revision `s47a6b53b-00009-txn` (`v0.4.0-rc1`, `2d24701`) with the E-E-1..4 checklist script - 16 checks passed, 0 failed, unique synthetic event "E-E journey 20261128-180809" (id `b0132a40-edf2-468b-8f3b-c92a1e081946`); the full output is in `docs/sprints/sprint-2/evidence/e-e-rc1-20261128.txt` and the script measures the HTTP status of every step:
 
-1. **Cancel and re-register with persistence** (F-07, TEST-77/78/80): the participant cancels, signs in fresh and sees the CANCELLED row with `cancelledAt` (E-E-2 pass); a second participant takes the freed place (201); the first participant registers again - 201 with a new ACTIVE row while the CANCELLED row remains (E-E-3 pass).
-2. **Capacity below ACTIVE rejected** (F-08, TEST-91/92): with ACTIVE 2 the owner sets capacity 1 - 409 `CAPACITY_BELOW_ACTIVE` under the event row lock (E-E-3 pass); the equality case and the concurrent last-place registration are covered by TEST-91/TEST-92 (run 5 times) on the release head.
-3. **Another organizer's edit refused by the API** (F-08/F-09, TEST-102/TEST-95/TEST-87): a second organizer PATCHes someone else's PUBLISHED event - 403 `FORBIDDEN`, nothing changed; an organizer cancelling a registration - 403 (wrong role); a forged `ownerId` in the body - 400 `VALIDATION_ERROR` (E-E-4 pass).
+1. **Cancel and re-register with persistence** (F-07, TEST-77/78/80): the participant cancels, signs in fresh and sees the CANCELLED row with `cancelledAt` (E-E-2 pass); a second participant takes the freed place (201); the first participant registers again - 201 with a new ACTIVE row while the CANCELLED row remains (E-E-3 pass). Recorded on the candidate: PASS.
+2. **Capacity below ACTIVE rejected** (F-08, TEST-91/92): with ACTIVE 2 the owner sets capacity 1 - 409 `CAPACITY_BELOW_ACTIVE` under the event row lock (E-E-3 pass on the candidate); the equality case and the concurrent last-place registration are covered by TEST-91/TEST-92 (run 5 times) in the verified suites.
+3. **Another organizer's edit refused by the API** (F-08/F-09, TEST-102/TEST-95/TEST-87): a second organizer PATCHes someone else's PUBLISHED event - 403 `FORBIDDEN`, nothing changed; an organizer cancelling a registration - 403 (wrong role); a forged `ownerId` in the body - 400 `VALIDATION_ERROR` (E-E-4 pass on the candidate).
 
 ## B.6 Two test excerpts
 
