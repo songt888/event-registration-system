@@ -24,6 +24,7 @@ export function App() {
             <Route path="/my/registrations" element={<MyRegistrationsPage />} />
             <Route path="/organizer/events" element={<MyEventsPage />} />
             <Route path="/organizer/events/new" element={<CreateEventPage />} />
+            <Route path="/organizer/events/:id/edit" element={<CreateEventPage />} />
             <Route path="/organizer/events/:id/registrations" element={<EventRegistrationsPage />} />
             <Route path="*" element={<main><h1>Not found</h1></main>} />
           </Route>
