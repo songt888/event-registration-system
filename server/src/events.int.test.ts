@@ -7,7 +7,7 @@ import { PASSWORD, createUser, errorBody, insertSession, sidFrom } from '../test
 const app = createApp();
 const DAY = 24 * 60 * 60 * 1000;
 const MISSING = '00000000-0000-4000-8000-000000000000';
-const PAYLOAD_KEYS = ['capacity', 'description', 'id', 'location', 'remainingPlaces', 'startsAt', 'status', 'title'];
+const PAYLOAD_KEYS = ['capacity', 'description', 'id', 'location', 'registrationDeadline', 'remainingPlaces', 'startsAt', 'status', 'title'];
 
 const hour = () => new Date(Date.now() + 60 * 60 * 1000);
 const valid = () => ({
@@ -49,12 +49,16 @@ function expectError(res: request.Response, status: number, code: string) {
   return error;
 }
 
-const payloadOf = (e: { id: string; title: string; description: string; location: string; startsAt: Date; capacity: number; status: string }, remainingPlaces = e.capacity) => ({
+const payloadOf = (
+  e: { id: string; title: string; description: string; location: string; startsAt: Date; registrationDeadline: Date | null; capacity: number; status: string },
+  remainingPlaces = e.capacity,
+) => ({
   id: e.id,
   title: e.title,
   description: e.description,
   location: e.location,
   startsAt: e.startsAt.toISOString(),
+  registrationDeadline: e.registrationDeadline?.toISOString() ?? null,
   capacity: e.capacity,
   remainingPlaces,
   status: e.status,
