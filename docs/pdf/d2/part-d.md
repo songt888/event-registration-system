@@ -10,10 +10,10 @@ Part D states the requirements the product implements, the features that cover t
 
 | Group | Requirements | Sprint status |
 |---|---|---|
-| Foundation and journeys | FR-01 sign in/out, FR-15 own-event list (F-01, F-02, F-03, F-04, F-05, F-06) | S1, verified; regressed green through every Sprint 2 merge |
+| Foundation and journeys | FR-01..FR-08 and FR-15 (F-01, F-02, F-03, F-04, F-05, F-06) | S1, verified; regressed green through every Sprint 2 merge |
 | Maintenance change | FR-06 with BR-10 `TIME_CONFLICT` (CR-01, Lab 7) | S1 maintenance, verified at `861f01f` |
-| Sprint 2 slice | FR-07 cancel (BR-03/05/07), FR-08 manage/close/cancel events, FR-09 registration deadline (BR-06), D-33..D-35 | S2, implemented and tested; released as `v0.3.0-sprint2` [S2-06] |
-| Sprint 3 slice | FR-12 check-in (BR-08, D-36), FR-13 attendance (D-37), FR-14 organizer summary, FR-11/15 already covered | S3, contracts drafted (#224, #234), implementation planned (F-10 by B before the candidate; F-11..13 by 5-8 Dec) |
+| Sprint 2 slice | FR-09 cancel (BR-03/05/07), FR-10 manage/close/cancel events, FR-11 registration deadline (BR-06), D-33..D-35 | S2, implemented and tested; released as `v0.3.0-sprint2` [S2-06] |
+| Sprint 3 slice | FR-12 check-in (BR-08, D-36), FR-13 attendance (D-37), FR-14 organizer summary | S3, contracts drafted (#224, #234), implementation planned (F-10 by B before the candidate; F-11..13 by 5-8 Dec) |
 
 ## D.2 Features (features inventory, `docs/features.md`)
 
@@ -34,10 +34,10 @@ Sections 1-3 (architecture, data, UI) describe the shipped system: React + TypeS
 
 | Requirement | AC | Test | Status |
 |---|---|---|---|
-| FR-01..FR-05, FR-15 (S1) | AC-01..AC-51 (plus AC-56, AC-62..AC-72 Lab 6 fixes) | TEST-01..51, 56..72 | verified at `c1ee1ce`; regressed green on every release head since |
+| FR-01..FR-08, FR-15 (S1) | AC-01..AC-51 (plus AC-56, AC-62..AC-72 Lab 6 fixes) | TEST-01..51, 56..72 | verified at `c1ee1ce`; regressed green on every release head since |
 | BR-10 CR-01 (Lab 7) | AC-57..AC-61 | TEST-57..TEST-61 | verified at `861f01f` |
-| FR-07 / BR-03, BR-07 | AC-73..AC-80 | TEST-73..TEST-80 | passed on `33f80e8` |
-| FR-08 | AC-90..AC-109 | TEST-90..TEST-109 | passed on `5a001f8` |
+| FR-09 / BR-03, BR-07 | AC-73..AC-80 | TEST-73..TEST-80 | passed on `33f80e8` |
+| FR-10 | AC-90..AC-109 | TEST-90..TEST-109 | passed on `5a001f8` |
 | FR-11 / BR-06 | AC-81..AC-89 | TEST-81..TEST-89 | passed on `8f12a48` |
 | FR-12 / BR-08 (S3) | AC-110..AC-119 | TEST-110..TEST-119 | planned (contract #224) |
 | FR-13 (S3) | AC-120..AC-127 | TEST-120..TEST-127 | planned (contract #224) |
