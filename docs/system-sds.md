@@ -122,8 +122,21 @@ Planned S2 lifecycle transitions from D-33/D-34: an Event moves `DRAFT` to `PUBL
   - organizer 2: one PUBLISHED event (for the cross-owner checks).
 - Every seeded `startsAt` is relative to the time the seed runs (for example now + 7 days), never a fixed date, so seeded events stay registrable (D-14).
 
-### 2.4 Sprint 3 summary and hardening (planned; F-12 and F-13 contract drafts in #206)
-Detailed behavior is in `docs/sprints/sprint-3/f-12-dashboard.md` and `f-13-hardening.md`. Nothing here is implemented or verified. #224 adds the F-10/F-11 rows as a section at the same place; the two sections are numbered 2.4/2.5 when both land.
+### 2.4 Sprint 3 check-in and attendance (planned; F-10 and F-11 contract drafts in #206)
+Detailed behavior is in `docs/sprints/sprint-3/f-10-checkin.md` and `f-11-attendance.md`. Nothing here is implemented or verified.
+
+| Item | Planned design | Feature |
+|---|---|---|
+| Data | Table `CheckIn`: `id` UUID; `registrationId` UUID unique, FK to `Registration`; `checkedInAt` timestamptz from the service time; `checkedInById` FK to `User`; FKs `ON DELETE RESTRICT`; one additive migration in the S3-02 green commit (D-20) | F-10 |
+| Rule | Owner checks in an ACTIVE registration once while `startsAt - 60 min <= now < startsAt + 6 h`; event row locked first (D-10); unique `registrationId` backs the once rule (D-36) | F-10 |
+| Endpoint | `POST /api/registrations/:id/check-in`, owning organizer, 201; order 401, 403 role, 400, 404 `NOT_FOUND`, 403 another organizer's event, 409 `REGISTRATION_NOT_ACTIVE`, 409 `ALREADY_CHECKED_IN`, 409 `OUTSIDE_CHECKIN_WINDOW` | F-10 |
+| Changed endpoints | `GET /api/events/:id/registrations` items gain `checkedInAt`; `POST /api/registrations/:id/cancel` gets 409 `ALREADY_CHECKED_IN` for a checked-in registration | F-10 (F-06, F-07) |
+| Endpoint | `GET /api/events/:id/attendance`, owning organizer, 200; counts registered, checkedIn, notYetCheckedIn, noShow, cancelled under D-37; visibility as the F-06 roster | F-11 |
+| Screens | Event registrations gets a Check-in column with a Check in button (F-10); new Attendance page `/organizer/events/:id/attendance`, linked from My events and Event registrations (F-11) | F-10, F-11 |
+| New 409 codes | `REGISTRATION_NOT_ACTIVE`, `ALREADY_CHECKED_IN`, `OUTSIDE_CHECKIN_WINDOW` | F-10 |
+
+### 2.5 Sprint 3 summary and hardening (planned; F-12 and F-13 contract drafts in #206)
+Detailed behavior is in `docs/sprints/sprint-3/f-12-dashboard.md` and `f-13-hardening.md`. Nothing here is implemented or verified.
 
 | Item | Planned design | Feature |
 |---|---|---|
