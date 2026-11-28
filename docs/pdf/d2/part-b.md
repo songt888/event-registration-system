@@ -48,11 +48,11 @@ No planned test was skipped or weakened; the two disclosed adjustments (the TEST
 
 ## B.5 Demonstrations
 
-Each demonstration is a scripted run against the release head `7e34f1b` (production revision `s47a6b53b-00008-qrx` where noted), kept as evidence in `docs/sprints/sprint-2/` [S2-06]:
+Each demonstration was recorded on 2026-11-28 against production revision `s47a6b53b-00008-qrx` with the E-E-1..4 checklist script (16 checks passed, 0 failed; unique synthetic event "E-E journey 20261128-162602", id `f36bafcc-c4f3-42c8-a46b-466fcf5362f3`; the script measures the HTTP status of every step):
 
-1. **Cancel and re-register with persistence** (F-07, TEST-77/78/80): the participant cancels, reloads My registrations and sees the CANCELLED row with `cancelledAt`; a second participant takes the freed place; the first participant registers again and holds a new ACTIVE row while the CANCELLED row remains.
-2. **Capacity below ACTIVE rejected** (F-08, TEST-91/92): the owner lowers capacity to the ACTIVE count (allowed, equality) and one below it - 409 `CAPACITY_BELOW_ACTIVE` under the event row lock, with a concurrent last-place registration never exceeding the final capacity.
-3. **Another organizer's edit refused by the API** (F-08/F-09, TEST-102/TEST-95/TEST-87): a second organizer PATCHes someone else's PUBLISHED event - 403 `FORBIDDEN`, nothing changed; a forged `ownerId` in the body - 400 `VALIDATION_ERROR`.
+1. **Cancel and re-register with persistence** (F-07, TEST-77/78/80): the participant cancels, signs in fresh and sees the CANCELLED row with `cancelledAt` (E-E-2 pass); a second participant takes the freed place (201); the first participant registers again - 201 with a new ACTIVE row while the CANCELLED row remains (E-E-3 pass).
+2. **Capacity below ACTIVE rejected** (F-08, TEST-91/92): with ACTIVE 2 the owner sets capacity 1 - 409 `CAPACITY_BELOW_ACTIVE` under the event row lock (E-E-3 pass); the equality case and the concurrent last-place registration are covered by TEST-91/TEST-92 (run 5 times) on the release head.
+3. **Another organizer's edit refused by the API** (F-08/F-09, TEST-102/TEST-95/TEST-87): a second organizer PATCHes someone else's PUBLISHED event - 403 `FORBIDDEN`, nothing changed; an organizer cancelling a registration - 403 (wrong role); a forged `ownerId` in the body - 400 `VALIDATION_ERROR` (E-E-4 pass).
 
 ## B.6 Two test excerpts
 
