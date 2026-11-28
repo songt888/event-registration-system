@@ -49,5 +49,5 @@ Sections 1-3 (architecture, data, UI) describe the shipped system: React + TypeS
 
 - Every Sprint 2 AC is implemented, tested and passed; none is moved to Sprint 3 to look complete.
 - The Sprint 3 contracts (F-10..F-13) are drafted and in review as PRs #224 and #234 (both approved, held as drafts until `sprint-3-staging` exists after this release, then retargeted and merged); no Sprint 3 code, test or migration exists yet.
-- Known limitations carried from Lab 6 (taskbar wrap between 641 and 735 px; the #147 label ellipsis) and the D7-1 documentation sync remain open, owned and dated in Part C.3 — they are limitations, not missing requirements.
+- Known limitations carried from Lab 6 (taskbar wrap between 641 and 735 px; the #147 label ellipsis) and the D7-1 documentation sync remain open, owned and dated in Part C.3 - they are limitations, not missing requirements.
 - The release-dependent rows are marked [S2-06] here and in Part B until the release run records them.
