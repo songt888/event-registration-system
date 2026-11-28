@@ -8,7 +8,7 @@ The submitted candidate is `v0.4.0-rc1` on `main` (D-32, #208): it is released f
 
 | Item | Value |
 |---|---|
-| Sprint 2 release | `v0.3.0-sprint2` [S2-06], merge commit `7e34f1b` (release PR #235, merged 2026-11-28 15:15); deploy run 46125000564 (success, 15:16 to 15:17); revision `s47a6b53b-00008-qrx`, 100 percent of traffic; smoke 3 of 3 PASS |
+| Sprint 2 release | tag `v0.3.0-sprint2` on merge commit `7e34f1b` (release PR #235, merged 2026-11-28 15:15); deploy run 46125000564 (success, 15:16 to 15:17); revision `s47a6b53b-00008-qrx`, 100 percent of traffic; smoke 3 of 3 PASS |
 | Candidate tag and commit | `v0.4.0-rc1`, merge commit [S3-03] (release PR [S3-03]) |
 | CI on the release PR head | `test-and-docker` run [S3-03]; `e2e` run [S3-03] |
 | Deploy run | "Deploy to Google Cloud" run [S3-03], push of the merge commit |
