@@ -8,12 +8,14 @@ const FIELDS = [
   { name: 'description', label: 'Description', type: 'textarea' },
   { name: 'location', label: 'Location', type: 'text' },
   { name: 'startsAt', label: 'Starts at (your local time)', type: 'datetime-local' },
+  // F-09, D-35: optional; empty means no deadline (the old open-until-start rule).
+  { name: 'registrationDeadline', label: 'Registration deadline (your local time)', type: 'datetime-local' },
   { name: 'capacity', label: 'Capacity', type: 'number' },
 ] as const;
 
 type Form = Record<(typeof FIELDS)[number]['name'], string>;
 
-const EMPTY: Form = { title: '', description: '', location: '', startsAt: '', capacity: '' };
+const EMPTY: Form = { title: '', description: '', location: '', startsAt: '', registrationDeadline: '', capacity: '' };
 
 // datetime-local shows local time without a zone.
 const toLocalInput = (iso: string) => {
@@ -35,7 +37,13 @@ export function CreateEventPage() {
     if (!id) return;
     api<EventPayload>(`/events/${id}`).then(
       (e) => {
-        const loaded = { ...e, startsAt: toLocalInput(e.startsAt), capacity: String(e.capacity) };
+        const loaded = {
+          ...e,
+          startsAt: toLocalInput(e.startsAt),
+          // F-09, D-35: show the stored instant in local time; null stays empty (no deadline).
+          registrationDeadline: e.registrationDeadline ? toLocalInput(e.registrationDeadline) : '',
+          capacity: String(e.capacity),
+        };
         setInitial(loaded);
         setForm(loaded);
       },
@@ -55,6 +63,8 @@ export function CreateEventPage() {
       ...form,
       // datetime-local is the browser's local time; toISOString sends that instant in UTC with a zone.
       startsAt: form.startsAt ? new Date(form.startsAt).toISOString() : '',
+      // F-09, D-35: an empty deadline is sent as null (no deadline), not as ''.
+      registrationDeadline: form.registrationDeadline ? new Date(form.registrationDeadline).toISOString() : null,
       capacity: Number(form.capacity),
     };
     try {
