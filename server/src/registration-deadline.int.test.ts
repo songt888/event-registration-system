@@ -2,7 +2,7 @@ import request from 'supertest';
 import { expect, it, vi } from 'vitest';
 import { createApp } from './app';
 import { prisma } from '../test/setup-db';
-import { PASSWORD, createUser, errorBody, sidFrom } from '../test/fixtures';
+import { PASSWORD, createUser, errorBody, insertSession, sidFrom } from '../test/fixtures';
 
 const app = createApp();
 const hour = 60 * 60 * 1000;
@@ -151,14 +151,17 @@ it.each([false, true])('TEST-84 AC-84 preserves or clears a past deadline throug
 
 it.each([0, 1])('TEST-85 AC-85 moves a past deadline and checks the new boundary (%i)', async (boundary) => {
   const owner = await login('ORGANIZER', 'organizer@example.com');
-  const p = await login('PARTICIPANT', 'participant@example.com');
+  const p = await createUser('PARTICIPANT', 'participant@example.com');
   const now = new Date();
+  // D-08: the default session TTL (60 min) expires exactly at the boundary register (now + 1 h), so a
+  // login-session would 401 before the deadline check runs; this fixture's session outlives the boundary.
+  const pCookie = `sid=${await insertSession(p.id, new Date(+now + 2 * hour))}`;
   const deadline = new Date(+now + hour);
   const event = await storedEvent(owner.id, new Date(+now + 2 * hour), new Date(+now - 60000));
   const updated = await at(now, () => patch(event.id, owner.cookie, { registrationDeadline: deadline.toISOString() }));
   expect(updated.status).toBe(200);
   expect((await prisma.event.findUniqueOrThrow({ where: { id: event.id } })).registrationDeadline).toEqual(deadline);
-  const result = await at(new Date(+now + (boundary ? hour : hour / 2)), () => register(event.id, p.cookie));
+  const result = await at(new Date(+now + (boundary ? hour : hour / 2)), () => register(event.id, pCookie));
   if (boundary) expectDeadlineError(result, 409, 'REGISTRATION_CLOSED');
   else expect(result.status).toBe(201);
   expect(await prisma.registration.count()).toBe(boundary ? 0 : 1);
