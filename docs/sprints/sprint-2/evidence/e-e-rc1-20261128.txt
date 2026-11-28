@@ -1,0 +1,29 @@
+Demo password (shared by the four demo accounts; not shown): 
+== E-E-0 smoke (B already ran it; repeat for the record) ==
+  /api/health -> 200
+  /           -> 200
+  /api/me (no session) -> 401
+== E-E-1 Sprint 1 critical journey: create, publish, register, My registrations, roster ==
+  PASS: event created with 201
+  PASS: published event readable by owner
+  PASS: participant registered with 201
+  PASS: registration visible in My registrations
+  PASS: owner roster shows the participant
+== E-E-2 persistence: cancel, re-sign-in, the row stays CANCELLED ==
+  PASS: cancelled row still CANCELLED after a fresh sign-in
+  PASS: cancelledAt is stored
+== E-E-3 capacity below ACTIVE rejected (409 CAPACITY_BELOW_ACTIVE) ==
+  PASS: P2 registers with 201 (ACTIVE 1 of 3)
+  PASS: P1 re-registers with 201 after cancelling (new ACTIVE row)
+  PASS: remainingPlaces 1 of 3 before the cut (ACTIVE 2 confirmed)
+  PASS: owner sets capacity 1 < ACTIVE 2
+== E-E-4 backend protection: foreign edit 403, foreign cancel 403/404 ==
+  PASS: another organizer edits someone else's event
+  PASS: organizer cancels a registration (wrong role, F-07 contract section 5)
+  PASS: participant cancels another participant's row
+== cleanup: release every ACTIVE row this run created (keeps re-runs BR-10-safe) ==
+  PASS: P1 cancels their re-registered row
+  PASS: P2 cancels their row
+
+== Summary: 16 passed, 0 failed ==
+Unique event kept for the record: "E-E journey 20261128-180809" (id b0132a40-edf2-468b-8f3b-c92a1e081946)
