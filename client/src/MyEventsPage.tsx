@@ -11,16 +11,18 @@ export type EventPayload = {
   registrationDeadline: string | null;
   capacity: number;
   remainingPlaces: number;
-  status: 'DRAFT' | 'PUBLISHED';
+  status: 'DRAFT' | 'PUBLISHED' | 'CLOSED' | 'CANCELLED';
 };
 
 export function MyEventsPage() {
   const navigate = useNavigate();
-  const saved = (useLocation().state as { saved?: string } | null)?.saved;
+  const state = (useLocation().state as { saved?: string; edited?: boolean } | null) ?? {};
+  const { saved } = state;
   const [events, setEvents] = useState<EventPayload[] | null>(null);
   const [error, setError] = useState<ApiError | null>(null);
   const [publishing, setPublishing] = useState<string | null>(null);
   const [publishError, setPublishError] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setEvents(null);
@@ -36,19 +38,22 @@ export function MyEventsPage() {
     load();
   }, [load]);
 
-  async function publish(id: string) {
+  async function act(id: string, action: 'publish' | 'close' | 'cancel') {
     setPublishing(id);
     setPublishError(null);
     try {
-      await api(`/events/${id}/publish`, { method: 'POST', body: {} });
+      await api(`/events/${id}/${action}`, { method: 'POST', body: {} });
       if (saved) navigate('.', { replace: true, state: null });
+      setConfirming(null);
       await load();
     } catch (err) {
-      setPublishError(`Publish failed: ${(err as ApiError).message}`);
+      setPublishError(action === 'publish' ? `Publish failed: ${(err as ApiError).message}` : (err as ApiError).message);
     } finally {
       setPublishing(null);
     }
   }
+
+  const upcoming = (e: EventPayload) => new Date(e.startsAt) > new Date();
 
   if (error?.status === 401) return <Navigate to="/login" replace />;
 
@@ -60,7 +65,7 @@ export function MyEventsPage() {
           Create event
         </Link>
       )}
-      {saved && <p role="status">Draft "{saved}" saved.</p>}
+      {saved && <p role="status">{state.edited ? `Event "${saved}" saved.` : `Draft "${saved}" saved.`}</p>}
       {publishError && <p role="alert">{publishError}</p>}
       {error ? (
         <div>
@@ -98,9 +103,27 @@ export function MyEventsPage() {
                   <td><span className={`led led-${e.status.toLowerCase()}`}>{e.status}</span></td>
                   <td className="actions">
                     <Link to={`/organizer/events/${e.id}/registrations`}>Registrations</Link>{' '}
+                    {(e.status === 'DRAFT' || e.status === 'PUBLISHED') && upcoming(e) && (
+                      <Link to={`/organizer/events/${e.id}/edit`}>Edit</Link>
+                    )}{' '}
                     {e.status === 'DRAFT' && (
-                      <button onClick={() => publish(e.id)} disabled={publishing === e.id}>
+                      <button onClick={() => act(e.id, 'publish')} disabled={publishing === e.id}>
                         {publishing === e.id ? 'Publishing...' : 'Publish'}
+                      </button>
+                    )}
+                    {e.status === 'PUBLISHED' && (
+                      <button onClick={() => act(e.id, 'close')} disabled={publishing === e.id}>
+                        Close
+                      </button>
+                    )}{' '}
+                    {e.status !== 'CANCELLED' && (
+                      <button onClick={() => setConfirming(e.id)} disabled={publishing === e.id}>
+                        Cancel event
+                      </button>
+                    )}
+                    {confirming === e.id && (
+                      <button onClick={() => act(e.id, 'cancel')} disabled={publishing === e.id}>
+                        Confirm cancel
                       </button>
                     )}
                   </td>

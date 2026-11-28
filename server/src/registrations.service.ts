@@ -9,23 +9,24 @@ const registrationClosed = () => new AppError(409, 'REGISTRATION_CLOSED', 'Regis
 const alreadyRegistered = () => new AppError(409, 'ALREADY_REGISTERED', 'You are already registered for this event.');
 const full = () => new AppError(409, 'EVENT_FULL', 'This event has no places left.');
 
-// BR-04, D-35 order: 404 hidden -> EVENT_STARTED -> EVENT_CLOSED (F-08) -> REGISTRATION_CLOSED -> duplicate -> conflict -> full.
+// BR-04, D-35 order: 404 hidden -> EVENT_STARTED -> EVENT_CLOSED -> REGISTRATION_CLOSED -> duplicate -> conflict -> full.
 export function assertRegistrable(
   event: { status: string; startsAt: Date; registrationDeadline?: Date | null },
   now: Date,
 ) {
-  if (event.status !== 'PUBLISHED') throw notFound();
+  if (event.status !== 'PUBLISHED' && event.status !== 'CLOSED') throw notFound();
   if (event.startsAt.getTime() <= now.getTime()) throw started();
-  // F-08 inserts the EVENT_CLOSED check here (D-35 step 3); at equality the deadline closes registration (BR-06).
+  if (event.status === 'CLOSED') throw new AppError(409, 'EVENT_CLOSED', 'This event is closed.');
+  // At equality the deadline closes registration (BR-06); D-35 puts it after the closed check.
   if (event.registrationDeadline && event.registrationDeadline.getTime() <= now.getTime()) throw registrationClosed();
 }
 
 type LockedEvent = { status: string; startsAt: Date; registrationDeadline: Date | null; capacity: number };
 
-// BR-05, D-13: a foreign DRAFT looks like a missing event; a foreign PUBLISHED event is forbidden.
+// BR-05, D-13: a foreign DRAFT or CANCELLED event looks like a missing event; a foreign PUBLISHED or CLOSED event is forbidden.
 export async function listEventRegistrations(organizerId: string, eventId: string) {
   const event = await prisma.event.findUnique({ where: { id: eventId } });
-  if (!event || (event.status === 'DRAFT' && event.ownerId !== organizerId)) throw notFound();
+  if (!event || ((event.status === 'DRAFT' || event.status === 'CANCELLED') && event.ownerId !== organizerId)) throw notFound();
   if (event.ownerId !== organizerId) throw forbidden();
 
   const rows = await prisma.registration.findMany({
@@ -92,6 +93,7 @@ const mineSelect = {
   id: true,
   status: true,
   createdAt: true,
+  cancelledAt: true,
   event: { select: { id: true, title: true, location: true, startsAt: true } },
 } as const;
 
