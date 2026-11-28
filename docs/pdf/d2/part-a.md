@@ -26,7 +26,7 @@ Part A shows that the accepted Sprint 1 slice still works after Labs 5 to 7 and 
 | Sprint 2 release `v0.3.0-sprint2` [S2-06] | `npm test` and `npm run test:e2e` on the release commit | [S2-06] | [S2-06] |
 | **D2 candidate `v0.4.0-rc1`** [S3-03] | `npm run test:e2e` on the candidate commit and a post-deployment run of the journey on production with a uniquely named synthetic event | [S3-03] | [S3-03] |
 
-The full API suite also runs on every pull request in `test-and-docker`: 73 tests on `861f01f` (the 69 from Sprint 1 to Lab 6 plus CR-01's TEST-57 to TEST-60), 80 on `33f80e8` after F-07's TEST-73 to TEST-79. Sprint 2 adds tests and never edits a Sprint 1 assertion (F-07 PRs #226 and #228 and the F-08 red PR #227 add new test files and change no Sprint 1 test file); a changed expected result would need a contract revision first, as CR-01 did in Lab 7.
+The full API suite also runs on every pull request in `test-and-docker`: 73 tests on `861f01f` (the 69 from Sprint 1 to Lab 6 plus CR-01's TEST-57 to TEST-60), 80 on `33f80e8` after F-07's TEST-73 to TEST-79. Sprint 2 adds tests and changes a Sprint 1 expected result only after a contract revision says so, as CR-01 did in Lab 7: F-07 (#226, #228) and F-08 (#227, #231) add new test files only; F-09 (#233) adds `registrationDeadline` to the expected event payload keys in `events.int.test.ts`, which F-02 1.6 (#221) recorded first.
 
 ## A.3 Change and defect register
 
