@@ -52,6 +52,7 @@ F-08 owns event cancellation and its transactional cancellation of ACTIVE regist
 | UUID is unknown or belongs to another participant | 404 `NOT_FOUND`; the response does not distinguish the cases and contains no registration data. |
 | Owned row is already CANCELLED | 409 `ALREADY_CANCELLED`; no row changes. |
 | Owned ACTIVE row has `startsAt <= now` | 409 `EVENT_STARTED`; no row changes. |
+| Owned ACTIVE row has a `CheckIn` (checked in, F-10) | 409 `ALREADY_CHECKED_IN`; the row stays ACTIVE. Checked after `ALREADY_CANCELLED` and `EVENT_STARTED`, so after the start the cancel gets `EVENT_STARTED` (F-10 contract section 2; D-36). |
 | Owned ACTIVE row has `startsAt > now` | The row remains and changes to CANCELLED; `cancelledAt` is set. The freed place is reflected by the API-derived `remainingPlaces`. |
 | Re-register after cancellation, all F-04 conditions satisfied | F-04 registration succeeds with a new ACTIVE row; the prior CANCELLED row remains. |
 | Unexpected server or database failure | 500 `INTERNAL_ERROR`; generic message, no stack trace, transaction makes no partial cancellation. |
@@ -79,7 +80,7 @@ Ownership is enforced in the service from the session user. The UI hiding a cont
 - Auth: session cookie required. Role: `PARTICIPANT`.
 - Request: UUID path parameter; empty JSON object `{}`; no participant or status fields.
 - Success: HTTP 200 with `{ "registration": { ... } }`, using the My registrations row fields plus `status: "CANCELLED"` and `cancelledAt`.
-- Errors: 400 `VALIDATION_ERROR`; 401 `UNAUTHENTICATED`; 403 `FORBIDDEN`; 404 `NOT_FOUND`; 409 `ALREADY_CANCELLED` or `EVENT_STARTED`; 500 `INTERNAL_ERROR`.
+- Errors: 400 `VALIDATION_ERROR`; 401 `UNAUTHENTICATED`; 403 `FORBIDDEN`; 404 `NOT_FOUND`; 409 `ALREADY_CANCELLED`, `EVENT_STARTED` or, from F-10, `ALREADY_CHECKED_IN`; 500 `INTERNAL_ERROR`.
 - All errors use `{ "error": { "code": "...", "message": "..." } }`; 400 validation may add `details` as specified in system SDS 4.2. Responses never include a stack trace or another participant's registration.
 
 ### Error messages
@@ -90,6 +91,7 @@ Ownership is enforced in the service from the session user. The UI hiding a cont
 | `NOT_FOUND` | "Registration not found." (F-05/F-06 contract) |
 | `EVENT_STARTED` | "This event has already started." (F-04 contract) |
 | `ALREADY_CANCELLED` | "This registration has already been cancelled." |
+| `ALREADY_CHECKED_IN` | "A checked-in registration cannot be cancelled." (F-10 contract, on cancel) |
 
 ## 8. Data and integrity
 
@@ -152,3 +154,4 @@ The shared Sprint 2 Definition of Done applies. In addition:
 | Version | Date | Change | Author | Reviewer |
 |---|---|---|---|---|
 | Draft 0.1 | 2026-11-27 | First F-07 contract draft from FR-09, BR-03/05/07, D-33, and the Sprint 1 F-04/F-05/F-06 conventions. Proposes AC-73–80 and TEST-73–80; success response and concurrency/error-order questions remain open for cross-review. | A (songt888) | Pending B (stickkersz) |
+| 1.1 | 2026-11-28 | F-10 cross-feature revision (D-36, decided in the #224 review): cancelling a checked-in registration returns 409 `ALREADY_CHECKED_IN`, checked after `ALREADY_CANCELLED` and `EVENT_STARTED`; the F-10 section 2 and TEST-118 define the behavior, which lands with S3-02. Recorded here so the contract stays self-contained. | A (songt888) | B (stickkersz) on #224 |
