@@ -8,6 +8,7 @@ export type EventPayload = {
   description: string;
   location: string;
   startsAt: string;
+  registrationDeadline: string | null;
   capacity: number;
   remainingPlaces: number;
   status: 'DRAFT' | 'PUBLISHED' | 'CLOSED' | 'CANCELLED';
@@ -76,12 +77,14 @@ export function MyEventsPage() {
       ) : events.length === 0 ? (
         <p>No events yet</p>
       ) : (
-        <div className="table-scroll">
+        <div className="table-scroll events-table">
           <table>
             <thead>
               <tr>
                 <th>Title</th>
                 <th>Starts</th>
+                {/* F-09, AC-89: the deadline is visible on the page the organizer lands on after create. */}
+                <th>Registration deadline</th>
                 <th>Location</th>
                 <th>Places left</th>
                 <th>Status</th>
@@ -95,6 +98,7 @@ export function MyEventsPage() {
                     <Link to={`/events/${e.id}`}>{e.title}</Link>
                   </td>
                   <td>{new Date(e.startsAt).toLocaleString()}</td>
+                  <td>{e.registrationDeadline ? new Date(e.registrationDeadline).toLocaleString() : ''}</td>
                   <td>{e.location}</td>
                   <td>
                     {e.remainingPlaces} of {e.capacity}

@@ -644,3 +644,7 @@ td:nth-child(3) { max-width: 12rem; }
   header nav { min-width: 0; }
   header nav .task-min { min-width: 0; flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }
+
+/* F-09 (#204, AC-89): the My events table gains a Registration deadline column. Fixed layout keeps the
+   seven columns inside the L6-13 width budget (TEST-65): cells wrap and the actions never leave the viewport. */
+.events-table table { table-layout: fixed; }

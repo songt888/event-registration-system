@@ -51,6 +51,9 @@ export function EventsPage() {
                 <Link to={`/events/${e.id}`}>{e.title}</Link>
               </h2>
               <p className="muted">{new Date(e.startsAt).toLocaleString()}</p>
+              {e.registrationDeadline && (
+                <p className="muted">Registration deadline: {new Date(e.registrationDeadline).toLocaleString()}</p>
+              )}
               <p className="muted">{e.location}</p>
               <Places e={e} />
               {e.status === 'CLOSED' && <p>Closed</p>}
@@ -107,6 +110,10 @@ export function EventDetailPage() {
           <p className="description">{e.description}</p>
           <p className="muted">{e.location}</p>
           <p className="muted">{new Date(e.startsAt).toLocaleString()}</p>
+          {/* F-09, AC-89: the deadline is shown in the browser's local time; null keeps the old open-until-start rule. */}
+          {e.registrationDeadline && (
+            <p className="muted">Registration deadline: {new Date(e.registrationDeadline).toLocaleString()}</p>
+          )}
           <Places e={e} />
           {e.status === 'CLOSED' && <p>This event is closed.</p>}
           {/* F-04: shown even when Full; the server decides (BR-01). */}
