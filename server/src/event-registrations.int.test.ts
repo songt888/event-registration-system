@@ -70,8 +70,8 @@ describe('F-06 event registrations API', () => {
     expect(res.status).toBe(200);
     expect(Object.keys(res.body)).toEqual(['registrations']);
     expect(res.body.registrations).toEqual([
-      { id: f.r1.id, status: 'ACTIVE', createdAt: f.r1.createdAt.toISOString(), participant: { name: 'p1', email: 'p1@example.com' } },
-      { id: f.r2.id, status: 'ACTIVE', createdAt: f.r2.createdAt.toISOString(), participant: { name: 'p2', email: 'p2@example.com' } },
+      { id: f.r1.id, status: 'ACTIVE', createdAt: f.r1.createdAt.toISOString(), checkedInAt: null, participant: { name: 'p1', email: 'p1@example.com' } },
+      { id: f.r2.id, status: 'ACTIVE', createdAt: f.r2.createdAt.toISOString(), checkedInAt: null, participant: { name: 'p2', email: 'p2@example.com' } },
     ]);
     expect(res.text).not.toContain('passwordHash');
 

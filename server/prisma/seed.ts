@@ -11,6 +11,7 @@ async function main() {
   if (!password) throw new Error('SEED_PASSWORD is not set (see .env.example)');
   const passwordHash = await bcrypt.hash(password, 12); // NFR-02: cost >= 10, configured 12 (system SDS 6)
 
+  await prisma.checkIn.deleteMany(); // F-10: CheckIn references Registration and User (ON DELETE RESTRICT)
   await prisma.registration.deleteMany();
   await prisma.event.deleteMany();
   await prisma.session.deleteMany();
